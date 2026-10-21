@@ -3857,6 +3857,13 @@ html&gt;body{padding:0}&lt;/style&gt;&lt;/head&gt;
 #character-directions.studio-editor .studio-track-action{flex:none;width:18px;height:21px;min-height:0;padding:0;border:1px solid #cbd7c2;border-radius:4px;background:#f3f7ed;color:#597542;font-size:13px;line-height:19px;cursor:pointer}
 #character-directions.studio-editor .studio-track-action:disabled{opacity:.35;cursor:default}
 
+#character-directions .studio-editor-online{box-sizing:border-box;width:min(480px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;border:1px solid #c9d5be;border-radius:14px;padding:25px;background:#f9fbf6;color:#35462c;box-shadow:0 16px 70px #182a2866}
+#character-directions .studio-editor-online::backdrop{background:#10251c88}
+#character-directions .studio-editor-online h3{margin:0 0 16px;font-size:20px}
+#character-directions .studio-editor-online p{font-size:13px;line-height:1.8;margin:12px 0}
+#character-directions .studio-editor-online&gt;div{display:flex;gap:8px;flex-wrap:wrap}
+#character-directions .studio-editor-online [data-online-error]{color:#9a422c;margin-bottom:0}
+
 #character-directions.studio-editor .studio-output-button{background:#263025;color:#fff;border-color:#263025}
 #character-directions.studio-editor .studio-playback-settings{justify-content:space-between;align-items:center}
 #character-directions.studio-editor .studio-intro-duration{grid-template-columns:auto 74px;gap:2px 10px;width:auto;align-items:center;margin:0}
@@ -7071,7 +7078,7 @@ function mountStudioVideoEditor(root,views,{modeButton,layout,tabs,sizePreview})
  const button=(text,fn)=&gt;{const e=make('button','btn',text);e.type='button';e.onclick=fn;return e;};
  const emptyGrade=()=&gt;({exposure:0,contrast:1,saturation:1,hue:0});
  let project={version:1,assets:[],clips:[],grade:emptyGrade(),output:{width:state.ratio==='portrait'?1080:1920,height:state.ratio==='portrait'?1920:1080,fps:30,duration:studioTotalDuration(state.introDuration,state.narrative),durationMode:'auto',bitrate:20,codec:'h264',acceleration:'auto'},designSync:false},selected=null,time=0,playing=false,view=null,home=null,rendering=false,busy=false,jobId=null,saveTimer,origin='',ready=false,history=[],future=[],lastWall=0,hardware={},lastDesignPlaying=false;
- const nodes=new Map(),pending=new Map();let audioContext,restoringProject=false;
+ const nodes=new Map(),pending=new Map();let audioContext,restoringProject=false,onlineOnly=false;
  let selectedAsset=null,animatedProperty='transform',keyframeDetailsOpen=false,monitoring=false,monitorActive=false,monitorSignature='',monitorStamp=0,monitorContentStamp=0;
  const rpc=(action,payload)=&gt;new Promise((resolve,reject)=&gt;{const id=crypto.randomUUID(),timeout=setTimeout(()=&gt;{pending.delete(id);reject(Error('本机服务响应超时，请检查 start-editor.cmd'));},action==='import'?3600000:60000);pending.set(id,{resolve,reject,timeout});parent.postMessage({type:'studio-editor-request',id,action,payload},'*');});
  window.addEventListener('message',e=&gt;{if(e.source!==parent||e.data?.type!=='studio-editor-response')return;const p=pending.get(e.data.id);if(p){pending.delete(e.data.id);clearTimeout(p.timeout);e.data.error?p.reject(Error(e.data.error)):p.resolve(e.data.result);}});
@@ -7084,6 +7091,9 @@ function mountStudioVideoEditor(root,views,{modeButton,layout,tabs,sizePreview})
  &lt;div class=&quot;studio-edit-timeline&quot;&gt;&lt;div class=&quot;studio-timeline-resizer&quot; role=&quot;separator&quot; aria-label=&quot;调整时间轴高度&quot; aria-orientation=&quot;horizontal&quot; tabindex=&quot;0&quot;&gt;&lt;/div&gt;&lt;div class=&quot;studio-edit-section-title&quot;&gt;&lt;strong&gt;时间轴&lt;/strong&gt;&lt;span&gt;画面按层叠放 · 两条音轨与素材原声混音&lt;/span&gt;&lt;/div&gt;&lt;input type=&quot;range&quot; min=&quot;0&quot; step=&quot;.001&quot; value=&quot;0&quot; data-seek aria-label=&quot;剪辑播放头&quot;&gt;&lt;div data-tracks&gt;&lt;/div&gt;&lt;/div&gt;
  &lt;div class=&quot;studio-editor-export-progress&quot; hidden&gt;&lt;strong&gt;正在逐帧合成与编码&lt;/strong&gt;&lt;progress max=&quot;1&quot; value=&quot;0&quot;&gt;&lt;/progress&gt;&lt;span data-progress&gt;&lt;/span&gt;&lt;button class=&quot;btn&quot; data-cancel&gt;取消导出&lt;/button&gt;&lt;/div&gt;`;
  root.append(panel);
+ const onlineDialog=make('dialog','studio-editor-online');onlineDialog.setAttribute('aria-label','本机剪辑入口');onlineDialog.innerHTML='&lt;h3&gt;视频剪辑在本机进行&lt;/h3&gt;&lt;p&gt;线上可以编辑展示模板并输出 HTML、OBS 和 AE。视频素材、音轨和 GPU 编码请使用本机剪辑版。&lt;/p&gt;&lt;p&gt;首次使用：下载并解压，先运行 &lt;strong&gt;setup-editor.cmd&lt;/strong&gt;，再运行 &lt;strong&gt;start-editor.cmd&lt;/strong&gt;。已启动后，点击下方按钮进入。&lt;/p&gt;&lt;div&gt;&lt;button type=&quot;button&quot; class=&quot;btn&quot; data-online-download&gt;下载本机剪辑版&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;btn&quot; data-online-launch&gt;打开本机剪辑&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;btn&quot; data-online-close&gt;关闭&lt;/button&gt;&lt;/div&gt;&lt;p data-online-error role=&quot;status&quot;&gt;&lt;/p&gt;';root.append(onlineDialog);
+ onlineDialog.querySelector('[data-online-close]').onclick=()=&gt;onlineDialog.close();
+ for(const [selector,action]of [['[data-online-download]','downloadLocalEditor'],['[data-online-launch]','openLocalEditor']])onlineDialog.querySelector(selector).onclick=()=&gt;rpc(action).catch(e=&gt;onlineDialog.querySelector('[data-online-error]').textContent=e.message);
  const q=s=&gt;panel.querySelector(s),stage=q('.studio-edit-stage'),properties=q('.studio-edit-property-body'),status=q('.studio-editor-status'),seek=q('[data-seek]');
  const syncChecks=[];
  function syncControl(parent,label){const wrap=make('label','studio-design-sync-toggle'),input=make('input');input.type='checkbox';input.dataset.designSync='';input.setAttribute('aria-label',label);wrap.append(input,make('span','',label));wrap.title='在展示工作台同步当前时间轴素材，方便调整配色、边框和后处理';input.onchange=()=&gt;{checkpoint();project.designSync=input.checked;syncChecks.forEach(c=&gt;c.checked=!!project.designSync);applyDesignSync();save();};parent.append(wrap);syncChecks.push(input);}
@@ -7226,7 +7236,7 @@ function mountStudioVideoEditor(root,views,{modeButton,layout,tabs,sizePreview})
  function selectClip(id,reveal=true){selected=id;const c=project.clips.find(c=&gt;c.id===id);if(c&amp;&amp;reveal&amp;&amp;!studioClipPose(c,time).visible)seekTo(Math.min(project.output.duration,c.start+Math.min(.1,studioClipDuration(c)/2)));renderProperties();renderTimeline();if(view)paint(time,!panel.hidden);}
  function removeSelected(){if(!project.clips.some(c=&gt;c.id===selected))return;seekTo(time);checkpoint();project.clips=project.clips.filter(c=&gt;c.id!==selected);selected=null;rebuild();changed();}
  document.addEventListener('keydown',event=&gt;{if(panel.hidden||rendering||monitoring||jobId||transforms.dragging||event.target.closest?.('input,textarea,select,[contenteditable=&quot;true&quot;],[role=&quot;textbox&quot;]'))return;if(event.key==='Delete'&amp;&amp;selected){event.preventDefault();removeSelected();}else if((event.ctrlKey||event.metaKey)&amp;&amp;event.key.toLowerCase()==='z'){event.preventDefault();undo(event.shiftKey);}});
- modeButton.onclick=()=&gt;panel.hidden?enter():leave();q('[data-editor-design]').onclick=leave;
+ modeButton.onclick=()=&gt;onlineOnly?onlineDialog.showModal():panel.hidden?enter():leave();q('[data-editor-design]').onclick=leave;
  async function importFiles(files){if(busy)return;busy=true;try{if(!ready)throw Error('视频引擎未就绪，请运行 setup-editor.cmd 后通过 start-editor.cmd 打开');for(const file of files){report('正在导入 '+file.name+' …');const result=await rpc('import',{file,name:file.name});let a=result;while(a.status==='preparing'){await new Promise(r=&gt;setTimeout(r,750));a=await rpc('asset',{id:a.id});}if(a.status!=='ready')throw Error(a.error||'导入失败');checkpoint();project.assets.push(a);selectedAsset=a.id;renderAssets();changed();report(`已导入 ${a.name} · ${a.codec} ${a.alpha?'· 检测到 Alpha 透明通道':''}`);}}catch(e){report(e.message,true);}finally{busy=false;q('[data-editor-import]').value='';}}
  q('[data-editor-import]').onchange=e=&gt;importFiles(e.target.files);const drop=q('.studio-drop-zone');drop.onclick=()=&gt;q('[data-editor-import]').click();drop.onkeydown=e=&gt;{if(e.key==='Enter')drop.click();};drop.ondragover=e=&gt;{e.preventDefault();drop.classList.add('is-dragging');};drop.ondragleave=()=&gt;drop.classList.remove('is-dragging');drop.ondrop=e=&gt;{e.preventDefault();drop.classList.remove('is-dragging');importFiles(e.dataTransfer.files);};
  q('[data-play]').onclick=()=&gt;{if(time&gt;=project.output.duration)time=0;playing=!playing;if(playing&amp;&amp;!monitoring&amp;&amp;project.assets.some(a=&gt;a.kind==='audio')){audioContext??=new AudioContext();audioContext.resume().catch(()=&gt;{});}for(const n of nodes.values())n.needsSeek=true;lastWall=0;q('[data-play]').textContent=playing?'暂停':'播放';if(!playing)for(const n of nodes.values())n.media.pause?.();};seek.oninput=()=&gt;seekTo(seek.value);
@@ -7273,7 +7283,7 @@ function mountStudioVideoEditor(root,views,{modeButton,layout,tabs,sizePreview})
   try{let updated=await rpc('preview',{id:a.id});while(updated.previewStatus==='preparing'){await new Promise(r=&gt;setTimeout(r,700));updated=await rpc('asset',{id:a.id});}if(updated.previewStatus==='error')throw Error(updated.previewError);if(rendering)return;const previous=assetURL(a);Object.assign(a,updated);if(previous!==assetURL(a)){for(const [id,n]of nodes)if(n.asset.id===a.id){disposeNode(n);nodes.delete(id);}attachLayers();paint(time);}renderAssets();save();}catch(e){report('预览优化失败，保留现有素材：'+e.message,true);}
  }
  renderOutput();renderAssets();renderProperties();renderTimeline();
- setTimeout(async()=&gt;{if(rendering)return;try{const c=await rpc('capabilities');if(rendering||c.renderOnly)return;origin=c.origin;hardware=c.hardware||{};const saved=await rpc('load');if(rendering)return;if(saved?.version===1){applyProject(saved);if(view&amp;&amp;!panel.hidden)resize();}else renderOutput();ready=c.ready;if(c.ready&amp;&amp;!saved?.template)save();if(!rendering)for(const a of project.assets)refreshAssetPreview(a);if(c.openEditor&amp;&amp;panel.hidden)enter(false);report(c.ready?'本机视频引擎已连接 · '+(c.exportPipeline==='sequential'?'原尺寸连续解码导出 · ':'')+'Alpha 素材由 FFmpeg 保留 · 自动保存已开启':c.error,!c.ready);}catch(e){report('剪辑需要本机视频引擎：请运行 start-editor.cmd。'+e.message,true);}},0);
+ setTimeout(async()=&gt;{if(rendering)return;try{const c=await rpc('capabilities');if(rendering||c.renderOnly)return;if(c.localOnly){onlineOnly=true;modeButton.title='视频素材、音轨及编码使用本机剪辑版';if(c.openEditor)onlineDialog.showModal();return;}origin=c.origin;hardware=c.hardware||{};const saved=await rpc('load');if(rendering)return;if(saved?.version===1){applyProject(saved);if(view&amp;&amp;!panel.hidden)resize();}else renderOutput();ready=c.ready;if(c.ready&amp;&amp;!saved?.template)save();if(!rendering)for(const a of project.assets)refreshAssetPreview(a);if(c.openEditor&amp;&amp;panel.hidden)enter(false);report(c.ready?'本机视频引擎已连接 · '+(c.exportPipeline==='sequential'?'原尺寸连续解码导出 · ':'')+'Alpha 素材由 FFmpeg 保留 · 自动保存已开启':c.error,!c.ready);}catch(e){report('剪辑需要本机视频引擎：请运行 start-editor.cmd。'+e.message,true);}},0);
  return {enter,leave};
 }
 
@@ -29560,11 +29570,16 @@ function buildStudioOutputDocument(frameTemplate,payload,policy){
   if(event.source===frame?.contentWindow&&event.data?.type==='studio-editor-monitor-update'&&!monitorId){remember(event.data.payload);if(monitorWindow&&!monitorWindow.closed){if(monitorPinned&&monitorLoaded)sendMonitor(event.data.payload);else if(!monitorPinned)sendMonitor(event.data.payload);}else notifyMonitor();}
   if(event.source===monitorWindow&&event.origin===location.origin&&event.data?.type==='studio-monitor-ready'&&latestMonitor)sendMonitor(latestMonitor);
  });
- const capabilities=()=>capability||(capability=fetch('/__editor/capabilities').then(r=>{if(!r.ok)throw Error('请使用 start-editor.cmd 启动本机剪辑版');return r.json();}).catch(e=>{capability=null;throw e;}));
+ const onlineOnly=location.protocol==='https:'&&!['localhost','127.0.0.1','[::1]'].includes(location.hostname);
+ const capabilities=()=>onlineOnly?Promise.resolve({ready:false,localOnly:true,origin:location.origin,hardware:{}}):capability||(capability=fetch('/__editor/capabilities').then(r=>{if(!r.ok)throw Error('请使用 start-editor.cmd 启动本机剪辑版');return r.json();}).catch(e=>{capability=null;throw e;}));
  window.addEventListener('message',async event=>{
   const d=event.data;if(event.source!==frame?.contentWindow||d?.type!=='studio-editor-request'||typeof d.id!=='string')return;
   try{
    if(renderOnly&&d.action!=='capabilities')throw Error('导出窗口仅用于画面渲染');
+   if(['openLocalEditor','downloadLocalEditor'].includes(d.action)){
+    const url=d.action==='openLocalEditor'?'http://127.0.0.1:19378/?workspace=edit':'https://github.com/nekokaii/character-showcase-studio/archive/refs/heads/feature/video-editor-0.16.1.zip';
+    const tab=window.open(url,'_blank');if(!tab)throw Error('请允许此站点打开新窗口后重试');tab.opener=null;frame.contentWindow.postMessage({type:'studio-editor-response',id:d.id,result:{ok:true}},'*');return;
+   }
    if(d.action==='monitorOpen'){if(monitorId)throw Error('监视窗口不能再打开监视窗口');const result=await openMonitor();frame.contentWindow.postMessage({type:'studio-editor-response',id:d.id,result},'*');return;}
    const c=await capabilities();let result;
    const routes={capabilities:['GET','capabilities'],load:['GET','project'],save:['PUT','project'],validateProject:['POST','project/validate'],import:['POST','import?name='+encodeURIComponent(d.payload?.name||'素材')],preview:['POST','preview/'+d.payload?.id],asset:['GET','asset/'+d.payload?.id],export:['POST','export'],job:['GET','job/'+d.payload?.id],cancel:['DELETE','job/'+d.payload?.id]};

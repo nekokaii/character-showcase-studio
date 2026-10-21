@@ -2,7 +2,7 @@
 
 ## 0.16.1 本机视频剪辑版
 
-此分支 `feature/video-editor-0.16.1` 保存当前可运行的本机剪辑版本，沿用原来的源码与构建结构。仓库 `main` 的 Vite / TypeScript / React 重构版本独立维护；此分支没有合并或替换 `main`，也不代表线上网站已部署视频剪辑后端。
+此分支 `feature/video-editor-0.16.1` 保存当前可运行的本机剪辑版本，沿用原来的源码与构建结构。仓库 `main` 的 Vite / TypeScript / React 重构版本独立维护；此分支没有合并或替换 `main`。Cloudflare 线上页面提供展示模板编辑与本机剪辑入口，视频处理后端仍在本机运行。
 
 新电脑需安装 Node.js 18 或更新版本及桌面 Chrome / Edge。先运行 `setup-editor.cmd` 安装 npm 依赖和本机 FFmpeg，再运行 `start-editor.cmd`，访问 <http://127.0.0.1:19378/?workspace=edit>。第一次安装需要联网，日常剪辑在本机进行。详见 [剪辑使用说明](docs/VIDEO-EDITOR.md)。
 

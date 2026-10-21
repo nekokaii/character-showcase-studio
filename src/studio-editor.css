@@ -126,3 +126,10 @@
 #character-directions.studio-editor .studio-track-name{flex:1;min-width:0;overflow-wrap:anywhere}
 #character-directions.studio-editor .studio-track-action{flex:none;width:18px;height:21px;min-height:0;padding:0;border:1px solid #cbd7c2;border-radius:4px;background:#f3f7ed;color:#597542;font-size:13px;line-height:19px;cursor:pointer}
 #character-directions.studio-editor .studio-track-action:disabled{opacity:.35;cursor:default}
+
+#character-directions .studio-editor-online{box-sizing:border-box;width:min(480px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;border:1px solid #c9d5be;border-radius:14px;padding:25px;background:#f9fbf6;color:#35462c;box-shadow:0 16px 70px #182a2866}
+#character-directions .studio-editor-online::backdrop{background:#10251c88}
+#character-directions .studio-editor-online h3{margin:0 0 16px;font-size:20px}
+#character-directions .studio-editor-online p{font-size:13px;line-height:1.8;margin:12px 0}
+#character-directions .studio-editor-online>div{display:flex;gap:8px;flex-wrap:wrap}
+#character-directions .studio-editor-online [data-online-error]{color:#9a422c;margin-bottom:0}

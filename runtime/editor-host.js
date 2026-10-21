@@ -35,11 +35,16 @@
   if(event.source===frame?.contentWindow&&event.data?.type==='studio-editor-monitor-update'&&!monitorId){remember(event.data.payload);if(monitorWindow&&!monitorWindow.closed){if(monitorPinned&&monitorLoaded)sendMonitor(event.data.payload);else if(!monitorPinned)sendMonitor(event.data.payload);}else notifyMonitor();}
   if(event.source===monitorWindow&&event.origin===location.origin&&event.data?.type==='studio-monitor-ready'&&latestMonitor)sendMonitor(latestMonitor);
  });
- const capabilities=()=>capability||(capability=fetch('/__editor/capabilities').then(r=>{if(!r.ok)throw Error('请使用 start-editor.cmd 启动本机剪辑版');return r.json();}).catch(e=>{capability=null;throw e;}));
+ const onlineOnly=location.protocol==='https:'&&!['localhost','127.0.0.1','[::1]'].includes(location.hostname);
+ const capabilities=()=>onlineOnly?Promise.resolve({ready:false,localOnly:true,origin:location.origin,hardware:{}}):capability||(capability=fetch('/__editor/capabilities').then(r=>{if(!r.ok)throw Error('请使用 start-editor.cmd 启动本机剪辑版');return r.json();}).catch(e=>{capability=null;throw e;}));
  window.addEventListener('message',async event=>{
   const d=event.data;if(event.source!==frame?.contentWindow||d?.type!=='studio-editor-request'||typeof d.id!=='string')return;
   try{
    if(renderOnly&&d.action!=='capabilities')throw Error('导出窗口仅用于画面渲染');
+   if(['openLocalEditor','downloadLocalEditor'].includes(d.action)){
+    const url=d.action==='openLocalEditor'?'http://127.0.0.1:19378/?workspace=edit':'https://github.com/nekokaii/character-showcase-studio/archive/refs/heads/feature/video-editor-0.16.1.zip';
+    const tab=window.open(url,'_blank');if(!tab)throw Error('请允许此站点打开新窗口后重试');tab.opener=null;frame.contentWindow.postMessage({type:'studio-editor-response',id:d.id,result:{ok:true}},'*');return;
+   }
    if(d.action==='monitorOpen'){if(monitorId)throw Error('监视窗口不能再打开监视窗口');const result=await openMonitor();frame.contentWindow.postMessage({type:'studio-editor-response',id:d.id,result},'*');return;}
    const c=await capabilities();let result;
    const routes={capabilities:['GET','capabilities'],load:['GET','project'],save:['PUT','project'],validateProject:['POST','project/validate'],import:['POST','import?name='+encodeURIComponent(d.payload?.name||'素材')],preview:['POST','preview/'+d.payload?.id],asset:['GET','asset/'+d.payload?.id],export:['POST','export'],job:['GET','job/'+d.payload?.id],cancel:['DELETE','job/'+d.payload?.id]};
