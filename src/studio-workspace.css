@@ -110,6 +110,81 @@
   background: #98ae63;
   content: "";
 }
+#character-directions.studio-editor .studio-mode-button {
+  border-color: #27321f;
+  background: #27321f;
+  color: #fff;
+}
+#character-directions.studio-editor .studio-mode-button:hover { background: #3c4b2d; }
+#character-directions.studio-editor .studio-edit-workspace {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+  padding: 20px 22px 18px;
+  gap: 14px;
+  background: #eef0ed;
+  overflow: hidden;
+}
+#character-directions.studio-editor .studio-edit-head { display:flex; align-items:center; justify-content:space-between; gap:20px; flex:0 0 auto; }
+#character-directions.studio-editor .studio-edit-head h2 { margin:3px 0 2px; font-size:22px; letter-spacing:-.04em; }
+#character-directions.studio-editor .studio-edit-head p { margin:0; color:#788174; font-size:12px; }
+#character-directions.studio-editor .studio-edit-head-actions { display:flex; align-items:center; gap:8px; }
+#character-directions.studio-editor .studio-import-button { display:inline-flex; align-items:center; justify-content:center; min-height:36px; padding:8px 13px; border:1px solid #cfd8c7; border-radius:8px; background:#d8ed99; color:#38491b; font-weight:700; cursor:pointer; }
+#character-directions.studio-editor .studio-import-button input { display:none; }
+#character-directions.studio-editor .studio-edit-main { display:grid; grid-template-columns: minmax(180px, .8fr) minmax(360px, 2.2fr) minmax(220px, 1fr); gap:12px; flex:1 1 auto; min-height:0; }
+#character-directions.studio-editor .studio-edit-assets,
+#character-directions.studio-editor .studio-edit-properties,
+#character-directions.studio-editor .studio-edit-preview { min-width:0; min-height:0; border:1px solid #dce2d8; border-radius:12px; background:#fff; }
+#character-directions.studio-editor .studio-edit-assets,
+#character-directions.studio-editor .studio-edit-properties { padding:14px; overflow:auto; }
+#character-directions.studio-editor .studio-edit-preview { display:flex; flex-direction:column; padding:12px; background:#dfe4dd; }
+#character-directions.studio-editor .studio-edit-section-title { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; color:#27321f; }
+#character-directions.studio-editor .studio-edit-section-title span { color:#8a9384; font-size:11px; }
+#character-directions.studio-editor .studio-drop-zone { display:grid; place-items:center; min-height:92px; border:1px dashed #bbc7b5; border-radius:9px; background:#f8faf5; color:#53624c; text-align:center; font-size:12px; cursor:pointer; }
+#character-directions.studio-editor .studio-drop-zone.is-dragging { border-color:#7e9a4d; background:#edf7cb; }
+#character-directions.studio-editor .studio-drop-zone small { color:#8a9384; font-size:10px; }
+#character-directions.studio-editor .studio-asset-list { display:grid; gap:7px; margin-top:12px; }
+#character-directions.studio-editor .studio-asset-card { display:grid; grid-template-columns:38px 1fr; grid-template-rows:auto auto; gap:0 8px; width:100%; padding:7px; border:1px solid #e3e8df; border-radius:8px; background:#fff; color:#374136; text-align:left; cursor:pointer; }
+#character-directions.studio-editor .studio-asset-card[data-selected="true"] { border-color:#8da85b; background:#f1f7df; box-shadow:0 0 0 2px #d8ed99; }
+#character-directions.studio-editor .studio-asset-thumb { grid-row:1 / 3; width:38px; height:34px; overflow:hidden; border-radius:5px; background:#e5e9e1 center/cover no-repeat; }
+#character-directions.studio-editor .studio-asset-thumb video { width:100%; height:100%; object-fit:cover; }
+#character-directions.studio-editor .studio-asset-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; font-weight:650; }
+#character-directions.studio-editor .studio-asset-type { color:#899280; font-size:9px; letter-spacing:.08em; }
+#character-directions.studio-editor .studio-edit-stage { position:relative; flex:1 1 auto; min-height:0; overflow:hidden; border-radius:8px; background:repeating-conic-gradient(#242c25 0 25%,#1c221e 0 50%) 50% / 24px 24px; }
+#character-directions.studio-editor .studio-edit-stage::after { position:absolute; inset:0; border:1px solid #ffffff2b; content:""; pointer-events:none; }
+#character-directions.studio-editor .studio-edit-empty { position:absolute; inset:0; display:grid; place-items:center; color:#aeb8ab; font-size:13px; }
+#character-directions.studio-editor .studio-edit-media { position:absolute; left:50%; top:50%; max-width:none; max-height:none; width:100%; height:100%; object-fit:contain; transform-origin:center; }
+#character-directions.studio-editor .studio-transport,
+#character-directions.studio-editor .studio-edit-transport { display:flex; align-items:center; gap:8px; padding-top:10px; color:#687264; font-size:11px; }
+#character-directions.studio-editor .studio-edit-transport span { margin-left:auto; font-variant-numeric:tabular-nums; }
+#character-directions.studio-editor .studio-edit-property-body { display:grid; gap:12px; }
+#character-directions.studio-editor .studio-edit-control { display:grid; grid-template-columns:62px 1fr 38px; align-items:center; gap:8px; color:#65705f; font-size:11px; }
+#character-directions.studio-editor .studio-edit-control input { min-width:0; accent-color:#7e9a4d; }
+#character-directions.studio-editor .studio-edit-control output { text-align:right; color:#34412d; font-variant-numeric:tabular-nums; }
+#character-directions.studio-editor .studio-edit-property-note { margin:2px 0 0; padding-top:10px; border-top:1px solid #e6ebe3; color:#899280; font-size:11px; line-height:1.7; }
+#character-directions.studio-editor .studio-edit-timeline { flex:0 0 144px; min-height:144px; padding:12px 14px; border:1px solid #dce2d8; border-radius:12px; background:#fff; overflow:auto; }
+#character-directions.studio-editor .studio-edit-ruler { display:grid; grid-template-columns:repeat(5,1fr); margin-left:130px; color:#9aa398; font-size:10px; }
+#character-directions.studio-editor .studio-edit-track { display:grid; grid-template-columns:130px 1fr; min-height:34px; border-top:1px solid #eef1eb; }
+#character-directions.studio-editor .studio-edit-track-label { display:flex; align-items:center; color:#677362; font-size:11px; }
+#character-directions.studio-editor .studio-edit-track-lane { display:flex; align-items:center; gap:4px; min-width:0; padding:4px; background:repeating-linear-gradient(90deg,#fbfcfa 0,#fbfcfa calc(20% - 1px),#edf1eb 20%); }
+#character-directions.studio-editor .studio-edit-empty-track { color:#a0a99c; font-size:10px; }
+#character-directions.studio-editor .studio-edit-clip { min-width:90px; height:25px; padding:0 9px; overflow:hidden; border:1px solid #aabd84; border-radius:5px; background:#d8ed99; color:#38491b; font-size:10px; text-overflow:ellipsis; white-space:nowrap; cursor:pointer; }
+#character-directions.studio-editor .studio-edit-clip[data-selected="true"] { border-color:#40552b; box-shadow:0 0 0 2px #b3cf71; }
+#character-directions.studio-editor .studio-edit-sequence { height:25px; padding:4px 10px; border:1px solid #bbc5d0; border-radius:5px; background:#e9edf1; color:#586879; font-size:10px; }
+@media (max-width: 980px) {
+  #character-directions.studio-editor .studio-edit-main { grid-template-columns: 170px minmax(260px,1fr); }
+  #character-directions.studio-editor .studio-edit-properties { display:none; }
+}
+@media (max-width: 640px) {
+  #character-directions.studio-editor .studio-edit-workspace { padding:12px; }
+  #character-directions.studio-editor .studio-edit-head { align-items:flex-start; flex-direction:column; }
+  #character-directions.studio-editor .studio-edit-main { grid-template-columns:1fr; grid-template-rows:140px minmax(250px,1fr); }
+  #character-directions.studio-editor .studio-edit-assets { overflow:auto; }
+  #character-directions.studio-editor .studio-asset-list { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #character-directions.studio-editor .studio-edit-ruler { margin-left:92px; }
+  #character-directions.studio-editor .studio-edit-track { grid-template-columns:92px 1fr; }
+}
 #character-directions.studio-editor details.studio-help { position: relative; z-index: 30; margin: 0; }
 #character-directions.studio-editor .studio-help > summary {
   display: flex;

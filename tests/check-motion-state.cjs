@@ -157,7 +157,7 @@ for(const showPlayback of ['continuous','repeat']){
 }
 const outputBounds=harness({privateContent:{design:'character-explorations',version:6,introDuration:99,time:99,
   output:{resolution:'invalid',start:'invalid',transparent:'yes'}}}).inspect();
-near(outputBounds.state.introDuration,30);near(outputBounds.state.time,42);
+near(outputBounds.state.introDuration,99);near(outputBounds.state.time,99);
 assert.deepEqual(outputBounds.state.output,{resolution:'1080',obsLayers:'combined',transparent:false,includeCharacters:false,start:'intro',fit:'contain',fps:30,aeIntro:true});
 const threeSources=harness({privateContent:{design:'character-explorations',version:6,output:{obsLayers:'separate'}}});
 threeSources.run('save()');assert.equal(harness(threeSources.saved.at(-1)).inspect().state.output.obsLayers,'separate');
@@ -234,3 +234,6 @@ for(const key of ['district','tuner','arcade']){const selected=harness({privateC
 console.log(`PASS: null/incompatible states and recursively reordered own echoes preserve elapsed ${initialTime+100}; v4/v5 settings migrate; v6 intro choices and story settings/images boundaries preserve compact round trips.`);
 console.log(`Widget-state payload: default ${bytes}, restored v6 ${externalBytes} bytes / 16384.`);
 console.log(`Maximum-length text payload: ${denseBytes} / 16384 bytes.`);
+
+const longStory=harness({privateContent:{design:'character-explorations',version:6,introDuration:5.1,time:75,narrative:{introStyle:'story',characterShotDuration:30,authorShotDuration:120,storyTransitionDuration:.6}}});longStory.run('save()');const longReload=harness(longStory.saved.at(-1)).inspect().state;near(longReload.narrative.characterShotDuration,30);near(longReload.narrative.authorShotDuration,120);near(longReload.introDuration,150.6);near(longReload.time,75);
+console.log('PASS: long independent poster durations and elapsed position survive the compact saved-state round trip');

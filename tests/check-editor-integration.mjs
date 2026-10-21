@@ -1,0 +1,47 @@
+import {chromium} from 'playwright-core';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {mediaTools,runProcess} from '../tools/editor-media.mjs';
+const base=process.env.STUDIO_TEST_URL||'http://127.0.0.1:19378';
+const root=path.resolve('.'),{ffmpeg,ffprobe}=mediaTools(root);
+const cap=await(await fetch(base+'/__editor/capabilities')).json();const saved=await(await fetch(base+'/__editor/project')).json();
+await fetch(base+'/__editor/project',{method:'PUT',headers:{'X-Studio-Token':cap.token,'Content-Type':'application/json'},body:'null'});
+await fs.mkdir('work/editor-qa',{recursive:true});
+await runProcess(ffmpeg,['-hide_banner','-loglevel','error','-y','-f','lavfi','-i','color=c=black@0:s=320x180:r=12:d=1,format=rgba,drawbox=x=80:y=30:w=120:h=120:color=red@1:t=fill:replace=1','-f','lavfi','-i','sine=frequency=440:sample_rate=48000:duration=1','-c:v','prores_ks','-profile:v','4','-pix_fmt','yuva444p10le','-alpha_bits','16','-c:a','pcm_s16le','-shortest','work/editor-qa/alpha.mov']);
+const browser=await chromium.launch({channel:'chrome',headless:true});
+try{
+ const page=await browser.newPage({viewport:{width:1440,height:1000},acceptDownloads:true}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(base);const frame=await(await page.waitForSelector('iframe')).contentFrame();
+ await frame.getByRole('button',{name:'剪辑工作台',exact:true}).click();
+ await frame.locator('.studio-editor-status').filter({hasText:'本机视频引擎已连接'}).waitFor();
+ await frame.locator('[data-editor-import]').setInputFiles('work/editor-qa/alpha.mov');
+ await frame.locator('.studio-asset-card').filter({hasText:'alpha.mov'}).waitFor({timeout:90000});
+ await frame.locator('.studio-asset-card').filter({hasText:'alpha.mov'}).dragTo(frame.locator('.studio-edit-track-lane[data-layer="under-border"]'),{targetPosition:{x:1,y:16}});
+ assert.match(await frame.locator('.studio-asset-type').first().innerText(),/ALPHA/);
+ await frame.getByRole('spinbutton',{name:'宽度 px',exact:true}).fill('320');await frame.getByRole('spinbutton',{name:'宽度 px',exact:true}).press('Tab');
+ await frame.getByRole('spinbutton',{name:'高度 px',exact:true}).fill('180');await frame.getByRole('spinbutton',{name:'高度 px',exact:true}).press('Tab');
+ await frame.getByRole('spinbutton',{name:'全片时长 s',exact:true}).fill('1');await frame.getByRole('spinbutton',{name:'全片时长 s',exact:true}).press('Tab');
+ await frame.getByRole('spinbutton',{name:'帧率',exact:true}).fill('12');await frame.getByRole('spinbutton',{name:'帧率',exact:true}).press('Tab');
+ await frame.getByRole('combobox',{name:'合成层级',exact:true}).selectOption('above-text');assert.equal(await frame.locator('.studio-post-surface>.studio-editor-footage-above>.studio-editor-clip-surface').count(),1);
+ await frame.getByRole('combobox',{name:'合成层级',exact:true}).selectOption('above-border');assert.equal(await frame.locator('.design-art>.studio-editor-track-stack>.studio-editor-clip-surface').count(),1);
+ await frame.getByRole('combobox',{name:'合成层级',exact:true}).selectOption('under-border');
+ await frame.locator('.studio-edit-workspace [data-seek]').evaluate(el=>{el.value='0.5';el.dispatchEvent(new Event('input',{bubbles:true}));});await page.waitForTimeout(500);
+ const alpha=await frame.locator('.studio-editor-clip-surface').evaluate(box=>{const source=[...box.children].find(e=>!e.hidden),c=document.createElement('canvas');c.width=320;c.height=180;const x=c.getContext('2d');x.drawImage(source,0,0,320,180);return [x.getImageData(0,0,1,1).data[3],x.getImageData(120,80,1,1).data[3]];});assert.deepEqual(alpha,[0,255]);
+ await frame.getByText('色度键',{exact:true}).click();await frame.getByRole('checkbox',{name:'启用色度键',exact:true}).check();await frame.locator('[aria-label="抠像颜色"]').fill('#ff0000');await frame.locator('[aria-label="抠像颜色"]').press('Tab');assert.equal(await frame.locator('.studio-editor-clip-surface canvas').evaluate(source=>{const c=document.createElement('canvas');c.width=320;c.height=180;const x=c.getContext('2d');x.drawImage(source,0,0,320,180);return x.getImageData(120,80,1,1).data[3];}),0);await frame.getByRole('checkbox',{name:'启用色度键',exact:true}).uncheck();
+ await frame.getByRole('button',{name:'分割',exact:true}).click();assert.equal(await frame.locator('.studio-edit-clip').count(),2);
+ await frame.getByRole('button',{name:'撤销',exact:true}).click();assert.equal(await frame.locator('.studio-edit-clip').count(),1);
+ await frame.getByRole('button',{name:'导出视频 ↗',exact:true}).click();
+ const download=await page.waitForEvent('download',{timeout:120000});await download.saveAs('work/editor-qa/result.mp4');
+ const info=JSON.parse(await runProcess(ffprobe,['-v','error','-show_streams','-show_format','-of','json','work/editor-qa/result.mp4']));
+ const v=info.streams.find(s=>s.codec_type==='video');assert.equal(v.width,320);assert.equal(v.height,180);assert.equal(v.codec_name,'h264');assert.equal(Number(v.nb_frames),12);assert.ok(info.streams.some(s=>s.codec_type==='audio'));assert.ok(Math.abs(Number(info.format.duration)-1)<.1);
+ await frame.getByRole('combobox',{name:'编码器',exact:true}).selectOption('prores');await frame.getByRole('checkbox',{name:'透明背景',exact:true}).check();
+ await frame.getByRole('button',{name:'导出视频 ↗',exact:true}).click();const alphaDownload=await page.waitForEvent('download',{timeout:120000});await alphaDownload.saveAs('work/editor-qa/result-alpha.mov');
+ const alphaInfo=JSON.parse(await runProcess(ffprobe,['-v','error','-show_streams','-of','json','work/editor-qa/result-alpha.mov']));assert.match(alphaInfo.streams[0].pix_fmt,/yuva/);
+ await runProcess(ffmpeg,['-hide_banner','-loglevel','error','-y','-ss','0.5','-i','work/editor-qa/result-alpha.mov','-frames:v','1','work/editor-qa/alpha-frame.png']);
+ const alphaRaw=await runProcess(ffmpeg,['-hide_banner','-loglevel','error','-i','work/editor-qa/result-alpha.mov','-vf','format=yuva444p,alphaextract,signalstats,metadata=print:file=-','-frames:v','1','-f','null','-']);assert.match(alphaRaw,/lavfi.signalstats.YMIN=0/);assert.match(alphaRaw,/lavfi.signalstats.YMAX=255/);
+ await page.screenshot({path:'work/editor-qa/with-alpha.png'});
+ for(const [codec,expected,extension]of [['h265','hevc','mp4'],['av1','av1','mp4'],['vp9','vp9','webm']]){await frame.getByRole('combobox',{name:'编码器',exact:true}).selectOption(codec);await frame.getByRole('checkbox',{name:'透明背景',exact:true}).setChecked(codec==='vp9');await frame.getByRole('button',{name:'导出视频 ↗',exact:true}).click();const d=await page.waitForEvent('download',{timeout:120000}),file=`work/editor-qa/result-${codec}.${extension}`;await d.saveAs(file);const m=JSON.parse(await runProcess(ffprobe,['-v','error','-show_streams','-of','json',file]));assert.equal(m.streams.find(s=>s.codec_type==='video').codec_name,expected);}
+ assert.deepEqual(errors,[]);
+ console.log('PASS: ProRes alpha import has transparent and opaque pixels; three layer positions, split/undo, 320×180 H.264 + audio and 12 exact frames, ProRes 4444 alpha export, live chroma key and H.265/AV1/VP9 exports');
+}finally{await browser.close();await fetch(base+'/__editor/project',{method:'PUT',headers:{'X-Studio-Token':cap.token,'Content-Type':'application/json'},body:JSON.stringify(saved)});}

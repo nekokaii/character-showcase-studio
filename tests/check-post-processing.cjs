@@ -39,7 +39,7 @@ near(weight(1,{...options,introStyle:'model',postCharacter:true},3),1,'legacy mo
 near(weight(1,{...options,introStyle:'title',postShow:true},0),1,'no-intro export starts with selected showcase');
 for(const preset of ['none','polar','crt','holo','bloom','anamorphic','prism','film'])assert.equal(scope.studioNarrativeSettings({postEffect:preset}).postEffect,preset);
 const sanitized=scope.studioNarrativeSettings({postStrength:NaN,postGlow:7,postSpeed:0,postFade:Infinity,characterCorner:'center',authorCorner:'center'});
-near(sanitized.postStrength,.6);near(sanitized.postGlow,1);near(sanitized.postSpeed,.1);near(sanitized.postFade,.45);assert.equal(sanitized.characterCorner,'center');assert.equal(sanitized.authorCorner,'center');
+near(scope.studioNarrativeSettings({}).postDispersion,.25);near(scope.studioNarrativeSettings({postDispersion:-1}).postDispersion,0);near(scope.studioNarrativeSettings({postDispersion:4}).postDispersion,1);near(scope.studioNarrativeSettings({postDispersion:NaN}).postDispersion,.25);near(sanitized.postStrength,.6);near(sanitized.postGlow,1);near(sanitized.postSpeed,.1);near(sanitized.postFade,.45);assert.equal(sanitized.characterCorner,'center');assert.equal(sanitized.authorCorner,'center');
 
 // Run the real mount routine against a minimal tree, observing ownership rather
 // than string snapshots. Browser source and exported DOM clones share this tree.

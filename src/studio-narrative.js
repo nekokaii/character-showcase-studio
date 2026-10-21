@@ -2,12 +2,12 @@
 function mountStudioNarrative(root,views){
   const group=document.createElement('details');group.className='studio-group studio-narrative';group.open=true;
   let legacyIntroDuration=state.narrative.introStyle==='story'?4.5:state.introDuration;
-  const percentKeys=['nameDelay','characterEffectStrength','authorEffectStrength','postStrength','postGlow'];
+  const percentKeys=['nameDelay','characterEffectStrength','authorEffectStrength','postStrength','postGlow','postDispersion'];
   function storyRange(role,key,label,min,max,step){return `<div class="direction-field"><label for="studio-${role}-${key}" class="range-title">${label}<output data-story-value="${role+key}"></output></label><input id="studio-${role}-${key}" data-narrative="${role+key}" class="form-range" type="range" min="${min}" max="${max}" step="${step}"></div>`}
   function storyShot(role,index,label){return `<section class="studio-story-shot" data-story-shot="${role}">
     <div class="studio-story-shot-head"><span><b>${index}</b>${label}</span><label class="form-check form-switch"><input class="form-check-input" data-narrative="${role}ShotEnabled" type="checkbox"><span>启用</span></label></div>
     <div class="direction-settings" data-story-enabled="${role}">
-      <div class="studio-story-pair"><div class="direction-field"><label for="studio-${role}-duration">镜头时长 · 秒</label><input id="studio-${role}-duration" data-narrative="${role}ShotDuration" class="form-control" type="number" min=".5" max="12" step=".1" inputmode="decimal"></div><div class="direction-field"><label for="studio-${role}-corner">字幕位置</label><select id="studio-${role}-corner" data-narrative="${role}Corner" class="form-select"><option value="tl-br">左上 ↔ 右下</option><option value="tr-bl">右上 ↔ 左下</option><option value="bl-tr">左下 ↔ 右上</option><option value="br-tl">右下 ↔ 左上</option><option value="center">画面正中</option></select></div></div>
+      <div class="studio-story-pair"><div class="direction-field"><label for="studio-${role}-duration">镜头时长 · 秒</label><input id="studio-${role}-duration" data-narrative="${role}ShotDuration" class="form-control" type="number" min=".5" max="600" step=".1" inputmode="decimal"></div><div class="direction-field"><label for="studio-${role}-corner">字幕位置</label><select id="studio-${role}-corner" data-narrative="${role}Corner" class="form-select"><option value="tl-br">左上 ↔ 右下</option><option value="tr-bl">右上 ↔ 左下</option><option value="bl-tr">左下 ↔ 右上</option><option value="br-tl">右下 ↔ 左上</option><option value="center">画面正中</option></select></div></div>
       <details class="studio-story-media"><summary>画面缩放与位置</summary>${storyRange(role,'Scale','画面缩放',.6,2.4,.05)}${storyRange(role,'X','水平位置',0,100,1)}${storyRange(role,'Y','垂直位置',0,100,1)}</details>
     </div>
     <button type="button" class="btn studio-story-jump" data-story-jump="${role}">预览${label}</button>
@@ -16,7 +16,7 @@ function mountStudioNarrative(root,views){
     <div class="studio-sequence-map" aria-hidden="true"><span data-intro-map>01 引入</span><i>→</i><span data-show-map>02 展示</span><i>→</i><span data-ending-map>03 片尾</span></div>
     <div class="direction-settings">
       <div class="direction-field"><label for="studio-intro-style">引入方式</label><select class="form-select" id="studio-intro-style" data-narrative="introStyle"><option value="story">双镜头海报 · 角色 → 作者</option><option value="model">模型先行 · 信息稍后出现</option><option value="title">大字开场 · 原版</option></select></div>
-      <div class="direction-field" data-legacy-intro><label for="studio-intro-duration">引入页时长 · 秒</label><input id="studio-intro-duration" class="form-control" type="number" min="0" max="30" step="0.5" inputmode="decimal"><small>0 秒跳过 · 按 1× 播放计算</small></div>
+      <div class="direction-field" data-legacy-intro><label for="studio-intro-duration">引入页时长 · 秒</label><input id="studio-intro-duration" class="form-control" type="number" min="0" max="1800" step="0.5" inputmode="decimal"><small>0 秒跳过 · 按 1× 播放计算</small></div>
       <div class="direction-field" data-model-intro><label for="studio-name-reveal">角色名何时出现</label><select class="form-select" id="studio-name-reveal" data-narrative="nameReveal"><option value="show">到展示页再淡入</option><option value="delayed">片头后段轻轻浮现</option></select></div>
       <div class="direction-field" data-name-delay><label for="studio-name-delay" class="range-title">延迟到片头的<output data-name-delay-value></output></label><input class="form-range" id="studio-name-delay" data-narrative="nameDelay" type="range" min="20" max="90" step="5"></div>
     </div>
@@ -50,7 +50,7 @@ function mountStudioNarrative(root,views){
       <div data-post-controls>
         <div class="studio-post-label">应用到哪些镜头</div>
         <div class="studio-post-scenes"><label><input type="checkbox" data-narrative="postCharacter"><span>角色镜头</span></label><label><input type="checkbox" data-narrative="postAuthor"><span>作者镜头</span></label><label><input type="checkbox" data-narrative="postShow"><span>展示页</span></label><label><input type="checkbox" data-narrative="postOutro"><span>片尾</span></label></div>
-        ${postRange('postStrength','效果强度',0,100,5)}${postRange('postGlow','附加辉光',0,100,5)}${postRange('postSpeed','动态速度',.1,2,.1)}${postRange('postFade','淡入淡出 · 秒',.15,1.5,.05)}
+        ${postRange('postStrength','效果强度',0,100,5)}${postRange('postGlow','附加辉光',0,100,5)}${postRange('postDispersion','RGB 色散强度',0,100,1)}<p class="studio-note">0 关闭 RGB 彩边，保留棱镜彩色光带。默认 25%，100% 对应原版色散。</p>${postRange('postSpeed','动态速度',.1,2,.1)}${postRange('postFade','淡入淡出 · 秒',.15,1.5,.05)}
       </div>
     </div>
     <p class="studio-note">片头：素材与字幕一起处理。展示页：角色位于滤镜上方，背景与文字接受处理。边框始终独立。效果连续运动，离开所选镜头时柔和淡出。</p>
@@ -96,7 +96,7 @@ function mountStudioNarrative(root,views){
     group.querySelector('[data-name-delay-value]').value=Math.round(n.nameDelay*100)+'%';
     group.querySelector('[data-name-delay]').hidden=n.introStyle!=='model'||n.nameReveal!=='delayed';
     group.querySelector('[data-model-intro]').hidden=n.introStyle!=='model';
-    group.querySelector('[data-intro-note]').textContent=story?(n.characterShotEnabled||n.authorShotEnabled?'角色与作者是两张独立海报镜头，可分别调整画面和字幕位置。统一滤镜在下方「画面后处理」设置；圆环运动始终连续。':'两个镜头都已关闭，直接进入主展示。'):n.introStyle==='model'?'先让模型与动态几何出场。名字保持正常排版大小，信息在展示页淡入。':'沿用原版大字开场，角色名从画面中心缩回信息区。';
+    group.querySelector('[data-intro-note]').textContent=story?(n.characterShotEnabled||n.authorShotEnabled?'角色与作者是两张独立海报镜头，每幕可设 0.5–600 秒，并分别调整画面和字幕位置。统一滤镜在下方「画面后处理」设置；圆环运动始终连续。':'两个镜头都已关闭，直接进入主展示。'):n.introStyle==='model'?'先让模型与动态几何出场。名字保持正常排版大小，信息在展示页淡入。':'沿用原版大字开场，角色名从画面中心缩回信息区。';
     group.querySelector('[data-ending-controls]').hidden=!n.outroEnabled;
     group.querySelector('[data-show-playback]').hidden=n.outroEnabled;
     group.querySelector('[data-show-duration-label]').textContent=continuous?'导出展示时长 · 秒':'展示时长 · 秒';

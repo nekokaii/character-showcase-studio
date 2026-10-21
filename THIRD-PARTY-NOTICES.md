@@ -15,3 +15,8 @@
 下载源的精确地址保存在 `vendor/SOURCES.json`。Noto Sans SC 未打包；中文使用系统字体回退。
 
 MMD Compatible、ARKit Compatible 等通用适配图形不是官方认证徽章。页面中的适配选择由作品作者自行维护，应与实际交付内容一致。
+# Local video editor dependencies
+
+The optional local video editor uses Playwright Core (Apache-2.0), installed through npm with its license in `node_modules/playwright-core/LICENSE`. It drives an existing Chrome or Edge browser.
+
+The setup script installs the FFmpeg 9.0.2 Essentials Windows build from Gyan Doshi (GPL-3.0). Its license is retained in `tools/ffmpeg/LICENSE`. Build information and corresponding source: <https://www.gyan.dev/ffmpeg/builds/>, <https://github.com/GyanD/codexffmpeg/releases/tag/9.0.2>, <https://github.com/FFmpeg/FFmpeg>. FFmpeg is an optional executable dependency and is not embedded in the exported HTML.

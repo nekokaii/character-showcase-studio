@@ -1,13 +1,20 @@
 {
   "name": "character-showcase-studio",
-  "version": "0.11.0",
+  "version": "0.16.1",
   "private": true,
   "type": "module",
   "description": "Editable local character showcase design studio",
   "scripts": {
     "build": "node tools/build.mjs",
     "start": "node tools/server.mjs",
-    "check": "node tools/check.mjs"
+    "check": "node tools/check.mjs",
+    "start:editor": "node tools/server.mjs 19378",
+    "check:editor": "node tests/check-editor-core.mjs"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "playwright-core": "1.64.1"
+  }
 }

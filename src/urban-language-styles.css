@@ -20,12 +20,12 @@
 #character-directions .design-art:is([data-kind="district"],[data-kind="tuner"],[data-kind="arcade"]) .art-credit{font-size:clamp(10px,.6cqw,14px);opacity:calc(var(--detail) * .6)}
 
 /* DISTRICT: condensed italic wordmark, a cut underline and a compact folio. */
-#character-directions .design-art[data-kind="district"]{--name-y:27%;--caption-y:57%;--title-angle:-6deg;--title-style:italic;--title-size:18cqw;--caption-size:2.1cqw}
+#character-directions .design-art[data-kind="district"]{--edition-y:15%;--name-y:27%;--caption-y:57%;--title-angle:-6deg;--title-style:italic;--title-size:18cqw;--caption-size:2.1cqw}
 #character-directions .design-art[data-kind="district"] .hero-name{font-size:min(var(--title-size),23cqh)}
 #character-directions .design-art[data-kind="district"] .hero-name{font-style:italic;letter-spacing:-.025em;color:var(--accent)}
 #character-directions .design-art[data-kind="district"] .hero-name:before{display:block;left:1%;right:8%;top:auto;bottom:-1.4cqw;height:.75cqw;background:var(--ink);clip-path:polygon(3% 0,100% 0,97% 100%,0 100%);transform:none}
 #character-directions .design-art[data-kind="district"] .hero-name:after{content:"";position:absolute;right:-1.6cqw;top:6%;width:.65cqw;height:58%;background:var(--accent);transform:skewY(-12deg)}
-#character-directions .design-art[data-kind="district"] .hello{top:-1.1cqw;color:var(--ink);opacity:.65}
+#character-directions .design-art[data-kind="district"] .hello{top:-3.2cqw;color:var(--ink);opacity:.65}
 #character-directions .design-art[data-kind="district"] .art-brand:before{background:var(--accent);width:2.1cqw;height:.75cqw;clip-path:polygon(22% 0,100% 0,78% 100%,0 100%);border-radius:0;transform:none}
 #character-directions .design-art[data-kind="district"] .edition-label{padding:.45cqw .65cqw;background:var(--accent);color:var(--accent-contrast);font-weight:800;letter-spacing:0;clip-path:polygon(0 0,100% 0,93% 100%,0 100%)}
 #character-directions .design-art[data-kind="district"] .art-edition{gap:.7cqw;transform:rotate(-1deg)}
@@ -70,11 +70,12 @@
 /* Portrait preserves a compact upper identity, open character stage and bottom
    product shelf. Font sizes use composition width, never output pixel count. */
 #character-directions .design-art:is([data-kind="district"],[data-kind="tuner"],[data-kind="arcade"]).is-portrait{--copy-x:7%;--copy-w:86%;--name-x:6%;--name-w:86%;--edition-y:10%;--name-y:18%;--title-size:27cqw;--caption-y:31%;--subtitle-y:34.5%;--caption-size:4.2cqw;--note-x:92%;--note-y:72%;--tech-y:85%}
-#character-directions .design-art[data-kind="district"].is-portrait{--title-size:35cqw;--name-y:18.5%;--title-angle:-4deg}
+#character-directions .design-art[data-kind="district"].is-portrait{--edition-y:8%;--title-size:35cqw;--name-y:18.5%;--title-angle:-4deg}
 #character-directions .design-art[data-kind="tuner"].is-portrait{--title-size:27cqw;--name-y:20%;--caption-y:30%;--subtitle-y:34%}
 #character-directions .design-art[data-kind="arcade"].is-portrait{--title-size:27cqw;--name-y:19%;--caption-y:30.5%}
 #character-directions .design-art:is([data-kind="district"],[data-kind="tuner"],[data-kind="arcade"]).is-portrait .hero-name{font-size:min(var(--title-size),12.7cqh)}
 #character-directions .design-art:is([data-kind="district"],[data-kind="tuner"],[data-kind="arcade"]).is-portrait .hello{top:-4.2cqw;font-size:clamp(10px,1.9cqw,18px)}
+#character-directions .design-art[data-kind="district"].is-portrait .hello{top:-7.5cqw}
 #character-directions .design-art:is([data-kind="district"],[data-kind="tuner"],[data-kind="arcade"]).is-portrait .art-edition{max-width:86%;gap:2.5cqw}
 #character-directions .design-art:is([data-kind="district"],[data-kind="tuner"],[data-kind="arcade"]).is-portrait .edition-label{font-size:clamp(10px,2.4cqw,25px);padding:1cqw 1.6cqw}
 #character-directions .design-art[data-kind="tuner"].is-portrait .edition-label{padding:0}

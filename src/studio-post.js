@@ -51,6 +51,35 @@ function mountStudioPostProcessing(view){
   view.post={viewport,surface,foreground,canvas,ctx:canvas.getContext('2d'),svg,id,prism,amount:0,lastWall:0,lastEffect:'polar',paintKey:'',
     noise:svg.querySelector('feTurbulence'),warp:svg.querySelector('feDisplacementMap'),blur:svg.querySelector('feGaussianBlur'),glow:svg.querySelector('feFuncA'),offsets:[...svg.querySelectorAll('feOffset')]};
 }
+// Split actual text nodes only while the editor needs independent text ordering.
+// Empty scene shells retain container units, layout selectors and animation refs.
+function studioEditorTextLayers(view,enabled){
+  if(!enabled){
+    const split=view.editorTextLayers;if(!split)return;
+    for(const {node,marker} of split.moved){marker.replaceWith(node);}
+    split.pictureStory.remove();split.root.remove();split.below.remove();split.above.remove();view.editorTextLayers=null;return;
+  }
+  if(view.editorTextLayers)return;
+  const root=document.createElement('div');root.className='studio-editor-text-layers';
+  const textComposition=view.composition.cloneNode(false);textComposition.classList.add('studio-editor-text-composition');root.append(textComposition);
+  const moved=[];
+  const move=(node,parent)=>{const marker=document.createComment('editor text home');node.before(marker);moved.push({node,marker});parent.append(node);};
+  for(const node of [...view.composition.children])if(node.matches('.packaging,.dual-information'))move(node,textComposition);
+  const pictureStory=view.storyLayer.cloneNode(false);pictureStory.classList.add('studio-editor-story-picture');
+  const shots=[];
+  for(const part of view.storyShots){const picture=part.el.cloneNode(false);pictureStory.append(picture);const media=part.el.querySelector('.story-media');if(media)move(media,picture);shots.push({source:part.el,picture});}
+  view.post.surface.append(pictureStory);move(view.storyLayer,root);
+  if(view.ending)move(view.ending,root);
+  const below=document.createElement('div'),above=document.createElement('div');below.className='studio-editor-footage-below';above.className='studio-editor-footage-above';move(view.post.foreground,view.post.surface);view.post.surface.append(below,root,above);view.editorTextLayers={root,textComposition,pictureStory,shots,moved,below,above};
+  studioDrawEditorTextLayers(view);
+}
+function studioDrawEditorTextLayers(view){
+  const split=view.editorTextLayers;if(!split)return;
+  split.textComposition.style.cssText=view.composition.style.cssText;
+  // The text and both footage lanes are filtered together by their parent.
+  split.pictureStory.style.cssText=view.storyLayer.style.cssText;
+  for(const {source,picture} of split.shots){picture.style.cssText=source.style.cssText;picture.dataset.corner=source.dataset.corner;}
+}
 function studioPaintPostOptics(ctx,w,h,o){
   ctx.clearRect(0,0,w,h);if(o.amount<.001)return;
   const t=o.time,s=o.amount,accent=/^#[0-9a-f]{6}$/i.test(o.accent)?o.accent:'#bceb45';
@@ -104,7 +133,7 @@ function drawStudioPostProcessing(view,pose){
   p.foreground.style.visibility=pose.outro>=1?'hidden':'visible';
   const n=state.narrative,v=state.variants[view.key],now=performance.now(),dt=p.lastWall?Math.min(.1,(now-p.lastWall)/1000):1;p.lastWall=now;
   const target=n.postEffect==='none'?0:studioPostSceneWeight(state.time,state.introDuration,n)*n.postStrength*(1-Math.min(1,pose.shutdown*2));
-  if(globalThis.studioOutput?.sync)p.amount=target;
+  if(globalThis.studioOutput?.sync||view.editorSeek===true)p.amount=target;
   else p.amount+=(target-p.amount)*(1-Math.exp(-dt/Math.max(.04,n.postFade/3)));
   if(Math.abs(target-p.amount)<.0003)p.amount=target;
   if(n.postEffect!=='none'){p.lastEffect=n.postEffect;p.lastGlow=n.postGlow;}
@@ -116,11 +145,11 @@ function drawStudioPostProcessing(view,pose){
   p.noise.setAttribute('baseFrequency',`${(.0018+Math.sin(t*.42)*.00025).toFixed(5)} ${(.024+Math.cos(t*.31)*.004).toFixed(5)}`);
   p.blur.setAttribute('stdDeviation',(Math.max(.1,scale)*(effect==='bloom'?8:3.2)).toFixed(2));
   p.glow.setAttribute('slope',((p.lastGlow+(effect==='bloom'?.65:effect==='anamorphic'?.18:0))*s*2.8).toFixed(3));
-  const fringe=(effect==='prism'?3.3:effect==='crt'?.85:effect==='holo'?.6:0)*s*scale;
+  const fringe=(effect==='prism'?3.3:effect==='crt'?.85:effect==='holo'?.6:0)*s*scale*(n.postDispersion??.25);
   p.offsets[0].setAttribute('dx',fringe.toFixed(3));p.offsets[1].setAttribute('dx',(-fringe).toFixed(3));
   const contrast=1+s*(effect==='crt'?.10:effect==='film'?-.055:.025),saturate=1+s*(effect==='holo'?.12:effect==='film'?-.15:effect==='prism'?.10:0),light=1+(effect==='film'?Math.sin(t*8.5)*.009*s:0);
   p.surface.style.filter=`${fringe>0.001?`url(#${p.prism}) `:''}url(#${p.id}) contrast(${contrast.toFixed(4)}) saturate(${saturate.toFixed(4)}) brightness(${light.toFixed(4)})`;
-  const ratio=Math.min((globalThis.devicePixelRatio||1)*Math.max(1,view.outputScale||1),2),pw=Math.max(1,Math.round(w*ratio)),ph=Math.max(1,Math.round(h*ratio));
+  const ratio=view.previewRasterScale||Math.min((globalThis.devicePixelRatio||1)*Math.max(1,view.outputScale||1),2),pw=Math.max(1,Math.round(w*ratio)),ph=Math.max(1,Math.round(h*ratio));
   if(p.canvas.width!==pw||p.canvas.height!==ph){p.canvas.width=pw;p.canvas.height=ph;}
   const key=[pw,ph,effect,s.toFixed(4),t.toFixed(3),v.accent].join('|');
   if(p.paintKey!==key){studioPaintPostOptics(p.ctx,pw,ph,{effect,amount:s,time:t,accent:v.accent});p.paintKey=key;}

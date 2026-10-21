@@ -28,7 +28,7 @@ function validateStudioAEScene(payload){
   const raw=JSON.stringify(payload.scene);if(raw.length>48*1024*1024)throw Error('AE 场景过大，请简化几何后重试。');
   const d=JSON.parse(raw),number=(n,a=-100000,b=100000)=>{if(typeof n!=='number'||!Number.isFinite(n)||n<a||n>b)throw Error('AE 数值参数无效。');return n},str=(s,n=400)=>{if(typeof s!=='string'||s.length>n)throw Error('AE 文字参数无效。');return s},list=(a,n)=>{if(!Array.isArray(a)||a.length>n)throw Error('AE 图层数量超出范围。');return a},color=c=>{if(!Array.isArray(c)||c.length!==4)throw Error('AE 颜色无效。');c.forEach(n=>number(n,0,1))},path=p=>{list(p.v,2048);if(p.v.length<1)throw Error('AE 路径为空。');for(const key of ['v','i','o']){if(!Array.isArray(p[key])||p[key].length!==p.v.length)throw Error('AE 路径格式无效。');for(const v of p[key]){if(!Array.isArray(v)||v.length!==2)throw Error('AE 路径坐标无效。');v.forEach(n=>number(n))}}};
   number(d.width,1080,3840);number(d.height,1080,3840);if(![[1920,1080],[1080,1920],[3840,2160],[2160,3840]].some(x=>x[0]===d.width&&x[1]===d.height))throw Error('不支持此 AE 画布尺寸。');
-  if(![30,60].includes(d.fps)||d.version!==1)throw Error('AE 版本或帧率无效。');str(d.name,80);str(d.design,30);number(d.duration,.1,204);number(d.intro,0,60);number(d.speed,.5,1.8);number(d.offset,0,60);color(d.background);color(d.accent);color(d.ink);number(d.frameThickness,0,500);if(!['none','horizontal','vertical'].includes(d.frame))throw Error('AE 边框无效。');
+  if(![30,60].includes(d.fps)||d.version!==1)throw Error('AE 版本或帧率无效。');str(d.name,80);str(d.design,30);number(d.duration,.1,3744);number(d.intro,0,3600);number(d.speed,.5,1.8);number(d.offset,0,1800);color(d.background);color(d.accent);color(d.ink);number(d.frameThickness,0,500);if(!['none','horizontal','vertical'].includes(d.frame))throw Error('AE 边框无效。');
   for(const [obj,keys]of [[d.motion,['amount','speed']],[d.shadow,['strength','depth']],[d.pattern,['opacity','amount']]]){if(!obj)throw Error('AE 效果参数缺失。');keys.forEach(k=>number(obj[k],0,5))}color(d.shadow.color);if(!['refined','soft','playful'].includes(d.motion.style))throw Error('AE 文字动效无效。');if(!['none','mesh','dots','ripple','grid'].includes(d.pattern.kind))throw Error('AE 背景类型无效。');
   for(const key of ['top','bottom']){str(d.borderText[key],400);number(d.edges[key].duration,12,90);if(!['negative','positive','still'].includes(d.edges[key].direction))throw Error('AE 边框方向无效。')}
   const files=new Set();let bytes=0;for(const a of list(payload.assets,50)){if(!/^assets\/asset-\d{3}\.(png|jpg)$/.test(a.name)||files.has(a.name))throw Error('AE 素材文件名无效。');if(typeof a.data!=='string'||!/^data:image\/(png|jpeg);base64,[a-z0-9+/]*={0,2}$/i.test(a.data)||a.data.length>24*1024*1024)throw Error('AE 素材格式无效。');bytes+=a.data.length;if(bytes>100*1024*1024)throw Error('AE 素材包过大。');files.add(a.name)}
@@ -36,7 +36,7 @@ function validateStudioAEScene(payload){
   if(!d.narrative)d.narrative={introStyle:'title',nameReveal:'show',nameDelay:.65};
   if(!['model','title','story'].includes(d.narrative.introStyle)||!['show','delayed'].includes(d.narrative.nameReveal))throw Error('AE 片头类型无效。');number(d.narrative.nameDelay,.2,.9);
   const timingDefaults={transitionStart:d.story?.enabled?d.story.transitionStart:d.intro/6,transitionDuration:d.story?.enabled?d.story.transitionDuration:d.intro*.8,infoDuration:.85/d.speed,endingTransitionDuration:Math.min(.8/d.speed,(d.ending?.duration||3.5)*.28)};
-  for(const [key,fallback]of Object.entries(timingDefaults)){if(d.narrative[key]===undefined)d.narrative[key]=fallback;number(d.narrative[key],0,120)}
+  for(const [key,fallback]of Object.entries(timingDefaults)){if(d.narrative[key]===undefined)d.narrative[key]=fallback;number(d.narrative[key],0,3600)}
   if(!d.ending)d.ending={duration:0,style:'quiet',brand:'YOUR STUDIO',logoAsset:'',word:{x:d.width/2,y:d.height/2,w:d.width*.6,h:d.height*.1}};
   number(d.ending.duration,0,24);str(d.ending.brand,24);str(d.ending.logoAsset,80);if(!['signature','orbit','quiet'].includes(d.ending.style))throw Error('AE 片尾类型无效。');
   if(d.ending.logoAsset)asset(d.ending.logoAsset);for(const key of ['x','y','w','h'])number(d.ending.word[key]);
@@ -66,9 +66,9 @@ function validateStudioAEScene(payload){
   list(d.layers,150).forEach(layer);
   if(d.story!==undefined){
     if(!d.story||typeof d.story.enabled!=='boolean'||typeof d.story.packagingOnly!=='boolean'||typeof d.story.flash!=='boolean')throw Error('AE 双镜头片头开关无效。');
-    number(d.story.transitionStart,0,60);number(d.story.transitionDuration,0,12);
+    number(d.story.transitionStart,0,3600);number(d.story.transitionDuration,0,12);
     const roles=new Set();for(const shot of list(d.story.shots,2)){
-      if(!['character','author'].includes(shot.role)||roles.has(shot.role))throw Error('AE 双镜头角色无效。');roles.add(shot.role);number(shot.start,0,60);number(shot.duration,.05,60);
+      if(!['character','author'].includes(shot.role)||roles.has(shot.role))throw Error('AE 双镜头角色无效。');roles.add(shot.role);number(shot.start,0,3600);number(shot.duration,.05,1200);
       if(!['tl-br','tr-bl','bl-tr','br-tl','center'].includes(shot.corner)||!['none','crt','holo','polar'].includes(shot.effect))throw Error('AE 双镜头设计参数无效。');number(shot.strength,0,1);number(shot.effectSpeed,0,3);
       if(shot.start+shot.duration>d.intro+.01)throw Error('AE 双镜头时长超出片头。');for(const l of list(shot.layers,20)){if(!['text','plate','image'].includes(l.kind))throw Error('AE 双镜头图层无效。');layer(l);if(d.story.packagingOnly&&l.kind==='image')throw Error('AE 包装模式不能包含片头素材。');}
     }

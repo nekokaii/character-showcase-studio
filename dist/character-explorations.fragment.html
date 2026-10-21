@@ -832,12 +832,12 @@
 #character-directions .design-art:is([data-kind="district"],[data-kind="tuner"],[data-kind="arcade"]) .art-credit{font-size:clamp(10px,.6cqw,14px);opacity:calc(var(--detail) * .6)}
 
 /* DISTRICT: condensed italic wordmark, a cut underline and a compact folio. */
-#character-directions .design-art[data-kind="district"]{--name-y:27%;--caption-y:57%;--title-angle:-6deg;--title-style:italic;--title-size:18cqw;--caption-size:2.1cqw}
+#character-directions .design-art[data-kind="district"]{--edition-y:15%;--name-y:27%;--caption-y:57%;--title-angle:-6deg;--title-style:italic;--title-size:18cqw;--caption-size:2.1cqw}
 #character-directions .design-art[data-kind="district"] .hero-name{font-size:min(var(--title-size),23cqh)}
 #character-directions .design-art[data-kind="district"] .hero-name{font-style:italic;letter-spacing:-.025em;color:var(--accent)}
 #character-directions .design-art[data-kind="district"] .hero-name:before{display:block;left:1%;right:8%;top:auto;bottom:-1.4cqw;height:.75cqw;background:var(--ink);clip-path:polygon(3% 0,100% 0,97% 100%,0 100%);transform:none}
 #character-directions .design-art[data-kind="district"] .hero-name:after{content:"";position:absolute;right:-1.6cqw;top:6%;width:.65cqw;height:58%;background:var(--accent);transform:skewY(-12deg)}
-#character-directions .design-art[data-kind="district"] .hello{top:-1.1cqw;color:var(--ink);opacity:.65}
+#character-directions .design-art[data-kind="district"] .hello{top:-3.2cqw;color:var(--ink);opacity:.65}
 #character-directions .design-art[data-kind="district"] .art-brand:before{background:var(--accent);width:2.1cqw;height:.75cqw;clip-path:polygon(22% 0,100% 0,78% 100%,0 100%);border-radius:0;transform:none}
 #character-directions .design-art[data-kind="district"] .edition-label{padding:.45cqw .65cqw;background:var(--accent);color:var(--accent-contrast);font-weight:800;letter-spacing:0;clip-path:polygon(0 0,100% 0,93% 100%,0 100%)}
 #character-directions .design-art[data-kind="district"] .art-edition{gap:.7cqw;transform:rotate(-1deg)}
@@ -882,11 +882,12 @@
 /* Portrait preserves a compact upper identity, open character stage and bottom
    product shelf. Font sizes use composition width, never output pixel count. */
 #character-directions .design-art:is([data-kind="district"],[data-kind="tuner"],[data-kind="arcade"]).is-portrait{--copy-x:7%;--copy-w:86%;--name-x:6%;--name-w:86%;--edition-y:10%;--name-y:18%;--title-size:27cqw;--caption-y:31%;--subtitle-y:34.5%;--caption-size:4.2cqw;--note-x:92%;--note-y:72%;--tech-y:85%}
-#character-directions .design-art[data-kind="district"].is-portrait{--title-size:35cqw;--name-y:18.5%;--title-angle:-4deg}
+#character-directions .design-art[data-kind="district"].is-portrait{--edition-y:8%;--title-size:35cqw;--name-y:18.5%;--title-angle:-4deg}
 #character-directions .design-art[data-kind="tuner"].is-portrait{--title-size:27cqw;--name-y:20%;--caption-y:30%;--subtitle-y:34%}
 #character-directions .design-art[data-kind="arcade"].is-portrait{--title-size:27cqw;--name-y:19%;--caption-y:30.5%}
 #character-directions .design-art:is([data-kind="district"],[data-kind="tuner"],[data-kind="arcade"]).is-portrait .hero-name{font-size:min(var(--title-size),12.7cqh)}
 #character-directions .design-art:is([data-kind="district"],[data-kind="tuner"],[data-kind="arcade"]).is-portrait .hello{top:-4.2cqw;font-size:clamp(10px,1.9cqw,18px)}
+#character-directions .design-art[data-kind="district"].is-portrait .hello{top:-7.5cqw}
 #character-directions .design-art:is([data-kind="district"],[data-kind="tuner"],[data-kind="arcade"]).is-portrait .art-edition{max-width:86%;gap:2.5cqw}
 #character-directions .design-art:is([data-kind="district"],[data-kind="tuner"],[data-kind="arcade"]).is-portrait .edition-label{font-size:clamp(10px,2.4cqw,25px);padding:1cqw 1.6cqw}
 #character-directions .design-art[data-kind="tuner"].is-portrait .edition-label{padding:0}
@@ -1146,6 +1147,81 @@
   border-radius: 50%;
   background: #98ae63;
   content: "";
+}
+#character-directions.studio-editor .studio-mode-button {
+  border-color: #27321f;
+  background: #27321f;
+  color: #fff;
+}
+#character-directions.studio-editor .studio-mode-button:hover { background: #3c4b2d; }
+#character-directions.studio-editor .studio-edit-workspace {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+  padding: 20px 22px 18px;
+  gap: 14px;
+  background: #eef0ed;
+  overflow: hidden;
+}
+#character-directions.studio-editor .studio-edit-head { display:flex; align-items:center; justify-content:space-between; gap:20px; flex:0 0 auto; }
+#character-directions.studio-editor .studio-edit-head h2 { margin:3px 0 2px; font-size:22px; letter-spacing:-.04em; }
+#character-directions.studio-editor .studio-edit-head p { margin:0; color:#788174; font-size:12px; }
+#character-directions.studio-editor .studio-edit-head-actions { display:flex; align-items:center; gap:8px; }
+#character-directions.studio-editor .studio-import-button { display:inline-flex; align-items:center; justify-content:center; min-height:36px; padding:8px 13px; border:1px solid #cfd8c7; border-radius:8px; background:#d8ed99; color:#38491b; font-weight:700; cursor:pointer; }
+#character-directions.studio-editor .studio-import-button input { display:none; }
+#character-directions.studio-editor .studio-edit-main { display:grid; grid-template-columns: minmax(180px, .8fr) minmax(360px, 2.2fr) minmax(220px, 1fr); gap:12px; flex:1 1 auto; min-height:0; }
+#character-directions.studio-editor .studio-edit-assets,
+#character-directions.studio-editor .studio-edit-properties,
+#character-directions.studio-editor .studio-edit-preview { min-width:0; min-height:0; border:1px solid #dce2d8; border-radius:12px; background:#fff; }
+#character-directions.studio-editor .studio-edit-assets,
+#character-directions.studio-editor .studio-edit-properties { padding:14px; overflow:auto; }
+#character-directions.studio-editor .studio-edit-preview { display:flex; flex-direction:column; padding:12px; background:#dfe4dd; }
+#character-directions.studio-editor .studio-edit-section-title { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; color:#27321f; }
+#character-directions.studio-editor .studio-edit-section-title span { color:#8a9384; font-size:11px; }
+#character-directions.studio-editor .studio-drop-zone { display:grid; place-items:center; min-height:92px; border:1px dashed #bbc7b5; border-radius:9px; background:#f8faf5; color:#53624c; text-align:center; font-size:12px; cursor:pointer; }
+#character-directions.studio-editor .studio-drop-zone.is-dragging { border-color:#7e9a4d; background:#edf7cb; }
+#character-directions.studio-editor .studio-drop-zone small { color:#8a9384; font-size:10px; }
+#character-directions.studio-editor .studio-asset-list { display:grid; gap:7px; margin-top:12px; }
+#character-directions.studio-editor .studio-asset-card { display:grid; grid-template-columns:38px 1fr; grid-template-rows:auto auto; gap:0 8px; width:100%; padding:7px; border:1px solid #e3e8df; border-radius:8px; background:#fff; color:#374136; text-align:left; cursor:pointer; }
+#character-directions.studio-editor .studio-asset-card[data-selected="true"] { border-color:#8da85b; background:#f1f7df; box-shadow:0 0 0 2px #d8ed99; }
+#character-directions.studio-editor .studio-asset-thumb { grid-row:1 / 3; width:38px; height:34px; overflow:hidden; border-radius:5px; background:#e5e9e1 center/cover no-repeat; }
+#character-directions.studio-editor .studio-asset-thumb video { width:100%; height:100%; object-fit:cover; }
+#character-directions.studio-editor .studio-asset-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; font-weight:650; }
+#character-directions.studio-editor .studio-asset-type { color:#899280; font-size:9px; letter-spacing:.08em; }
+#character-directions.studio-editor .studio-edit-stage { position:relative; flex:1 1 auto; min-height:0; overflow:hidden; border-radius:8px; background:repeating-conic-gradient(#242c25 0 25%,#1c221e 0 50%) 50% / 24px 24px; }
+#character-directions.studio-editor .studio-edit-stage::after { position:absolute; inset:0; border:1px solid #ffffff2b; content:""; pointer-events:none; }
+#character-directions.studio-editor .studio-edit-empty { position:absolute; inset:0; display:grid; place-items:center; color:#aeb8ab; font-size:13px; }
+#character-directions.studio-editor .studio-edit-media { position:absolute; left:50%; top:50%; max-width:none; max-height:none; width:100%; height:100%; object-fit:contain; transform-origin:center; }
+#character-directions.studio-editor .studio-transport,
+#character-directions.studio-editor .studio-edit-transport { display:flex; align-items:center; gap:8px; padding-top:10px; color:#687264; font-size:11px; }
+#character-directions.studio-editor .studio-edit-transport span { margin-left:auto; font-variant-numeric:tabular-nums; }
+#character-directions.studio-editor .studio-edit-property-body { display:grid; gap:12px; }
+#character-directions.studio-editor .studio-edit-control { display:grid; grid-template-columns:62px 1fr 38px; align-items:center; gap:8px; color:#65705f; font-size:11px; }
+#character-directions.studio-editor .studio-edit-control input { min-width:0; accent-color:#7e9a4d; }
+#character-directions.studio-editor .studio-edit-control output { text-align:right; color:#34412d; font-variant-numeric:tabular-nums; }
+#character-directions.studio-editor .studio-edit-property-note { margin:2px 0 0; padding-top:10px; border-top:1px solid #e6ebe3; color:#899280; font-size:11px; line-height:1.7; }
+#character-directions.studio-editor .studio-edit-timeline { flex:0 0 144px; min-height:144px; padding:12px 14px; border:1px solid #dce2d8; border-radius:12px; background:#fff; overflow:auto; }
+#character-directions.studio-editor .studio-edit-ruler { display:grid; grid-template-columns:repeat(5,1fr); margin-left:130px; color:#9aa398; font-size:10px; }
+#character-directions.studio-editor .studio-edit-track { display:grid; grid-template-columns:130px 1fr; min-height:34px; border-top:1px solid #eef1eb; }
+#character-directions.studio-editor .studio-edit-track-label { display:flex; align-items:center; color:#677362; font-size:11px; }
+#character-directions.studio-editor .studio-edit-track-lane { display:flex; align-items:center; gap:4px; min-width:0; padding:4px; background:repeating-linear-gradient(90deg,#fbfcfa 0,#fbfcfa calc(20% - 1px),#edf1eb 20%); }
+#character-directions.studio-editor .studio-edit-empty-track { color:#a0a99c; font-size:10px; }
+#character-directions.studio-editor .studio-edit-clip { min-width:90px; height:25px; padding:0 9px; overflow:hidden; border:1px solid #aabd84; border-radius:5px; background:#d8ed99; color:#38491b; font-size:10px; text-overflow:ellipsis; white-space:nowrap; cursor:pointer; }
+#character-directions.studio-editor .studio-edit-clip[data-selected="true"] { border-color:#40552b; box-shadow:0 0 0 2px #b3cf71; }
+#character-directions.studio-editor .studio-edit-sequence { height:25px; padding:4px 10px; border:1px solid #bbc5d0; border-radius:5px; background:#e9edf1; color:#586879; font-size:10px; }
+@media (max-width: 980px) {
+  #character-directions.studio-editor .studio-edit-main { grid-template-columns: 170px minmax(260px,1fr); }
+  #character-directions.studio-editor .studio-edit-properties { display:none; }
+}
+@media (max-width: 640px) {
+  #character-directions.studio-editor .studio-edit-workspace { padding:12px; }
+  #character-directions.studio-editor .studio-edit-head { align-items:flex-start; flex-direction:column; }
+  #character-directions.studio-editor .studio-edit-main { grid-template-columns:1fr; grid-template-rows:140px minmax(250px,1fr); }
+  #character-directions.studio-editor .studio-edit-assets { overflow:auto; }
+  #character-directions.studio-editor .studio-asset-list { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #character-directions.studio-editor .studio-edit-ruler { margin-left:92px; }
+  #character-directions.studio-editor .studio-edit-track { grid-template-columns:92px 1fr; }
 }
 #character-directions.studio-editor details.studio-help { position: relative; z-index: 30; margin: 0; }
 #character-directions.studio-editor .studio-help > summary {
@@ -1855,6 +1931,135 @@
   #character-directions.studio-editor :is(.btn, .form-control, .form-select, .form-check-input, .studio-series-tabs button),
   #character-directions.studio-editor details.studio-group > summary::after { transition: none; }
 }
+
+#character-directions.studio-editor .studio-editor-status{padding:7px 12px;background:#e4edda;border-radius:7px;color:#4b623b;font-size:11px;flex:none;white-space:pre-wrap;max-height:65px;overflow:auto}
+#character-directions.studio-editor .studio-editor-status[data-error=true]{background:#fce9e4;color:#9a422c}
+#character-directions.studio-editor.is-editing-mode .studio-layout,#character-directions.studio-editor.is-editing-mode .studio-mobile-tabs{display:none!important}
+#character-directions.studio-editor.is-editing-mode .studio-focus-button{display:none}
+#character-directions.studio-editor .studio-edit-workspace{padding:14px 18px;gap:10px}
+#character-directions.studio-editor .studio-edit-main{grid-template-columns:230px minmax(280px,1fr) 270px}
+#character-directions.studio-editor .studio-edit-head h2{font-size:20px}
+#character-directions.studio-editor .studio-edit-assets,#character-directions.studio-editor .studio-edit-properties{padding:12px}
+#character-directions.studio-editor .studio-edit-stage{display:flex;align-items:center;justify-content:center;isolation:isolate}
+#character-directions.studio-editor .studio-edit-stage>.design-art{flex:none;margin:0!important;max-width:none;max-height:none;border:0;border-radius:0;box-shadow:none;overflow:hidden;position:absolute;container-type:size}
+#character-directions.studio-editor .studio-editor-clip-surface{position:absolute;pointer-events:none;transform-origin:center;overflow:hidden;isolation:isolate}
+#character-directions.studio-editor .studio-editor-clip-surface>canvas{display:block;width:100%;height:100%}
+#character-directions.studio-editor .studio-editor-field{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px;color:#5c6b54;margin:8px 0}
+#character-directions.studio-editor .studio-editor-field input,#character-directions.studio-editor .studio-editor-field select{box-sizing:border-box;width:108px;min-width:0;min-height:29px;padding:4px 6px;border:1px solid #d5ddcf;border-radius:5px;color:#34422c;background:#f8faf6;font:inherit}
+#character-directions.studio-editor .studio-editor-field select{width:145px}
+#character-directions.studio-editor .studio-editor-field:has([aria-label="剪辑画幅"]) span{white-space:nowrap}
+#character-directions.studio-editor .studio-editor-field [aria-label="剪辑画幅"]{width:135px}
+#character-directions.studio-editor .studio-editor-field input[type=checkbox]{width:18px;min-height:18px;accent-color:#7e9a4d}
+#character-directions.studio-editor .studio-editor-field input[type=color]{padding:2px}
+#character-directions.studio-editor .studio-editor-section{border-bottom:1px solid #e3e8df;padding:2px 0 10px}
+#character-directions.studio-editor .studio-editor-section summary,#character-directions.studio-editor .studio-editor-output summary{cursor:pointer;color:#35462c;font-weight:600;font-size:12px;padding:6px 0}
+#character-directions.studio-editor .studio-editor-output{margin-top:15px;border-top:1px solid #e3e8df;padding-top:8px}
+#character-directions.studio-editor .studio-editor-output h4{font-size:12px;margin:14px 0 5px}
+#character-directions.studio-editor .studio-editor-output .btn,#character-directions.studio-editor .studio-editor-output .studio-import-button{font-size:11px;width:100%;margin:6px 0}
+#character-directions.studio-editor .studio-editor-filename{overflow-wrap:anywhere;font-size:12px}
+#character-directions.studio-editor .studio-asset-thumb{display:grid;place-items:center;font-size:22px;color:#4c6a30}
+#character-directions.studio-editor .studio-edit-timeline{flex:0 0 220px;padding:10px 12px;min-height:180px;overflow:auto}
+#character-directions.studio-editor [data-seek]{display:block;width:calc(100% - 130px);margin:3px 0 6px 130px;accent-color:#73983e}
+#character-directions.studio-editor .studio-edit-track{min-height:26px}
+#character-directions.studio-editor .studio-editor-fixed-track{min-height:18px;color:#9da696}
+#character-directions.studio-editor .studio-editor-fixed-track .studio-edit-track-lane{font-size:10px;min-height:22px!important}
+#character-directions.studio-editor .studio-edit-track-lane{overflow:hidden}
+#character-directions.studio-editor .studio-edit-clip{touch-action:none;cursor:grab;height:24px}
+#character-directions.studio-editor .studio-editor-playhead{position:absolute;top:0;bottom:0;width:1px;background:#d66536;z-index:80;pointer-events:none}
+#character-directions.studio-editor .studio-editor-export-progress{position:absolute;inset:50% auto auto 50%;transform:translate(-50%,-50%);width:360px;max-width:85%;display:grid;gap:16px;padding:25px;border:1px solid #bacaa2;border-radius:12px;box-shadow:0 10px 80px #22331466;background:white;z-index:999}
+#character-directions.studio-editor .studio-editor-export-progress progress{width:100%;accent-color:#799e40}
+#character-directions.studio-editor .studio-editor-transparent{background:transparent!important}
+#character-directions.studio-editor .studio-editor-transparent .studio-post-surface{background:transparent!important}
+#character-directions.studio-editor.studio-editor-render{background:transparent!important}
+#character-directions.studio-editor.studio-editor-render>.studio-header,#character-directions.studio-editor.studio-editor-render .studio-edit-workspace>*:not(.studio-edit-main),#character-directions.studio-editor.studio-editor-render .studio-edit-main>*:not(.studio-edit-preview),#character-directions.studio-editor.studio-editor-render .studio-edit-transport{display:none!important}
+#character-directions.studio-editor.studio-editor-render .studio-edit-workspace,#character-directions.studio-editor.studio-editor-render .studio-edit-main,#character-directions.studio-editor.studio-editor-render .studio-edit-preview,#character-directions.studio-editor.studio-editor-render .studio-edit-stage{position:absolute;inset:0;display:block!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;overflow:hidden;max-width:none}
+#character-directions.studio-editor.studio-editor-render .studio-edit-stage>.design-art{left:50%;top:50%;translate:-50% -50%}
+#character-directions.studio-editor.studio-editor-render .studio-edit-stage:after{display:none}
+@media(max-width:1150px){#character-directions.studio-editor .studio-edit-main{grid-template-columns:190px minmax(200px,1fr) 230px}#character-directions.studio-editor .studio-edit-transport{gap:4px}#character-directions.studio-editor .studio-edit-transport .btn{padding:5px 7px;font-size:11px}}
+@media(max-width:980px){#character-directions.studio-editor .studio-edit-properties{display:block}#character-directions.studio-editor .studio-edit-main{grid-template-columns:180px minmax(200px,1fr) 220px}#character-directions.studio-editor .studio-edit-head p{display:none}#character-directions.studio-editor .studio-edit-transport{flex-wrap:wrap}}
+@media(max-width:760px){#character-directions.studio-editor .studio-edit-workspace{overflow:auto}#character-directions.studio-editor .studio-edit-main{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:300px 320px;flex:none}#character-directions.studio-editor .studio-edit-preview{grid-column:1/-1;grid-row:1}#character-directions.studio-editor .studio-edit-assets{grid-row:2;grid-column:1}#character-directions.studio-editor .studio-edit-properties{grid-row:2;grid-column:2}#character-directions.studio-editor .studio-edit-head{gap:8px}#character-directions.studio-editor .studio-edit-head-actions{flex-wrap:wrap}#character-directions.studio-editor .studio-edit-timeline{flex:none}#character-directions.studio-editor .studio-edit-track{grid-template-columns:100px 1fr}#character-directions.studio-editor [data-seek]{width:calc(100% - 100px);margin-left:100px}}
+
+#character-directions.studio-editor .studio-editor-clip-surface>video,#character-directions.studio-editor .studio-editor-clip-surface>img{display:block;width:100%;height:100%;object-fit:fill;pointer-events:none}
+#character-directions.studio-editor .studio-preview-quality{font-size:10px;color:#7a876f;margin-left:0!important}
+
+#character-directions.studio-editor .studio-transform-frame{box-sizing:border-box;position:absolute;z-index:900;border:1px solid #ccff77;box-shadow:0 0 0 1px #18351599;transform-origin:center;cursor:move;touch-action:none;pointer-events:auto}
+#character-directions.studio-editor .studio-transform-handle{box-sizing:border-box;position:absolute;width:16px;height:16px;min-height:0;padding:0;background:#d8ed99;border:2px solid #2c3f20;border-radius:3px;box-shadow:0 0 0 1px #e3ffc4;touch-action:none;pointer-events:auto}
+#character-directions.studio-editor .studio-transform-nw{left:0;top:0;cursor:nwse-resize}
+#character-directions.studio-editor .studio-transform-ne{right:0;top:0;cursor:nesw-resize}
+#character-directions.studio-editor .studio-transform-sw{left:0;bottom:0;cursor:nesw-resize}
+#character-directions.studio-editor .studio-transform-se{right:0;bottom:0;cursor:nwse-resize}
+#character-directions.studio-editor .studio-transform-rotate{top:18px;left:calc(50% - 9px);width:18px;height:18px;border-radius:50%;cursor:grab;background:#f5ffc7}
+#character-directions.studio-editor .studio-transform-rotate:after{content:'↻';position:absolute;inset:-3px;font-size:14px;line-height:20px;color:#264319}
+#character-directions.studio-editor .studio-transform-caption{position:absolute;left:25px;top:4px;max-width:calc(100% - 70px);padding:3px 6px;background:#163019bb;color:#f0ffd7;font-size:10px;white-space:nowrap;pointer-events:none}
+#character-directions.studio-editor .studio-edit-stage{touch-action:none;outline-offset:-3px}
+#character-directions.studio-editor.studio-editor-render .studio-transform-frame{display:none!important}
+#character-directions.studio-editor .studio-design-sync-toggle{display:inline-flex;align-items:center;gap:6px;color:#56654a;font-size:11px;white-space:nowrap;cursor:pointer}
+#character-directions.studio-editor .studio-design-sync-toggle input{accent-color:#719342;width:16px;height:16px}
+#character-directions.studio-editor .studio-editor-export-progress [data-progress]{font-size:12px;line-height:1.7;color:#526544}
+#character-directions.studio-editor .studio-asset-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px}
+#character-directions.studio-editor .studio-asset-row .studio-asset-card{min-width:0;width:100%}
+#character-directions.studio-editor .studio-asset-card[aria-pressed=true]{outline:2px solid #8ba751;outline-offset:-2px;background:#eef4e2}
+#character-directions.studio-editor .studio-edit-track-lane[data-layer]:not(:has(.studio-edit-clip)):after{content:attr(data-drop-hint);position:absolute;inset:0;display:grid;place-items:center;color:#94a386;font-size:10px;pointer-events:none}
+#character-directions.studio-editor .studio-edit-track-lane.is-asset-drop{background:#dceebd;box-shadow:inset 0 0 0 2px #789d42}
+#character-directions.studio-editor .studio-asset-remove{padding:5px 7px;font-size:11px;color:#9a422c}
+#character-directions.studio-editor .studio-asset-remove-confirm{grid-column:1/-1;padding:9px;background:#fcf0e9;border:1px solid #e5c9b8;border-radius:6px;font-size:11px;color:#774431;line-height:1.6}
+#character-directions.studio-editor .studio-asset-remove-confirm p{margin:0 0 6px}
+#character-directions.studio-editor .studio-asset-remove-confirm .btn{font-size:11px;padding:5px 7px;margin:2px 4px 0 0}
+#character-directions.studio-editor .story-shot-number{z-index:2}
+
+#character-directions .studio-editor-text-layers{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden;container-type:size}
+#character-directions .studio-editor-text-layers>:is(.composition,.story-intro,.brand-ending){inset:0}
+#character-directions :is(.studio-editor-footage-below,.studio-editor-footage-above){position:absolute;inset:0;pointer-events:none;overflow:hidden;container-type:size;z-index:3}
+#character-directions .studio-editor-footage-above{z-index:5}
+#character-directions .studio-post-surface>.studio-show-foreground{inset:0}
+#character-directions .studio-post-surface>.studio-editor-story-picture{z-index:1}
+
+/* Editor uses the viewport; both sidebars and the timeline can yield to picture. */
+#character-directions.studio-editor.is-editing-mode:not(.studio-editor-render)>.studio-header{flex-basis:46px;min-height:46px;padding:5px 14px}
+#character-directions.studio-editor.is-editing-mode .studio-header .studio-kicker,#character-directions.studio-editor.is-editing-mode .studio-local-label{display:none}
+#character-directions.studio-editor .studio-edit-workspace{padding:8px;gap:6px;min-height:0;min-width:0;--timeline-height:clamp(160px,29vh,290px)}
+#character-directions.studio-editor .studio-edit-head{gap:8px;flex:none;flex-wrap:wrap}
+#character-directions.studio-editor .studio-edit-head h2{font-size:15px;margin:0}
+#character-directions.studio-editor .studio-edit-head p,#character-directions.studio-editor .studio-edit-head .studio-kicker{display:none}
+#character-directions.studio-editor .studio-edit-head-actions{gap:6px;flex-wrap:wrap}
+#character-directions.studio-editor .studio-editor-status{padding:4px 9px;max-height:38px;font-size:10px}
+#character-directions.studio-editor .studio-edit-main{grid-template-columns:clamp(170px,17vw,240px) minmax(0,1fr) clamp(225px,21vw,300px);gap:7px;min-height:120px;min-width:0}
+#character-directions.studio-editor .studio-edit-assets,#character-directions.studio-editor .studio-edit-properties{min-width:0;min-height:0;padding:9px;overflow:auto;display:block}
+#character-directions.studio-editor .studio-edit-preview{padding:5px;min-width:0;min-height:0;overflow:hidden}
+#character-directions.studio-editor .studio-edit-stage>.design-art{left:50%;top:50%;translate:-50% -50%}
+#character-directions.studio-editor .studio-edit-transport{gap:5px;flex-wrap:wrap;padding-top:5px;flex:none}
+#character-directions.studio-editor .studio-edit-transport .btn{padding:4px 7px;font-size:11px;min-height:26px}
+#character-directions.studio-editor .studio-preview-quality{display:none}
+#character-directions.studio-editor .studio-edit-timeline{position:relative;flex:0 0 var(--timeline-height);min-height:100px;padding:8px 9px;overflow:auto}
+#character-directions.studio-editor .studio-timeline-resizer{height:8px;margin:-8px -9px 3px;position:sticky;top:-8px;background:#d2dcc8;cursor:ns-resize;touch-action:none;z-index:90}
+#character-directions.studio-editor .studio-edit-track{grid-template-columns:120px minmax(0,1fr)}
+#character-directions.studio-editor [data-seek]{width:calc(100% - 120px);margin-left:120px}
+#character-directions.studio-editor .is-clip-drop{background:#e3efce;outline:2px solid #8ba751;outline-offset:-2px}
+#character-directions.studio-editor .studio-hide-assets .studio-edit-assets,#character-directions.studio-editor .studio-hide-properties .studio-edit-properties,#character-directions.studio-editor .studio-preview-expanded :is(.studio-edit-assets,.studio-edit-properties){display:none}
+#character-directions.studio-editor .studio-hide-assets .studio-edit-main{grid-template-columns:minmax(0,1fr) clamp(225px,21vw,300px)}
+#character-directions.studio-editor .studio-hide-properties .studio-edit-main{grid-template-columns:clamp(170px,17vw,240px) minmax(0,1fr)}
+#character-directions.studio-editor :is(.studio-preview-expanded,.studio-hide-assets.studio-hide-properties) .studio-edit-main{grid-template-columns:minmax(0,1fr)}
+#character-directions.studio-editor .studio-preview-expanded .studio-edit-timeline{flex-basis:105px;min-height:105px}
+#character-directions.studio-editor .studio-keyframe-actions{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0}
+#character-directions.studio-editor .studio-keyframe-actions .btn,#character-directions.studio-editor .studio-keyframe-list .btn{padding:5px 6px;font-size:11px}
+#character-directions.studio-editor .studio-keyframe-list{display:flex;gap:4px;flex-wrap:wrap;max-height:100px;overflow:auto}
+#character-directions.studio-editor .studio-keyframe-time{font-size:11px;color:#78876c;font-variant-numeric:tabular-nums}
+@media(max-width:1000px){#character-directions.studio-editor .studio-edit-main{grid-template-columns:160px minmax(0,1fr) 210px}#character-directions.studio-editor .studio-editor-field select{width:125px}#character-directions.studio-editor .studio-edit-transport .btn{font-size:10px;padding:4px 5px}}
+@media(max-width:760px){#character-directions.studio-editor .studio-edit-workspace{overflow:auto}#character-directions.studio-editor .studio-edit-main{flex:1 0 540px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(230px,1fr) 270px}#character-directions.studio-editor .studio-edit-preview{grid-column:1/-1;grid-row:1}#character-directions.studio-editor .studio-edit-assets{grid-row:2;grid-column:1}#character-directions.studio-editor .studio-edit-properties{grid-row:2;grid-column:2}#character-directions.studio-editor .studio-preview-expanded .studio-edit-main{flex:1 0 370px;grid-template-columns:1fr;grid-template-rows:1fr}#character-directions.studio-editor .studio-edit-timeline{flex-shrink:0}#character-directions.studio-editor .studio-header .studio-brand h1{font-size:13px}#character-directions.studio-editor .studio-edit-head-actions .btn,#character-directions.studio-editor .studio-import-button{font-size:10px}}
+
+#character-directions.studio-editor .studio-audio-track .studio-edit-track-label{color:#4c648b;font-weight:600}
+#character-directions.studio-editor .studio-audio-track .studio-edit-track-lane{background:#edf1f8}
+#character-directions.studio-editor .studio-audio-track .studio-edit-clip{background:#d9e5f5;color:#314e7b;border-color:#a9c0de}
+
+#character-directions.studio-editor .studio-keyframe-actions:first-of-type>.btn:first-child{background:#dcedb7;border-color:#a8c579;color:#354b22}
+#character-directions.studio-editor .studio-keyframe-advanced{margin-top:8px;border-top:1px solid #e3e8df;padding-top:4px}
+#character-directions.studio-editor .studio-keyframe-advanced>summary{font-weight:400;color:#708261;font-size:11px}
+
+#character-directions .studio-editor-track-stack{position:absolute;inset:0;pointer-events:none;container-type:size;isolation:isolate}
+#character-directions.studio-editor .studio-edit-track-label{gap:3px;min-width:0}
+#character-directions.studio-editor .studio-track-name{flex:1;min-width:0;overflow-wrap:anywhere}
+#character-directions.studio-editor .studio-track-action{flex:none;width:18px;height:21px;min-height:0;padding:0;border:1px solid #cbd7c2;border-radius:4px;background:#f3f7ed;color:#597542;font-size:13px;line-height:19px;cursor:pointer}
+#character-directions.studio-editor .studio-track-action:disabled{opacity:.35;cursor:default}
 
 #character-directions.studio-editor .studio-output-button{background:#263025;color:#fff;border-color:#263025}
 #character-directions.studio-editor .studio-playback-settings{justify-content:space-between;align-items:center}
@@ -4697,7 +4902,7 @@ function studioCRTPose(progress){
 }
 
 // Narrative timing is independent of the continuous geometry/text clocks.
-function studioIntroDuration(value){return Number.isFinite(value)?Math.max(0,Math.min(30,value)):4.5}
+function studioIntroDuration(value){return Number.isFinite(value)?Math.max(0,Math.min(1800,value)):4.5}
 function studioShowDuration(narrative){return Number.isFinite(narrative?.showDuration)?Math.max(1,Math.min(60,narrative.showDuration)):12}
 function studioNarrativeSettings(value={}){
   value=value&&typeof value==='object'?value:{};
@@ -4706,13 +4911,13 @@ function studioNarrativeSettings(value={}){
   const outroDuration=bounded(value.outroDuration,1.5,12,3.5);
   return {introStyle:pick(value.introStyle,['model','title','story'],'model'),nameReveal:pick(value.nameReveal,['show','delayed'],'show'),nameDelay:bounded(value.nameDelay,.2,.9,.65),showDuration:studioShowDuration(value),showPlayback:pick(value.showPlayback,['continuous','repeat'],'continuous'),outroEnabled:value.outroEnabled===true,outroDuration,outroStyle:pick(value.outroStyle,['signature','orbit','quiet'],'signature'),outroContent:pick(value.outroContent,['auto','word','logo'],'auto'),outroTrigger:pick(value.outroTrigger,['auto','manual'],'auto'),shutdownEnabled:value.shutdownEnabled!==false,shutdownDuration:bounded(value.shutdownDuration,.3,Math.min(1.5,outroDuration*.45),Math.min(.8,outroDuration*.45)),
     characterShotEnabled:value.characterShotEnabled!==false,authorShotEnabled:value.authorShotEnabled!==false,
-    characterShotDuration:bounded(value.characterShotDuration,.5,12,2.5),authorShotDuration:bounded(value.authorShotDuration,.5,12,2),storyTransitionDuration:bounded(value.storyTransitionDuration,.15,3,.6),
+    characterShotDuration:bounded(value.characterShotDuration,.5,600,2.5),authorShotDuration:bounded(value.authorShotDuration,.5,600,2),storyTransitionDuration:bounded(value.storyTransitionDuration,.15,3,.6),
     characterCorner:pick(value.characterCorner,['tl-br','tr-bl','bl-tr','br-tl','center'],'tl-br'),authorCorner:pick(value.authorCorner,['tl-br','tr-bl','bl-tr','br-tl','center'],'tr-bl'),
     characterEffect:pick(value.characterEffect,['none','crt','holo','polar'],'polar'),authorEffect:pick(value.authorEffect,['none','crt','holo','polar'],'polar'),
     characterEffectStrength:bounded(value.characterEffectStrength,0,1,.3),authorEffectStrength:bounded(value.authorEffectStrength,0,1,.3),
     characterEffectSpeed:bounded(value.characterEffectSpeed,.1,2,.7),authorEffectSpeed:bounded(value.authorEffectSpeed,.1,2,.7),
     postEffect:pick(value.postEffect,['none','polar','crt','holo','bloom','anamorphic','prism','film'],pick(value.characterEffect,['polar','crt','holo'],'polar')),
-    postStrength:bounded(value.postStrength,0,1,.6),postSpeed:bounded(value.postSpeed,.1,2,.7),postFade:bounded(value.postFade,.15,1.5,.45),postGlow:bounded(value.postGlow,0,1,.25),
+    postStrength:bounded(value.postStrength,0,1,.6),postDispersion:bounded(value.postDispersion,0,1,.25),postSpeed:bounded(value.postSpeed,.1,2,.7),postFade:bounded(value.postFade,.15,1.5,.45),postGlow:bounded(value.postGlow,0,1,.25),
     postCharacter:value.postCharacter!==false,postAuthor:value.postAuthor!==false,postShow:value.postShow===true,postOutro:value.postOutro===true,
     storyPackagingOnly:value.storyPackagingOnly===true,storyFlash:value.storyFlash===true,
     characterScale:bounded(value.characterScale,.6,2.4,1.15),authorScale:bounded(value.authorScale,.6,2.4,1.25),
@@ -4975,6 +5180,307 @@ window.openai?.setWidgetState?.({modelContent:{design:'角色展示 · 时尚／
 const template=document.getElementById('direction-view-template');
 const settingLabels={palette:'点缀配色',background:'背景',ringStyle:'环形与几何',pattern:'背景图案',grade:'影调风格',gradient:'背景渐变',shadowStyle:'投影风格',accent:'自定义点缀色',gradientColor:'渐变第二色',shadowColor:'统一投影颜色',badgePalette:'标识配色',badgeStyle:'标识外观',badgeColor:'标识底色',badgeInk:'标识图形与文字色',typeface:'标题字体',textMotionStyle:'文字动效风格'};
 const views=[...root.querySelectorAll('[data-design]')].map(section=>{section.append(template.content.cloneNode(true));const dualControls=section.querySelector('[data-dual-controls]');if(section.dataset.design==='dual')dualControls.hidden=false;else dualControls.remove();const art=section.querySelector('.design-art'),composition=art.querySelector('.composition'),canvas=art.querySelector('.field-canvas');art.dataset.kind=section.dataset.design;if(section.dataset.design==='dual'){const information=document.createElement('div');information.className='dual-information';information.append(art.querySelector('.dual-handle'),art.querySelector('.technical'));composition.append(information);}art.setAttribute('aria-label',section.dataset.variant+' · 角色背景');for(const el of section.querySelectorAll('[data-vfield],[data-efield],[data-vcolor],[data-ecolor]'))el.setAttribute('aria-label',settingLabels[el.dataset.vfield||el.dataset.efield||el.dataset.vcolor||el.dataset.ecolor]);return {section,art,composition,canvas,ctx:canvas.getContext('2d'),key:section.dataset.design,name:art.querySelector('.hero-name'),stack:art.querySelector('.name-stack'),badgeKey:null,codeKey:'',qrKey:null,qrError:false,w:0,h:0,px:0,py:0,sx:0,sy:0}});template.remove();
+// Shared timeline rules; seconds are always measured at 1×.
+function studioEditorLayer(layer){if(layer==='under-post')return 'above-text';return ['under-intro-text','under-show-text'].includes(layer)?'under-text':layer;}
+const studioVideoLayers=['above-border','under-border','above-text','under-text'];
+const studioTrackLabels={'above-border':'边框上方','under-border':'后处理上方 · 不受效果','above-text':'文字上方 · 受后处理','under-text':'文字下方 · 受后处理'};
+function studioCustomTracks(p){return Array.isArray(p.videoTracks)?p.videoTracks:[];}
+function studioClipTrackId(c){return c.trackId||studioEditorLayer(c.layer);}
+function studioVideoTracks(p,layer){return [...studioCustomTracks(p).filter(t=>t.layer===layer).map(t=>({...t,label:t.name})),{id:layer,layer,label:studioTrackLabels[layer]}];}
+function studioClipTrackRank(p,c){const tracks=studioVideoTracks(p,studioEditorLayer(c.layer)),index=tracks.findIndex(t=>t.id===studioClipTrackId(c));return index<0?1:tracks.length-index;}
+function studioSetClipTrack(c,track){c.layer=track.layer;if(track.id===track.layer)delete c.trackId;else c.trackId=track.id;}
+function studioEditorTimelineRows(p){return [...studioVideoTracks(p,'above-border'),{id:'border',label:'── 信息边框 ──'},...studioVideoTracks(p,'under-border'),{id:'post',label:'── 画面后处理 ──'},...studioVideoTracks(p,'above-text'),{id:'text',label:'── 片头 / 展示页文字 ──'},...studioVideoTracks(p,'under-text'),{id:'showcase',label:'片头 · 展示 · 片尾'},{id:'audio-1',layer:'audio-1',label:'♫ 音轨 1'},{id:'audio-2',layer:'audio-2',label:'♫ 音轨 2'}];}
+function studioEditorOutputAspect(o){if(Math.abs(o.width-o.height*16/9)<=1)return 'landscape';if(Math.abs(o.height-o.width*16/9)<=1)return 'portrait';return 'custom';}
+function studioEditorAspectSize(o,ratio){const long=Math.min(7680,Math.max(114,Math.round(Math.max(o.width,o.height)/2)*2)),short=Math.max(64,Math.round(long*9/16/2)*2);return ratio==='portrait'?{width:short,height:long}:{width:long,height:short};}
+function studioAudioLayer(layer){return ['audio-1','audio-2'].includes(layer);}
+function studioAssetFitsLayer(asset,layer){return (asset.kind==='audio')===studioAudioLayer(layer);}
+function studioClipDuration(c){return Math.max(0,c.out-c.in);}
+const studioAnimatedKeys=['x','y','scale','rotate','opacity'];
+function studioAnimatedValue(c,key,source){
+ const frames=c.keyframes?.[key];if(!frames?.length)return c[key];
+ if(source<=frames[0].time)return frames[0].value;
+ for(let i=1;i<frames.length;i++){const a=frames[i-1],b=frames[i];if(source<=b.time){let t=Math.max(0,Math.min(1,(source-a.time)/(b.time-a.time)));if(a.easing==='hold')t=source<b.time?0:1;else if(a.easing==='smooth')t=t*t*(3-2*t);return a.value+(b.value-a.value)*t;}}
+ return frames.at(-1).value;
+}
+function studioAnimatedClip(c,time){const value={...c},source=c.in+Math.max(0,time-c.start);for(const key of studioAnimatedKeys)value[key]=studioAnimatedValue(c,key,source);return value;}
+function studioPutKeyframe(c,key,source,value,easing='linear'){
+ c.keyframes??={};const frames=c.keyframes[key]??=[];const old=frames.find(f=>Math.abs(f.time-source)<.0005);if(old){old.value=value;old.easing=easing;}else frames.push({time:source,value,easing});frames.sort((a,b)=>a.time-b.time);
+}
+function studioSetAnimatedProperty(c,key,value,time){
+ if(['x','y'].includes(key)&&(c.keyframes?.x?.length||c.keyframes?.y?.length)){const source=Math.max(c.in,Math.min(c.out,c.in+time-c.start)),values={x:studioAnimatedValue(c,'x',source),y:studioAnimatedValue(c,'y',source)};values[key]=value;for(const axis of ['x','y']){const old=c.keyframes?.[axis]?.find(f=>Math.abs(f.time-source)<.0005);if(!c.keyframes?.[axis]?.length&&source>c.in+.0005)studioPutKeyframe(c,axis,c.in,c[axis]);studioPutKeyframe(c,axis,source,values[axis],old?.easing||'linear');}return;}
+ if(c.keyframes?.[key]?.length){const source=Math.max(c.in,Math.min(c.out,c.in+time-c.start)),old=c.keyframes[key].find(f=>Math.abs(f.time-source)<.0005);studioPutKeyframe(c,key,source,value,old?.easing||'linear');}else c[key]=value;
+}
+function studioKeyframeKeys(group){return group==='transform'?studioAnimatedKeys:group==='position'?['x','y']:[group];}
+function studioRecordPose(c,keys,time){const source=Math.max(c.in,Math.min(c.out,c.in+time-c.start)),values=Object.fromEntries(keys.map(key=>[key,studioAnimatedValue(c,key,source)]));for(const key of keys){const old=c.keyframes?.[key]?.find(f=>Math.abs(f.time-source)<.0005);if(!c.keyframes?.[key]?.length&&source>c.in+.0005)studioPutKeyframe(c,key,c.in,c[key]);studioPutKeyframe(c,key,source,values[key],old?.easing||'linear');}}
+function studioClipPose(c,time){
+ const t=time-c.start,d=studioClipDuration(c);if(t<0||t>=d)return {visible:false,opacity:0,source:c.in,audioGain:0,transitionOpacity:0};
+ const a=c.fadeIn>0?Math.min(1,t/c.fadeIn):1,b=c.fadeOut>0?Math.min(1,(d-t)/c.fadeOut):1;
+ const ai=Math.min(d,c.audioFadeIn??c.fadeIn),ao=Math.min(d,c.audioFadeOut??c.fadeOut),audioGain=(ai>0?Math.min(1,t/ai):1)*(ao>0?Math.min(1,(d-t)/ao):1);
+ return {visible:true,source:c.in+t,opacity:Math.min(a,b)*studioAnimatedValue(c,'opacity',c.in+t)/100,transitionOpacity:Math.min(a,b),audioGain,progress:t/d};
+}
+function studioGradeCSS(g){return `brightness(${Math.pow(2,g.exposure||0)}) contrast(${g.contrast??1}) saturate(${g.saturation??1}) hue-rotate(${g.hue||0}deg)`;}
+function studioKeyPixels(data,color,tolerance,softness,spill){
+ const r=parseInt(color.slice(1,3),16),g=parseInt(color.slice(3,5),16),b=parseInt(color.slice(5,7),16),range=Math.sqrt(3)*255;
+ for(let i=0;i<data.length;i+=4){const distance=Math.hypot(data[i]-r,data[i+1]-g,data[i+2]-b)/range;const alpha=Math.max(0,Math.min(1,(distance-tolerance)/Math.max(.001,softness)));data[i+3]=Math.round(data[i+3]*alpha);if(spill&&g>r&&g>b)data[i+1]-=Math.max(0,data[i+1]-Math.max(data[i],data[i+2]))*spill*(1-alpha);}
+ return data;
+}
+function studioSplitClip(c,time,id){const d=time-c.start;if(d<=.001||d>=studioClipDuration(c)-.001)return null;const right={...structuredClone(c),id,start:time,in:c.in+d,fadeIn:0};c.out=c.in+d;c.fadeOut=0;c.audioFadeOut=0;right.audioFadeIn=0;return right;}
+function studioNewClip(asset,start=0){return {id:crypto.randomUUID(),assetId:asset.id,start,in:0,out:asset.duration,layer:asset.kind==='audio'?'audio-1':'under-border',x:50,y:50,scale:100,flipY:false,rotate:0,opacity:100,cropLeft:0,cropRight:0,cropTop:0,cropBottom:0,fadeIn:0,fadeOut:0,transition:'fade',volume:1,audioFadeIn:0,audioFadeOut:0,grade:{exposure:0,contrast:1,saturation:1,hue:0},key:{enabled:false,color:'#00ff00',tolerance:.15,softness:.12,spill:.5}};}
+
+// Keying uses the same shader in preview and full-size frame export.
+function studioCreatePreviewKey(canvas){
+ const gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:false,preserveDrawingBuffer:true,antialias:false,depth:false,stencil:false});
+ if(!gl)return null;
+ const compile=(type,source)=>{const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;};
+ const vs=compile(gl.VERTEX_SHADER,'attribute vec2 p; varying vec2 uv; void main(){uv=(p+1.0)*0.5;gl_Position=vec4(p,0.0,1.0);}');
+ const fs=compile(gl.FRAGMENT_SHADER,`precision highp float;
+ varying vec2 uv;uniform sampler2D image;uniform vec3 keyColor;uniform float tolerance;uniform float softness;uniform float spill;
+ void main(){vec4 c=texture2D(image,uv);float a=clamp((distance(c.rgb,keyColor)/1.7320508-tolerance)/max(0.001,softness),0.0,1.0);
+ if(keyColor.g>keyColor.r&&keyColor.g>keyColor.b)c.g-=max(0.0,c.g-max(c.r,c.b))*spill*(1.0-a);
+ gl_FragColor=vec4(c.rgb,c.a*a);}`);
+ const program=gl.createProgram();gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error('GPU 抠像初始化失败');
+ gl.useProgram(program);const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+ const position=gl.getAttribLocation(program,'p');gl.enableVertexAttribArray(position);gl.vertexAttribPointer(position,2,gl.FLOAT,false,0,0);
+ const texture=gl.createTexture();gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);
+ const uniforms=Object.fromEntries(['keyColor','tolerance','softness','spill'].map(k=>[k,gl.getUniformLocation(program,k)]));gl.uniform1i(gl.getUniformLocation(program,'image'),0);
+ return {draw(media,key,w,h){if(gl.isContextLost())return false;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}gl.viewport(0,0,w,h);gl.useProgram(program);gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,media);gl.uniform3f(uniforms.keyColor,...[1,3,5].map(i=>parseInt(key.color.slice(i,i+2),16)/255));gl.uniform1f(uniforms.tolerance,key.tolerance);gl.uniform1f(uniforms.softness,key.softness);gl.uniform1f(uniforms.spill,key.spill);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);return true;},dispose(){gl.deleteTexture(texture);gl.deleteBuffer(buffer);gl.deleteProgram(program);gl.deleteShader(vs);gl.deleteShader(fs);gl.getExtension('WEBGL_lose_context')?.loseContext();}};
+}
+
+// Screen-space controls remain the same size at any preview/output resolution.
+function studioTransformPointer(initial,mode,start,pointer,center,parent,shift=false){
+ const limit=(v,a,b)=>Math.max(a,Math.min(b,v));
+ if(mode==='move'){let dx=pointer.x-start.x,dy=pointer.y-start.y;if(shift){if(Math.abs(dx)>Math.abs(dy))dy=0;else dx=0;}return {x:limit(initial.x+dx/parent.width*100,-100,200),y:limit(initial.y+dy/parent.height*100,-100,200)};}
+ if(mode==='rotate'){let delta=Math.atan2(pointer.y-center.y,pointer.x-center.x)-Math.atan2(start.y-center.y,start.x-center.x);delta=Math.atan2(Math.sin(delta),Math.cos(delta))*180/Math.PI;let angle=initial.rotate+delta;if(shift)angle=Math.round(angle/15)*15;return {rotate:((angle+180)%360+360)%360-180};}
+ const ratio=Math.hypot(pointer.x-center.x,pointer.y-center.y)/Math.max(1,Math.hypot(start.x-center.x,start.y-center.y));const sign=initial.scale<0?-1:1;let scale=limit(Math.max(1,Math.abs(initial.scale))*ratio,1,800);if(shift)scale=limit(Math.round(scale/5)*5,1,800);return {scale:sign*scale};
+}
+function mountStudioViewportTransform({stage,getState,select,pause,repaint,commit,refreshProperties,setTransform}){
+ const overlay=document.createElement('div');overlay.className='studio-transform-frame';overlay.hidden=true;overlay.dataset.transform='move';overlay.setAttribute('aria-label','素材变换框');
+ for(const [mode,position,label]of [['scale','nw','左上缩放'],['scale','ne','右上缩放'],['scale','sw','左下缩放'],['scale','se','右下缩放'],['rotate','rotate','旋转素材']]){const b=document.createElement('button');b.type='button';b.className='studio-transform-handle studio-transform-'+position;b.dataset.transform=mode;b.setAttribute('aria-label',label);b.title=label+' · 按住 Shift 吸附';overlay.append(b);}
+ const caption=document.createElement('span');caption.className='studio-transform-caption';caption.textContent='拖动画面移动 · 四角缩放 · 顶部旋转';overlay.append(caption);stage.append(overlay);stage.tabIndex=0;stage.setAttribute('aria-label','剪辑视口');let gesture=null;
+ const geometry=(c,n)=>{c=studioAnimatedClip(c,getState().time);const rect=n.box.getBoundingClientRect(),parent=n.box.parentElement.getBoundingClientRect();return {center:{x:rect.left+rect.width/2,y:rect.top+rect.height/2},parent,width:n.box.offsetWidth*(parent.width/n.box.parentElement.clientWidth)*Math.abs(c.scale)/100,height:n.box.offsetHeight*(parent.height/n.box.parentElement.clientHeight)*Math.abs(c.scale)/100};};
+ function update(){const s=getState(),c=s.project.clips.find(c=>c.id===s.selected),n=c&&s.nodes.get(c.id);if(s.rendering||s.hidden||s.playing||!c||!n||n.asset.kind==='audio'||n.box.hidden||!n.box.offsetWidth){overlay.hidden=true;return;}const g=geometry(c,n),r=stage.getBoundingClientRect();overlay.hidden=false;overlay.style.left=g.center.x-r.left+'px';overlay.style.top=g.center.y-r.top+'px';overlay.style.width=Math.max(20,g.width)+'px';overlay.style.height=Math.max(20,g.height)+'px';overlay.style.transform=`translate(-50%,-50%) rotate(${studioAnimatedClip(c,s.time).rotate}deg)`;}
+ function hit(event){const s=getState(),priority={'under-text':1,'above-text':2,'under-border':3,'above-border':4};const candidates=s.project.clips.map((c,i)=>({c,i})).filter(({c})=>!studioAudioLayer(c.layer)).sort((a,b)=>priority[studioEditorLayer(b.c.layer)]-priority[studioEditorLayer(a.c.layer)]||studioClipTrackRank(s.project,b.c)-studioClipTrackRank(s.project,a.c)||b.i-a.i);
+  for(const {c}of candidates){const n=s.nodes.get(c.id);if(!n||n.asset.kind==='audio'||n.box.hidden||!n.box.offsetWidth)continue;const g=geometry(c,n);if(['under-post','under-text','above-text'].includes(studioEditorLayer(c.layer))&&(event.clientX<g.parent.left||event.clientX>g.parent.right||event.clientY<g.parent.top||event.clientY>g.parent.bottom))continue;const pose=studioAnimatedClip(c,s.time);if(Math.abs(pose.scale)<.001)continue;const angle=-pose.rotate*Math.PI/180,dx=event.clientX-g.center.x,dy=event.clientY-g.center.y,x=(dx*Math.cos(angle)-dy*Math.sin(angle))*(pose.scale<0?-1:1),y=(dx*Math.sin(angle)+dy*Math.cos(angle))*(pose.flipY?-1:1);if(x>=g.width*(-.5+c.cropLeft/100)&&x<=g.width*(.5-c.cropRight/100)&&y>=g.height*(-.5+c.cropTop/100)&&y<=g.height*(.5-c.cropBottom/100))return c;}
+ }
+ stage.addEventListener('pointerdown',event=>{const s=getState();if(event.button!==0||s.hidden||s.rendering)return;const control=event.target.closest('[data-transform]');const c=control?s.project.clips.find(c=>c.id===s.selected):hit(event);if(!c)return;event.preventDefault();pause();select(c.id,false);const n=s.nodes.get(c.id);if(!n||!n.box.offsetWidth)return;const g=geometry(c,n);gesture={id:event.pointerId,clip:c,original:structuredClone(c),initial:Object.fromEntries(['x','y','scale','rotate'].map(k=>[k,studioAnimatedClip(c,s.time)[k]])),before:structuredClone(s.project),start:{x:event.clientX,y:event.clientY},...g,mode:control?.dataset.transform||'move',moved:false};stage.focus({preventScroll:true});stage.setPointerCapture(event.pointerId);update();});
+ stage.addEventListener('pointermove',event=>{if(!gesture||event.pointerId!==gesture.id)return;const g=gesture;if(Math.hypot(event.clientX-g.start.x,event.clientY-g.start.y)<2&&!g.moved)return;g.moved=true;setTransform(g.clip,studioTransformPointer(g.initial,g.mode,g.start,{x:event.clientX,y:event.clientY},g.center,g.parent,event.shiftKey));repaint();update();});
+ function finish(cancel=false){if(!gesture)return;const g=gesture;gesture=null;if(stage.hasPointerCapture(g.id))stage.releasePointerCapture(g.id);if(cancel){Object.assign(g.clip,g.original);repaint();}else if(g.moved)commit(g.before);refreshProperties();update();}
+ stage.addEventListener('pointerup',()=>finish());stage.addEventListener('pointercancel',()=>finish(true));stage.addEventListener('lostpointercapture',()=>{if(gesture)finish(true);});
+ stage.addEventListener('keydown',event=>{if(event.key==='Escape'&&gesture){event.preventDefault();event.stopPropagation();finish(true);}});
+ return {update,get dragging(){return !!gesture;}};
+}
+
+function mountStudioVideoEditor(root,views,{modeButton,layout,tabs,sizePreview}){
+ const make=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;};
+ const button=(text,fn)=>{const e=make('button','btn',text);e.type='button';e.onclick=fn;return e;};
+ const emptyGrade=()=>({exposure:0,contrast:1,saturation:1,hue:0});
+ let project={version:1,assets:[],clips:[],grade:emptyGrade(),output:{width:state.ratio==='portrait'?1080:1920,height:state.ratio==='portrait'?1920:1080,fps:30,duration:studioTotalDuration(state.introDuration,state.narrative),durationMode:'auto',bitrate:20,codec:'h264',acceleration:'auto'},designSync:false},selected=null,time=0,playing=false,view=null,home=null,rendering=false,busy=false,jobId=null,saveTimer,origin='',ready=false,history=[],future=[],lastWall=0,hardware={},lastDesignPlaying=false;
+ const nodes=new Map(),pending=new Map();let audioContext,restoringProject=false;
+ let selectedAsset=null,animatedProperty='transform',keyframeDetailsOpen=false,monitoring=false,monitorActive=false,monitorSignature='',monitorStamp=0,monitorContentStamp=0;
+ const rpc=(action,payload)=>new Promise((resolve,reject)=>{const id=crypto.randomUUID(),timeout=setTimeout(()=>{pending.delete(id);reject(Error('本机服务响应超时，请检查 start-editor.cmd'));},action==='import'?3600000:60000);pending.set(id,{resolve,reject,timeout});parent.postMessage({type:'studio-editor-request',id,action,payload},'*');});
+ window.addEventListener('message',e=>{if(e.source!==parent||e.data?.type!=='studio-editor-response')return;const p=pending.get(e.data.id);if(p){pending.delete(e.data.id);clearTimeout(p.timeout);e.data.error?p.reject(Error(e.data.error)):p.resolve(e.data.result);}});
+ const panel=make('section','studio-edit-workspace');panel.hidden=true;panel.setAttribute('aria-label','剪辑工作台');
+ panel.innerHTML=`<div class="studio-edit-head"><div><span class="studio-kicker">SHOWCASE / EDIT</span><h2>剪辑工作台</h2><p>透明素材、展示包装与输出，在同一条时间线上。</p></div><div class="studio-edit-head-actions"><label class="studio-import-button">＋ 导入素材<input data-editor-import type="file" accept="video/*,audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.aiff,.aif,.wma,image/png,image/jpeg,image/webp,.mov,.webm,.mp4,.mkv,.avi,.mxf,.mts,.m2ts" multiple></label><button class="btn" data-editor-export>导出视频 ↗</button><button class="btn" data-editor-design>返回展示</button></div></div>
+ <div class="studio-editor-status" role="status" aria-live="polite">正在连接本机视频引擎…</div>
+ <div class="studio-edit-main"><aside class="studio-edit-assets"><div class="studio-edit-section-title"><strong>素材库</strong><span data-count></span></div><div class="studio-drop-zone" tabindex="0">拖入视频 / 图片 / 音频<small>MOV / WebM Alpha · MP3 / WAV / FLAC / M4A</small></div><div class="studio-asset-list"></div><details open class="studio-editor-output"><summary>输出设置 / 全片调色</summary><div data-output></div><div data-global-grade></div><p class="studio-edit-property-note">ProRes 4444 / VP9 可保留透明底。H.264 / H.265 / AV1 使用实色背景。</p><label class="studio-editor-field">透明背景<input type="checkbox" data-transparent></label><p class="studio-edit-property-note">ProRes 使用质量编码，码率由编码器决定；其余为目标平均码率。</p><p class="studio-edit-property-note">工程包含视觉方案、文字和模板图片；视频与音频引用本机素材。</p><button class="btn" data-save-project>保存剪辑工程</button><label class="studio-import-button">打开剪辑工程<input type="file" accept="application/json,.json" data-load-project></label></details></aside>
+ <div class="studio-edit-preview"><div class="studio-edit-stage"></div><div class="studio-edit-transport"><button class="btn" data-play>播放</button><button class="btn" data-split>分割</button><button class="btn" data-undo>撤销</button><button class="btn" data-redo>重做</button><button class="btn" data-preview-large>放大预览</button><button class="btn" data-monitor>独立监视</button><button class="btn" data-assets-toggle>素材库</button><button class="btn" data-properties-toggle>属性</button><span class="studio-preview-quality">流畅预览 · 长边 ≤960px</span><span data-time>0.00 s</span></div></div>
+ <aside class="studio-edit-properties"><div class="studio-edit-section-title"><strong>片段属性</strong><span data-selected>未选择</span></div><div class="studio-edit-property-body"></div></aside></div>
+ <div class="studio-edit-timeline"><div class="studio-timeline-resizer" role="separator" aria-label="调整时间轴高度" aria-orientation="horizontal" tabindex="0"></div><div class="studio-edit-section-title"><strong>时间轴</strong><span>画面按层叠放 · 两条音轨与素材原声混音</span></div><input type="range" min="0" step=".001" value="0" data-seek aria-label="剪辑播放头"><div data-tracks></div></div>
+ <div class="studio-editor-export-progress" hidden><strong>正在逐帧合成与编码</strong><progress max="1" value="0"></progress><span data-progress></span><button class="btn" data-cancel>取消导出</button></div>`;
+ root.append(panel);
+ const q=s=>panel.querySelector(s),stage=q('.studio-edit-stage'),properties=q('.studio-edit-property-body'),status=q('.studio-editor-status'),seek=q('[data-seek]');
+ const syncChecks=[];
+ function syncControl(parent,label){const wrap=make('label','studio-design-sync-toggle'),input=make('input');input.type='checkbox';input.dataset.designSync='';input.setAttribute('aria-label',label);wrap.append(input,make('span','',label));wrap.title='在展示工作台同步当前时间轴素材，方便调整配色、边框和后处理';input.onchange=()=>{checkpoint();project.designSync=input.checked;syncChecks.forEach(c=>c.checked=!!project.designSync);applyDesignSync();save();};parent.append(wrap);syncChecks.push(input);}
+ syncControl(panel.querySelector('.studio-edit-head-actions'),'展示页同步素材');syncControl(layout.querySelector('.studio-canvas-toolbar'),'同步剪辑素材');
+ const transforms=mountStudioViewportTransform({stage,getState:()=>({view,project,selected,time,playing,rendering,nodes,hidden:panel.hidden}),select:(id,reveal)=>selectClip(id,reveal),pause:()=>seekTo(time),repaint:()=>paint(time),commit:before=>{history.push(before);if(history.length>60)history.shift();future=[];changed();},refreshProperties:()=>renderProperties(),setTransform:(c,values)=>{for(const [key,value]of Object.entries(values))studioSetAnimatedProperty(c,key,value,time);}});
+ const report=(text,error=false)=>{status.textContent=text;status.dataset.error=String(error);};
+ const serialize=()=>structuredClone(project);
+ const serializeProject=()=>({...serialize(),template:{version:1,design:structuredClone({...state,time:panel.hidden?state.time:time,playing:false}),images:structuredClone(images),imageNames:structuredClone(imageNames)}});
+ root.addEventListener('studio-template-change',()=>{if(ready&&!restoringProject)save();});
+ const checkpoint=()=>{history.push(serialize());if(history.length>60)history.shift();future=[];};
+ const save=()=>{if(!ready||restoringProject||rendering||monitoring)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(!restoringProject&&!rendering&&!monitoring)rpc('save',serializeProject()).catch(e=>report('自动保存失败：'+e.message,true));},500);};
+ const changed=()=>{save();renderTimeline();paint(time);};
+ function field(parent,label,value,onChange,{min,max,step=.01,type='number',options}={}){
+  const wrap=make('label','studio-editor-field'),text=make('span','',label),input=make(options?'select':'input');
+  input.setAttribute('aria-label',label);if(options){for(const [v,t]of options){const o=make('option','',t);o.value=v;input.append(o);}input.value=value;}else{input.type=type;if(type==='checkbox')input.checked=!!value;else input.value=value;if(min!==undefined)input.min=min;if(max!==undefined)input.max=max;input.step=step;}
+  input.onchange=()=>{let v=options?input.value:type==='checkbox'?input.checked:type==='color'?input.value:Number(input.value);if(type==='number'&&!options){if(!Number.isFinite(v))return;v=Math.max(min??-Infinity,Math.min(max??Infinity,v));input.value=v;}checkpoint();onChange(v);changed();};wrap.append(text,input);parent.append(wrap);return input;
+ }
+ function grades(parent,g){field(parent,'曝光 EV',g.exposure,v=>g.exposure=v,{min:-3,max:3,step:.1});field(parent,'对比度',g.contrast,v=>g.contrast=v,{min:0,max:3,step:.05});field(parent,'饱和度',g.saturation,v=>g.saturation=v,{min:0,max:3,step:.05});field(parent,'色相 °',g.hue,v=>g.hue=v,{min:-180,max:180,step:1});}
+ function section(title,open=false){const e=make('details','studio-editor-section');e.open=open;e.append(make('summary','',title));properties.append(e);return e;}
+ function syncCanvasOrientation(){const ratio=monitoring?'landscape':project.output.width<project.output.height?'portrait':'landscape';if(state.ratio!==ratio){state.ratio=ratio;sync();}}
+ function renderOutput(){syncDuration(false);const p=q('[data-output]');p.replaceChildren();field(p,'时长模式',project.output.durationMode||'custom',v=>{project.output.durationMode=v;syncDuration(false);renderOutput();resize();},{options:[['auto','自动 · 片头＋展示＋片尾'],['custom','自定义全片时长']]});field(p,'剪辑画幅',studioEditorOutputAspect(project.output),v=>{if(v!=='custom'){Object.assign(project.output,studioEditorAspectSize(project.output,v));syncCanvasOrientation();renderOutput();resize();}},{options:[['landscape','横屏 · 16:9'],['portrait','竖屏 · 9:16'],['custom','自定义 · 输入宽高']]});for(const [key,label,min,max,step]of [['width','宽度 px',64,7680,2],['height','高度 px',64,7680,2],['fps','帧率',1,60,1],['duration','全片时长 s',.1,3600,.1],['bitrate','目标码率 Mbps',.1,250,.1]])field(p,label,project.output[key],v=>{project.output[key]=v;if(key==='duration'){project.output.durationMode='custom';p.querySelector('[aria-label="时长模式"]').value='custom';}if(key==='width'||key==='height'){syncCanvasOrientation();p.querySelector('[aria-label="剪辑画幅"]').value=studioEditorOutputAspect(project.output);}resize();},{min,max,step});
+  field(p,'编码器',project.output.codec,v=>{project.output.codec=v;renderOutput();},{options:[['h264','H.264 / MP4'],['h265','H.265 / MP4'],['av1','AV1 / MP4'],['vp9','VP9 Alpha / WebM'],['prores','ProRes 4444 Alpha / MOV']]});p.querySelector('[aria-label="目标码率 Mbps"]').disabled=project.output.codec==='prores';const gpuOptions=[['auto',['vp9','prores'].includes(project.output.codec)?'自动 · CPU 保留透明':'自动 · 优先 GPU'],['cpu','CPU 软件编码']];if(['h264','h265','av1'].includes(project.output.codec))for(const device of hardware[project.output.codec]||[])gpuOptions.push([device,{nvenc:'NVIDIA NVENC',qsv:'Intel QSV',amf:'AMD AMF'}[device]]);if(['vp9','prores'].includes(project.output.codec)&&!['auto','cpu'].includes(project.output.acceleration||'auto'))project.output.acceleration='auto';field(p,'编码设备',project.output.acceleration||'auto',v=>project.output.acceleration=v,{options:gpuOptions});const g=q('[data-global-grade]');g.replaceChildren();g.append(make('h4','','全片调色'));grades(g,project.grade);q('[data-transparent]').checked=!!project.transparent;syncChecks.forEach(c=>c.checked=!!project.designSync);applyDesignSync();
+ }
+ function syncDuration(persist=true){if(!project.output.durationMode)project.output.durationMode=Math.abs(project.output.duration-studioTotalDuration(state.introDuration,state.narrative))<.11?'auto':'custom';if(project.output.durationMode!=='auto'||rendering||monitoring)return;const duration=Math.max(.1,Math.min(3600,studioTotalDuration(state.introDuration,state.narrative)));if(Math.abs(project.output.duration-duration)<.0001)return;project.output.duration=duration;time=Math.min(time,duration);const input=q('[aria-label="全片时长 s"]');if(input)input.value=duration.toFixed(2);if(persist){renderTimeline();save();}}
+ function renderProperties(){properties.replaceChildren();const c=project.clips.find(c=>c.id===selected);q('[data-selected]').textContent=c?'已选择':'未选择';if(!c){properties.append(make('p','','点击时间轴片段，调整时间、变换、层级和效果。'));return;}
+  const asset=project.assets.find(a=>a.id===c.assetId);properties.append(make('strong','studio-editor-filename',asset?.name||'离线素材'));
+  const timing=section('时间与层级',true);
+  field(timing,'开始时间 s',c.start,v=>c.start=v,{min:0,max:3600});field(timing,'素材入点 s',c.in,v=>{c.in=Math.min(v,c.out-.01);renderProperties();},{min:0,max:Math.max(0,c.out-.01)});field(timing,'素材出点 s',c.out,v=>{c.out=Math.max(c.in+.01,v);renderProperties();},{min:c.in+.01,max:asset?.image?3600:asset?.duration||3600});
+  if(asset?.kind==='audio'){field(timing,'音轨',c.layer,v=>{c.layer=v;attachLayers();},{options:[['audio-1','音轨 1'],['audio-2','音轨 2']]});const sound=section('声音',true);soundFields(sound,c);clipActions(c);return;}
+  field(timing,'合成层级',studioClipTrackId(c),v=>{const track=studioEditorTimelineRows(project).find(t=>t.id===v);studioSetClipTrack(c,track);attachLayers();renderProperties();},{options:studioVideoLayers.flatMap(layer=>studioVideoTracks(project,layer).map(t=>[t.id,t.label]))});
+  if(['under-text','above-text'].includes(studioEditorLayer(c.layer)))timing.append(make('p','studio-edit-property-note','片头、展示页和片尾的文字都在同一文字层。文字上下的素材均接受后处理；如需保持原画，请放到后处理上方。'));
+  renderKeyframes(c);
+  const evaluated=studioAnimatedClip(c,time),trans=section('变换与裁切',true);for(const [key,label,min,max]of [['x','水平位置 %',-100,200],['y','垂直位置 %',-100,200],['scale','缩放 %',-800,800],['rotate','旋转 °',-360,360],['opacity','不透明度 %',0,100],['cropLeft','裁切左 %',0,49],['cropRight','裁切右 %',0,49],['cropTop','裁切上 %',0,49],['cropBottom','裁切下 %',0,49]])field(trans,label,evaluated[key],v=>{studioAnimatedKeys.includes(key)?studioSetAnimatedProperty(c,key,v,time):c[key]=v;renderProperties();},{min,max,step:1});
+  const flip=make('div','studio-keyframe-actions');flip.append(button('水平翻转',()=>{checkpoint();studioSetAnimatedProperty(c,'scale',-(studioAnimatedClip(c,time).scale||100),time);renderProperties();changed();}),button('垂直翻转',()=>{checkpoint();c.flipY=!c.flipY;renderProperties();changed();}));flip.lastChild.setAttribute('aria-pressed',String(!!c.flipY));trans.append(flip,make('p','studio-edit-property-note','负缩放 = 左右镜像；−100% 与 100% 等大。垂直翻转单独控制，0% 隐藏画面。'));
+  trans.append(button('重置变换',()=>{checkpoint();delete c.keyframes;Object.assign(c,{x:50,y:50,scale:100,flipY:false,rotate:0,opacity:100,cropLeft:0,cropRight:0,cropTop:0,cropBottom:0});renderProperties();changed();}));
+  const transition=section('过渡与声音',true);field(transition,'入场时长 s',c.fadeIn,v=>c.fadeIn=v,{min:0,max:studioClipDuration(c)/2});field(transition,'退场时长 s',c.fadeOut,v=>c.fadeOut=v,{min:0,max:studioClipDuration(c)/2});field(transition,'过渡效果',c.transition,v=>c.transition=v,{options:[['fade','淡入淡出 / 叠化'],['slide','滑入滑出'],['zoom','缩放淡入淡出']]});soundFields(transition,c);
+  const key=section('色度键');field(key,'启用色度键',c.key.enabled,v=>c.key.enabled=v,{type:'checkbox'});field(key,'抠像颜色',c.key.color,v=>c.key.color=v,{type:'color'});field(key,'容差',c.key.tolerance,v=>c.key.tolerance=v,{min:0,max:1});field(key,'边缘柔化',c.key.softness,v=>c.key.softness=v,{min:.001,max:1});field(key,'绿色溢色抑制',c.key.spill,v=>c.key.spill=v,{min:0,max:1});
+  grades(section('素材调色'),c.grade);
+  clipActions(c);
+ }
+ function soundFields(parent,c){field(parent,'声音淡入 s',c.audioFadeIn??c.fadeIn,v=>c.audioFadeIn=v,{min:0,max:studioClipDuration(c)});field(parent,'声音淡出 s',c.audioFadeOut??c.fadeOut,v=>c.audioFadeOut=v,{min:0,max:studioClipDuration(c)});field(parent,'音量',c.volume,v=>c.volume=v,{min:0,max:2,step:.05});}
+ function clipActions(c){
+  properties.append(button('复制片段',()=>{checkpoint();const n=structuredClone(c);n.id=crypto.randomUUID();n.start+=studioClipDuration(c);project.clips.push(n);selected=n.id;rebuild();changed();}),button('同轨置顶',()=>{checkpoint();project.clips=project.clips.filter(n=>n!==c).concat(c);rebuild();changed();}),button('删除片段',()=>removeSelected()));
+ }
+
+ const animationLabels={x:'水平位置 %',y:'垂直位置 %',scale:'缩放 %',rotate:'旋转 °',opacity:'不透明度 %'};
+ function keySource(c){return Math.max(c.in,Math.min(c.out,c.in+time-c.start));}
+ function refreshAnimatedFields(){const c=project.clips.find(c=>c.id===selected);if(!c)return;for(const [key,label]of Object.entries(animationLabels)){const input=properties.querySelector('[aria-label="'+label+'"]');if(input&&document.activeElement!==input)input.value=Number(studioAnimatedValue(c,key,keySource(c)).toFixed(3));}const label=properties.querySelector('[data-keyframe-time]');if(label)label.textContent='片段内 '+Math.max(0,time-c.start).toFixed(2)+' s';}
+ function renderKeyframes(c){
+  const group=section('关键帧动画',true),source=keySource(c),keys=studioKeyframeKeys(animatedProperty);
+  const update=()=>{renderProperties();changed();};
+  const quick=make('div','studio-keyframe-actions');quick.append(button('记录当前变换',()=>{checkpoint();studioRecordPose(c,studioAnimatedKeys,time);update();}));group.append(quick);
+  group.append(make('p','studio-edit-property-note','先记录一次，再移动播放头并拖动画面、缩放或旋转，会自动记录新关键帧。位置 X / Y 一起记录。'));
+  const stamp=make('span','studio-keyframe-time');stamp.dataset.keyframeTime='';group.append(stamp);
+  const frames=[...new Set(keys.flatMap(key=>(c.keyframes?.[key]||[]).map(f=>f.time)))].sort((a,b)=>a-b).map(time=>({time})),currentFrames=keys.map(key=>c.keyframes?.[key]?.find(f=>Math.abs(f.time-source)<.0005)).filter(Boolean),current=currentFrames[0];
+  const nav=make('div','studio-keyframe-actions');for(const [label,frame]of [['上一关键帧',[...frames].reverse().find(f=>f.time<source-.0005&&f.time>=c.in)],['下一关键帧',frames.find(f=>f.time>source+.0005&&f.time<=c.out)]]){const b=button(label,()=>seekTo(c.start+frame.time-c.in));b.disabled=!frame;nav.append(b);}group.append(nav);
+  const easing=field(group,'到下一帧的变化',current?.easing||'linear',v=>{for(const f of currentFrames)f.easing=v;renderProperties();},{options:[['linear','匀速'],['smooth','平滑缓入缓出'],['hold','保持 · 到点切换']]});easing.disabled=!current;
+  const list=make('div','studio-keyframe-list');for(const frame of frames.filter(f=>f.time>=c.in&&f.time<=c.out)){const b=button((Math.abs(frame.time-source)<.0005?'◆ ':'◇ ')+(frame.time-c.in).toFixed(2)+' s',()=>seekTo(c.start+frame.time-c.in));b.title='跳到此时间，直接修改变换或拖动画面';list.append(b);}group.append(list);
+  const advanced=make('details','studio-keyframe-advanced');advanced.open=keyframeDetailsOpen;const summary=make('summary','','按属性调整 / 删除关键帧');summary.onclick=()=>{keyframeDetailsOpen=!advanced.open;};advanced.append(summary);group.append(advanced);
+  const property=field(advanced,'动画属性',animatedProperty,()=>{},{options:[['transform','整体变换'],['position','位置 · X + Y'],['scale','缩放'],['rotate','旋转'],['opacity','不透明度'],['x','仅水平位置'],['y','仅垂直位置']]});property.onchange=()=>{animatedProperty=property.value;renderProperties();};
+  const actions=make('div','studio-keyframe-actions');actions.append(button('添加 / 更新关键帧',()=>{checkpoint();studioRecordPose(c,keys,time);update();}),button('删除当前关键帧',()=>{if(!current)return;checkpoint();const values=Object.fromEntries(keys.map(key=>[key,studioAnimatedValue(c,key,source)]));for(const key of keys){if(!c.keyframes?.[key])continue;c.keyframes[key]=c.keyframes[key].filter(f=>Math.abs(f.time-source)>=.0005);if(!c.keyframes[key].length){delete c.keyframes[key];c[key]=values[key];}}update();}));actions.lastChild.disabled=!current;advanced.append(actions);
+  const clear=button('清除全部动画 · 保留当前变换',()=>{checkpoint();const pose=studioAnimatedClip(c,Math.max(c.start,Math.min(c.start+studioClipDuration(c),time)));for(const key of studioAnimatedKeys)c[key]=pose[key];delete c.keyframes;update();});clear.disabled=!studioAnimatedKeys.some(key=>c.keyframes?.[key]?.length);advanced.append(clear);refreshAnimatedFields();
+ }
+ function removeAsset(id){if(rendering||jobId||!project.assets.some(a=>a.id===id))return;seekTo(time);checkpoint();const count=project.clips.filter(c=>c.assetId===id).length;project.assets=project.assets.filter(a=>a.id!==id);project.clips=project.clips.filter(c=>c.assetId!==id);if(!project.clips.some(c=>c.id===selected))selected=null;rebuild();changed();report(`已删除素材${count?'及 '+count+' 个关联片段':''} · 可撤销恢复 · 原始文件保留在本机`);}
+ function renderAssets(){const list=q('.studio-asset-list');list.replaceChildren();q('[data-count]').textContent=project.assets.length+' 个素材';for(const a of project.assets){const row=make('div','studio-asset-row'),b=button('',()=>{selectedAsset=a.id;selected=null;for(const card of list.querySelectorAll('.studio-asset-card'))card.setAttribute('aria-pressed',String(card===b));renderProperties();renderTimeline();transforms.update();report('已选择 '+a.name+' · 拖入时间轴对应轨道添加片段');});b.className='studio-asset-card';b.setAttribute('aria-pressed',String(selectedAsset===a.id));b.append(make('span','studio-asset-thumb',a.kind==='audio'?'♫':a.alpha?'α':'▶'),make('span','studio-asset-name',a.name),make('span','studio-asset-type',`${a.codec||''} ${a.alpha?'· ALPHA':''} · 拖入轨道添加`));b.draggable=true;b.ondragstart=e=>{selectedAsset=a.id;e.dataTransfer.effectAllowed='copy';e.dataTransfer.setData('application/studio-asset',a.id);};b.ondragend=()=>{for(const lane of panel.querySelectorAll('.is-asset-drop'))lane.classList.remove('is-asset-drop');};
+  const remove=button('删除',()=>{const count=project.clips.filter(c=>c.assetId===a.id).length;if(!count){removeAsset(a.id);return;}confirm.replaceChildren(make('p','',`时间轴中有 ${count} 个片段使用此素材。删除素材会一并移除这些片段，可撤销恢复。`),button('删除素材及关联片段',()=>removeAsset(a.id)),button('取消',()=>{confirm.hidden=true;remove.focus();}));confirm.hidden=false;confirm.querySelector('button').focus();});remove.className='btn studio-asset-remove';remove.setAttribute('aria-label','删除素材 '+a.name);remove.title='从当前工程删除素材，可撤销恢复';remove.disabled=!!jobId;
+  const confirm=make('div','studio-asset-remove-confirm');confirm.hidden=true;confirm.setAttribute('role','group');confirm.setAttribute('aria-label','删除素材确认');confirm.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();confirm.hidden=true;remove.focus();}};row.append(b,remove,confirm);list.append(row);}}
+ function addVideoTrack(source){if(studioCustomTracks(project).length>=64||jobId)return;checkpoint();project.videoTracks??=[];const label=studioTrackLabels[source.layer].split(' · ')[0];let number=2;while(project.videoTracks.some(t=>t.name===label+' '+number))number++;const track={id:crypto.randomUUID(),layer:source.layer,name:label+' '+number};let index=project.videoTracks.findIndex(t=>t.id===source.id);if(index<0){index=project.videoTracks.length;for(let i=project.videoTracks.length-1;i>=0;i--)if(project.videoTracks[i].layer===source.layer){index=i+1;break;}}project.videoTracks.splice(index,0,track);renderProperties();changed();q('[data-track-id="'+track.id+'"]').scrollIntoView({block:'nearest'});report('已新增 '+track.name+' · 与原轨道保持相同的文字与后处理关系');}
+ function removeVideoTrack(id){if(jobId||project.clips.some(c=>c.trackId===id))return;checkpoint();project.videoTracks=studioCustomTracks(project).filter(t=>t.id!==id);renderProperties();changed();}
+ function renderTimeline(){seek.max=project.output.duration;seek.value=time;const tracks=q('[data-tracks]');tracks.replaceChildren();for(const track of studioEditorTimelineRows(project)){const {id,layer,label}=track,row=make('div','studio-edit-track'),lane=make('div','studio-edit-track-lane'),heading=make('div','studio-edit-track-label');heading.append(make('span','studio-track-name',label));row.append(heading,lane);if(studioVideoLayers.includes(layer)){const add=button('+',()=>addVideoTrack(track));add.className='studio-track-action';add.title='在上方新增一条相同性质的视频轨道';add.setAttribute('aria-label','新增同类轨道 '+label);add.disabled=studioCustomTracks(project).length>=64||!!jobId;heading.append(add);if(id!==layer){const remove=button('×',()=>removeVideoTrack(id));remove.className='studio-track-action';remove.setAttribute('aria-label','删除空轨道 '+label);remove.disabled=project.clips.some(c=>c.trackId===id)||!!jobId;remove.title=remove.disabled?'请先移走此轨道的片段':'删除空轨道，可撤销恢复';heading.append(remove);}}lane.style.position='relative';lane.style.minHeight='32px';if(!layer){row.classList.add('studio-editor-fixed-track');lane.textContent=id==='showcase'?`0 — ${project.output.duration.toFixed(2)} s · 当前展示设计`:'';}else{lane.onclick=e=>{if(e.target===lane)seekTo((e.clientX-lane.getBoundingClientRect().left)/lane.clientWidth*project.output.duration);};lane.dataset.layer=layer;lane.dataset.trackId=id;if(studioAudioLayer(layer))row.classList.add('studio-audio-track');lane.setAttribute('aria-label',label+'轨道');lane.dataset.dropHint=studioAudioLayer(layer)?'拖入音频到这一轨':'拖入画面素材到这一层';lane.ondragover=e=>{if(!e.dataTransfer.types.includes('application/studio-asset'))return;e.preventDefault();e.dataTransfer.dropEffect='copy';lane.classList.add('is-asset-drop');};lane.ondragleave=e=>{if(!lane.contains(e.relatedTarget))lane.classList.remove('is-asset-drop');};lane.ondrop=e=>{e.preventDefault();lane.classList.remove('is-asset-drop');const a=project.assets.find(a=>a.id===e.dataTransfer.getData('application/studio-asset'));if(a)addClip(a,Math.max(0,(e.clientX-lane.getBoundingClientRect().left)/lane.clientWidth*project.output.duration),layer,id);};for(const c of project.clips.filter(c=>studioClipTrackId(c)===id)){const clip=button(project.assets.find(a=>a.id===c.assetId)?.name||'离线素材',()=>selectClip(c.id));clip.className='studio-edit-clip';clip.dataset.selected=String(c.id===selected);clip.style.cssText=`position:absolute;left:${c.start/project.output.duration*100}%;width:${studioClipDuration(c)/project.output.duration*100}%;min-width:8px;max-width:${Math.max(0,100-c.start/project.output.duration*100)}%;`;clip.title=`${clip.textContent} / ${c.start.toFixed(2)} s → ${(c.start+studioClipDuration(c)).toFixed(2)} s`;clip.onpointerdown=e=>{if(e.button!==0)return;const x=e.clientX,y=e.clientY,oldStart=c.start,oldLayer=c.layer,oldTrack=c.trackId;let moved=false;clip.setPointerCapture(e.pointerId);clip.onpointermove=ev=>{if(Math.hypot(ev.clientX-x,ev.clientY-y)>4&&!moved){checkpoint();moved=true;}if(!moved)return;const target=document.elementFromPoint(ev.clientX,ev.clientY)?.closest('.studio-edit-track-lane[data-layer]');for(const el of panel.querySelectorAll('.is-clip-drop'))el.classList.remove('is-clip-drop');if(target&&studioAssetFitsLayer(project.assets.find(a=>a.id===c.assetId),target.dataset.layer)){target.classList.add('is-clip-drop');if(studioClipTrackId(c)!==target.dataset.trackId){studioSetClipTrack(c,{id:target.dataset.trackId,layer:target.dataset.layer});attachLayers();}}c.start=Math.max(0,Math.min(project.output.duration-.01,oldStart+(ev.clientX-x)/lane.clientWidth*project.output.duration));clip.style.left=c.start/project.output.duration*100+'%';const rect=tracks.parentElement.getBoundingClientRect();if(ev.clientY>rect.bottom-30)tracks.parentElement.scrollTop+=12;else if(ev.clientY<rect.top+45)tracks.parentElement.scrollTop-=12;paint(time);};const finish=cancel=>{clip.onpointermove=null;clip.onpointerup=null;clip.onpointercancel=null;for(const el of panel.querySelectorAll('.is-clip-drop'))el.classList.remove('is-clip-drop');if(!moved)return;if(cancel){c.start=oldStart;c.layer=oldLayer;if(oldTrack)c.trackId=oldTrack;else delete c.trackId;history.pop();attachLayers();}selected=c.id;renderProperties();changed();};clip.onpointerup=()=>finish(false);clip.onpointercancel=()=>finish(true);};;lane.append(clip);}}
+  const head=make('i','studio-editor-playhead');head.style.left=time/project.output.duration*100+'%';lane.append(head);tracks.append(row);}}
+ function addClip(a,start=time,layer=a.kind==='audio'?'audio-1':'under-border',trackId=layer){if(!studioAssetFitsLayer(a,layer)){report(a.kind==='audio'?'请将音频拖入音轨 1 或音轨 2。':'请将视频或图片拖入画面轨道。',true);return;}checkpoint();const c=studioNewClip(a,start);studioSetClipTrack(c,{id:trackId,layer});project.clips.push(c);syncDuration(false);selected=c.id;renderOutput();rebuild();changed();}
+ function assetURL(a){const url=rendering?a.proxy:(a.preview||a.proxy);return url?.startsWith('http')?url:origin+url;}
+ function positionMedia(n,target){
+  if(Math.abs(n.media.currentTime-target)<.008)return;
+  if(n.media.seeking){n.pendingSeek=target;return;}
+  n.pendingSeek=null;n.stats.seeks++;n.media.currentTime=target;
+ }
+ function makeNode(c){
+  const a=project.assets.find(a=>a.id===c.assetId);if(!a)return;
+  const still=a.image||(rendering&&a.renderFrames),media=document.createElement(a.kind==='audio'?'audio':still?'img':'video');media.crossOrigin='anonymous';if(a.kind==='audio')media.src=(a.preview?.startsWith('http')?a.preview:origin+a.preview);else if(!a.renderFrames||!rendering)media.src=assetURL(a);
+  if(!still){media.preload=a.kind==='audio'&&rendering?'none':'auto';media.playsInline=true;media.muted=true;}
+  const box=make('div','studio-editor-clip-surface'),canvas=make('canvas');box.dataset.clipId=c.id;box.append(canvas);
+  if(!rendering)box.append(media);canvas.hidden=true;
+  const n={box,canvas,media,asset:a,needsSeek:true,frameVersion:0,drawKey:'',stats:{seeks:0,uploads:0},disposed:false};nodes.set(c.id,n);
+  const refresh=()=>{if(view&&!n.disposed){n.frameVersion++;drawClip(project.clips.find(x=>x.id===c.id)||c,n,studioClipPose(c,time));transforms.update();}};
+  if(!a.renderFrames||!rendering)media.addEventListener(still?'load':'loadeddata',refresh);
+  if(!still){media.addEventListener('seeked',()=>{if(n.pendingSeek!==null&&n.pendingSeek!==undefined){const target=n.pendingSeek;n.pendingSeek=null;positionMedia(n,target);}refresh();});
+   if(!rendering&&media.requestVideoFrameCallback){const decoded=()=>{if(n.disposed)return;refresh();n.frameRequest=media.requestVideoFrameCallback(decoded);};n.frameRequest=media.requestVideoFrameCallback(decoded);}
+  }
+  media.onerror=()=>report('素材读取失败：'+a.name,true);return n;
+ }
+ function disposeNode(n){n.audioSource?.disconnect();n.audioGain?.disconnect();n.disposed=true;n.media.onerror=null;if(n.frameRequest)n.media.cancelVideoFrameCallback?.(n.frameRequest);n.keyRenderer?.dispose();n.media.pause?.();n.media.removeAttribute('src');n.media.load?.();n.box.remove();}
+ function layerTarget(c,t=time){
+  if(studioAudioLayer(c.layer))return {parent:view.art,z:'0',visible:true};const z=String(studioClipTrackRank(project,c)),layer=studioEditorLayer(c.layer);if(['under-text','above-text'].includes(layer))return {parent:layer==='under-text'?view.editorTextLayers.below:view.editorTextLayers.above,z,visible:true};
+  view.editorVideoStacks??={};if(!view.editorVideoStacks[layer]){const stack=make('div','studio-editor-track-stack');stack.style.zIndex=layer==='above-border'?'30':'10';view.art.append(stack);view.editorVideoStacks[layer]=stack;}return {parent:view.editorVideoStacks[layer],z,visible:true};
+ }
+ function attachLayers(){if(!view?.post)return;studioEditorTextLayers(view,project.clips.some(c=>['under-text','above-text'].includes(studioEditorLayer(c.layer))));for(const c of project.clips){const n=nodes.get(c.id)||makeNode(c);if(!n)continue;const target=layerTarget(c);target.parent.append(n.box);n.box.style.zIndex=target.z;}}
+ function rebuild(){for(const [id,n]of nodes)if(!project.clips.some(c=>c.id===id)){disposeNode(n);nodes.delete(id);}attachLayers();renderAssets();renderProperties();renderTimeline();}
+ function drawClip(c,n,p){
+  if(n.asset.kind==='audio'){n.box.hidden=true;return;}
+  c=studioAnimatedClip(c,time);
+  const target=layerTarget(c);if(n.box.parentElement!==target.parent)target.parent.append(n.box);n.box.style.zIndex=target.z;n.box.hidden=!p.visible||!target.visible;if(n.box.hidden)return;
+  const m=n.media,mw=m.videoWidth||m.naturalWidth,mh=m.videoHeight||m.naturalHeight;if(!mw||!mh||(!n.asset.image&&m.readyState<2))return;
+  const useCanvas=rendering||c.key.enabled;n.canvas.hidden=!useCanvas;if(!rendering)m.hidden=useCanvas;
+  if(useCanvas){
+   const bound=rendering?Math.max(mw,mh):640,scale=Math.min(1,bound/Math.max(mw,mh)),w=Math.max(1,Math.round(mw*scale)),h=Math.max(1,Math.round(mh*scale));
+   const frameStamp=rendering?m.currentTime:n.asset.image?'image':m.requestVideoFrameCallback?n.frameVersion:Math.floor(m.currentTime*Math.min(30,n.asset.fps||30));const stamp=[frameStamp,w,h,JSON.stringify(c.key)].join('|');
+   if(stamp!==n.drawKey){
+    if(c.key.enabled&&!n.keyTried){n.keyTried=true;try{n.keyRenderer=studioCreatePreviewKey(n.canvas);}catch{}if(!n.keyRenderer){n.canvas.remove();n.canvas=make('canvas');n.box.prepend(n.canvas);}}
+    if(n.keyRenderer){n.keyRenderer.draw(m,c.key,w,h);n.box.dataset.previewPath=rendering?'export-gpu-key':'gpu-key';}
+    else{if(!n.ctx)n.ctx=n.canvas.getContext('2d',{willReadFrequently:!!c.key.enabled});if(n.canvas.width!==w||n.canvas.height!==h){n.canvas.width=w;n.canvas.height=h;}n.ctx.clearRect(0,0,w,h);n.ctx.drawImage(m,0,0,w,h);if(c.key.enabled){const image=n.ctx.getImageData(0,0,w,h);studioKeyPixels(image.data,c.key.color,c.key.tolerance,c.key.softness,c.key.spill);n.ctx.putImageData(image,0,0);}n.box.dataset.previewPath=rendering?'export':'cpu-key';}
+    n.drawKey=stamp;n.stats.uploads++;
+   }
+  }else n.box.dataset.previewPath='direct';
+  const w=n.asset.width||mw,h=n.asset.height||mh,container=n.box.parentElement,fit=Math.min(container.clientWidth/w,container.clientHeight/h),transition=p.transitionOpacity,slide=c.transition==='slide'?(1-transition)*15:0,zoom=c.transition==='zoom'?.85+.15*transition:1;
+  const layoutKey=[container.clientWidth,container.clientHeight,c.x,c.y,c.scale,c.flipY,c.rotate,c.opacity,c.cropTop,c.cropRight,c.cropBottom,c.cropLeft,c.transition,p.opacity,JSON.stringify(c.grade)].join('|');
+  if(layoutKey!==n.layoutKey){n.layoutKey=layoutKey;n.box.style.left=(c.x+slide)+'%';n.box.style.top=c.y+'%';n.box.style.width=(w*fit)+'px';n.box.style.height=(h*fit)+'px';n.box.style.opacity=p.opacity;n.box.style.transform=`translate(-50%,-50%) rotate(${c.rotate}deg) scale(${c.scale/100*zoom},${Math.abs(c.scale)/100*zoom*(c.flipY?-1:1)})`;n.box.style.clipPath=`inset(${c.cropTop}% ${c.cropRight}% ${c.cropBottom}% ${c.cropLeft}%)`;n.box.style.filter=studioGradeCSS(c.grade);}
+ }
+ function paint(t,scene=true){
+  syncDuration();
+  if(!view)return;if(scene){state.time=t;state.playing=false;motionClock=createMotionClock(t,state.variants,state.edges);draw(view);}const mediaPlaying=scene?playing:state.playing;
+  const artKey=JSON.stringify([project.grade,project.transparent]);if(view.editorArtKey!==artKey){view.editorArtKey=artKey;view.art.style.filter=studioGradeCSS(project.grade);view.art.classList.toggle('studio-editor-transparent',!!project.transparent);root.classList.toggle('is-transparent-output',!!project.transparent);}
+  for(const c of project.clips){const n=nodes.get(c.id);if(!n)continue;const p=studioClipPose(c,t),m=n.media;p.visible=p.visible&&layerTarget(c,t).visible;
+   if(!n.asset.image&&!rendering){if(p.visible){if(!mediaPlaying||n.needsSeek||!n.active){positionMedia(n,p.source);n.needsSeek=false;}if(n.asset.kind==='audio'&&audioContext){if(!n.audioGain){n.audioSource=audioContext.createMediaElementSource(m);n.audioGain=audioContext.createGain();n.audioSource.connect(n.audioGain).connect(audioContext.destination);}n.audioGain.gain.value=c.volume*p.audioGain;m.volume=1;}else m.volume=monitoring?0:Math.min(1,c.volume*p.audioGain);m.muted=monitoring||!mediaPlaying||c.volume===0;if(!mediaPlaying&&!m.paused)m.pause();if(mediaPlaying&&m.paused&&!n.playRequest){n.playRequest=m.play().catch(()=>{}).finally(()=>n.playRequest=null);}}else{m.pause();n.needsSeek=true;}n.active=p.visible;}
+   drawClip(c,n,p);
+  }
+  studioDrawEditorTextLayers(view);refreshAnimatedFields();
+  q('[data-time]').textContent=`${t.toFixed(2)} / ${project.output.duration.toFixed(2)} s`;seek.value=t;for(const h of panel.querySelectorAll('.studio-editor-playhead'))h.style.left=t/project.output.duration*100+'%';transforms.update();
+ }
+ function seekTo(t){playing=false;for(const n of nodes.values()){n.media.pause?.();n.needsSeek=true;}time=Math.max(0,Math.min(project.output.duration,Number(t)||0));q('[data-play]').textContent='播放';paint(time);if(selected)renderProperties();}
+ function resize(){if(!view)return;syncCanvasOrientation();const bw=monitoring?1920:project.output.width<project.output.height?1080:1920,bh=monitoring?1080:bw*project.output.height/project.output.width;const scale=rendering?project.output.width/bw:(monitoring?Math.max:Math.min)(stage.clientWidth/bw,stage.clientHeight/bh);view.outputScale=Math.max(.001,scale);view.previewRasterScale=rendering?0:.5;view.art.style.setProperty('--preview-width',bw+'px');view.art.style.width=bw+'px';view.art.style.height=bh+'px';view.art.style.aspectRatio='auto';view.art.style.transform=`scale(${Math.max(.001,scale)})`;view.art.style.transformOrigin='center';measure(view);paint(time);}
+ function enter(inheritDesign=true){if(!rendering&&inheritDesign&&state.ratio!==(project.output.width<project.output.height?'portrait':'landscape')){checkpoint();Object.assign(project.output,studioEditorAspectSize(project.output,state.ratio));renderOutput();save();}syncCanvasOrientation();time=Math.max(0,Math.min(project.output.duration,time));root.classList.remove('is-focused');view=views.find(v=>v.key===state.activeDesign)||views[0];home=view.art.parentElement;view.editorSeek=true;stage.append(view.art);panel.hidden=false;layout.hidden=true;tabs.hidden=true;root.classList.add('is-editing-mode');root.dataset.editorMode='editing';modeButton.textContent='返回展示工作台';modeButton.setAttribute('aria-pressed','true');state.playing=false;attachLayers();requestAnimationFrame(resize);}
+ function leave(){seekTo(time);panel.hidden=true;layout.hidden=false;tabs.hidden=false;root.classList.remove('is-editing-mode');root.dataset.editorMode='design';modeButton.textContent='剪辑工作台';modeButton.setAttribute('aria-pressed','false');if(view){view.editorSeek=false;view.previewRasterScale=0;view.editorArtKey=null;home.append(view.art);view.art.style.removeProperty('width');view.art.style.removeProperty('height');view.art.style.removeProperty('aspect-ratio');view.art.style.removeProperty('transform');view.art.style.removeProperty('filter');view.art.classList.remove('studio-editor-transparent');root.classList.remove('is-transparent-output');for(const n of nodes.values())n.box.hidden=true;if(!project.designSync)studioEditorTextLayers(view,false);const previousView=view;requestAnimationFrame(()=>sizePreview(previousView));}view=null;transforms.update();applyDesignSync();}
+ function clearDesignView(v){if(!v)return;studioEditorTextLayers(v,false);v.art.style.removeProperty('filter');v.art.classList.remove('studio-editor-transparent');v.editorArtKey=null;root.classList.remove('is-transparent-output');}
+ function applyDesignSync(){if(!panel.hidden||rendering)return;
+  if(!project.designSync){clearDesignView(view);for(const n of nodes.values()){n.box.hidden=true;n.media.pause?.();n.active=false;n.needsSeek=true;}view=null;return;}
+  const target=views.find(v=>!v.section.hidden)||views.find(v=>v.key===state.activeDesign);if(!target)return;if(view!==target){clearDesignView(view);view=target;attachLayers();}time=state.time;paint(time,false);
+ }
+ function selectClip(id,reveal=true){selected=id;const c=project.clips.find(c=>c.id===id);if(c&&reveal&&!studioClipPose(c,time).visible)seekTo(Math.min(project.output.duration,c.start+Math.min(.1,studioClipDuration(c)/2)));renderProperties();renderTimeline();if(view)paint(time,!panel.hidden);}
+ function removeSelected(){if(!project.clips.some(c=>c.id===selected))return;seekTo(time);checkpoint();project.clips=project.clips.filter(c=>c.id!==selected);selected=null;rebuild();changed();}
+ document.addEventListener('keydown',event=>{if(panel.hidden||rendering||monitoring||jobId||transforms.dragging||event.target.closest?.('input,textarea,select,[contenteditable="true"],[role="textbox"]'))return;if(event.key==='Delete'&&selected){event.preventDefault();removeSelected();}else if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='z'){event.preventDefault();undo(event.shiftKey);}});
+ modeButton.onclick=()=>panel.hidden?enter():leave();q('[data-editor-design]').onclick=leave;
+ async function importFiles(files){if(busy)return;busy=true;try{if(!ready)throw Error('视频引擎未就绪，请运行 setup-editor.cmd 后通过 start-editor.cmd 打开');for(const file of files){report('正在导入 '+file.name+' …');const result=await rpc('import',{file,name:file.name});let a=result;while(a.status==='preparing'){await new Promise(r=>setTimeout(r,750));a=await rpc('asset',{id:a.id});}if(a.status!=='ready')throw Error(a.error||'导入失败');checkpoint();project.assets.push(a);selectedAsset=a.id;renderAssets();changed();report(`已导入 ${a.name} · ${a.codec} ${a.alpha?'· 检测到 Alpha 透明通道':''}`);}}catch(e){report(e.message,true);}finally{busy=false;q('[data-editor-import]').value='';}}
+ q('[data-editor-import]').onchange=e=>importFiles(e.target.files);const drop=q('.studio-drop-zone');drop.onclick=()=>q('[data-editor-import]').click();drop.onkeydown=e=>{if(e.key==='Enter')drop.click();};drop.ondragover=e=>{e.preventDefault();drop.classList.add('is-dragging');};drop.ondragleave=()=>drop.classList.remove('is-dragging');drop.ondrop=e=>{e.preventDefault();drop.classList.remove('is-dragging');importFiles(e.dataTransfer.files);};
+ q('[data-play]').onclick=()=>{if(time>=project.output.duration)time=0;playing=!playing;if(playing&&!monitoring&&project.assets.some(a=>a.kind==='audio')){audioContext??=new AudioContext();audioContext.resume().catch(()=>{});}for(const n of nodes.values())n.needsSeek=true;lastWall=0;q('[data-play]').textContent=playing?'暂停':'播放';if(!playing)for(const n of nodes.values())n.media.pause?.();};seek.oninput=()=>seekTo(seek.value);
+ q('[data-split]').onclick=()=>{const c=project.clips.find(c=>c.id===selected);if(!c)return;checkpoint();const right=studioSplitClip(c,time,crypto.randomUUID());if(right){project.clips.push(right);selected=right.id;rebuild();changed();}else report('将播放头移动到片段内部再分割。');};
+ const undo=redo=>{const from=redo?future:history,to=redo?history:future;if(!from.length)return;const snapshot=from.pop();to.push(snapshot.template?serializeProject():serialize());if(snapshot.template)applyProject(snapshot);else{project=snapshot;selected=null;for(const n of nodes.values())disposeNode(n);nodes.clear();renderOutput();rebuild();resize();}save();};q('[data-undo]').onclick=()=>undo(false);q('[data-redo]').onclick=()=>undo(true);
+ q('[data-transparent]').onchange=e=>{checkpoint();project.transparent=e.target.checked;changed();};
+ function applyProject(p){
+  const editing=!panel.hidden;restoringProject=true;clearTimeout(saveTimer);
+  try{
+   seekTo(time);if(editing)leave();clearDesignView(view);view=null;
+   for(const n of nodes.values())disposeNode(n);nodes.clear();
+   project=structuredClone(p);delete project.template;selected=null;selectedAsset=null;
+   if(p.template){
+    restore({privateContent:p.template.design});
+    for(const key of Object.keys(images)){images[key]=p.template.images?.[key]||'';delete imageNames[key];if(images[key])imageNames[key]=p.template.imageNames?.[key]||'工程内图片';const input=document.getElementById('direction-'+key+'-file');if(input)input.value='';}
+    state.playing=false;motionClock=createMotionClock(state.time,state.variants,state.edges);update();
+   }
+   time=Math.max(0,Math.min(project.output.duration,Number(p.template?.design?.time)||0));renderOutput();rebuild();if(editing)enter(false);
+  }finally{restoringProject=false;}
+ }
+ async function downloadJSON(){if(busy||jobId)return;try{const snapshot=serializeProject();clearTimeout(saveTimer);await rpc('save',snapshot);await rpc('projectDownload',snapshot);report('工程已保存 · 包含视觉方案、文字、配色、边框、展示节奏和模板图片。视频与音频保存在本机素材目录。');}catch(e){report(e.message,true);}}
+ q('[data-save-project]').onclick=downloadJSON;q('[data-load-project]').onchange=async e=>{if(busy||jobId)return;busy=true;try{const file=e.target.files[0];if(!file)return;const p=JSON.parse(await file.text());await rpc('validateProject',p);for(const a of p.assets){const local=await rpc('asset',{id:a.id});if(local.status!=='ready')throw Error('找不到素材：'+a.name);Object.assign(a,local);}history.push(serializeProject());if(history.length>60)history.shift();future=[];applyProject(p);save();report(p.template?'工程已恢复 · 视觉方案、文字、模板图片与剪辑内容已一并载入。':'旧版剪辑工程已恢复 · 此文件未保存展示模板，沿用当前视觉方案。');}catch(e){report(e.message,true);}finally{busy=false;e.target.value='';}};
+ q('[data-editor-export]').onclick=async()=>{if(jobId||busy)return;try{if(!ready)throw Error('请使用本机视频引擎启动剪辑版');if(project.transparent&&!['vp9','prores'].includes(project.output.codec))throw Error('透明背景请选择 ProRes 4444 或 VP9 Alpha 编码器');seekTo(time);const result=await rpc('export',{project:serialize(),design:structuredClone(state),images:structuredClone(images)});jobId=result.id;q('.studio-editor-export-progress').hidden=false;let job;do{await new Promise(r=>setTimeout(r,800));job=await rpc('job',{id:jobId});q('.studio-editor-export-progress strong').textContent=job.phase==='preparing-media'?'正在准备全尺寸导出素材':job.phase==='encoding'?'正在完成视频编码':'正在逐帧合成与编码';q('progress').value=job.progress;q('[data-progress]').textContent=[Math.round(job.progress*100)+'%',job.encoding,job.pipeline==='sequential'?'连续解码':'',job.workers>1?'并行合成':'',job.fps?'合成 '+job.fps.toFixed(1)+' 帧/秒':'',job.notice||''].filter(Boolean).join(' · ');}while(job.status==='rendering');if(job.status==='complete'){await rpc('download',{url:job.download});report('导出完成 · '+(job.encoding||'视频')+' · 视频已下载。'+(job.notice||''));}else report(job.status==='cancelled'?'导出已取消':job.error,true);}catch(e){report(e.message,true);}finally{jobId=null;q('.studio-editor-export-progress').hidden=true;}};
+ q('[data-cancel]').onclick=()=>jobId&&rpc('cancel',{id:jobId}).catch(e=>report(e.message,true));
+
+ q('[data-preview-large]').onclick=()=>{panel.classList.toggle('studio-preview-expanded');q('[data-preview-large]').textContent=panel.classList.contains('studio-preview-expanded')?'恢复布局':'放大预览';requestAnimationFrame(resize);};
+ for(const [selector,cls]of [['[data-assets-toggle]','studio-hide-assets'],['[data-properties-toggle]','studio-hide-properties']])q(selector).onclick=()=>{panel.classList.toggle(cls);q(selector).setAttribute('aria-pressed',String(!panel.classList.contains(cls)));requestAnimationFrame(resize);};
+ const resizer=q('.studio-timeline-resizer');resizer.onpointerdown=e=>{const y=e.clientY,height=q('.studio-edit-timeline').offsetHeight;resizer.setPointerCapture(e.pointerId);resizer.onpointermove=ev=>panel.style.setProperty('--timeline-height',Math.max(120,Math.min(innerHeight*.65,height+y-ev.clientY))+'px');resizer.onpointerup=()=>resizer.onpointermove=null;};resizer.onkeydown=e=>{if(!['ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();panel.style.setProperty('--timeline-height',Math.max(120,Math.min(innerHeight*.65,q('.studio-edit-timeline').offsetHeight+(e.key==='ArrowUp'?20:-20)))+'px');};
+ q('[data-monitor]').onclick=async()=>{try{const result=await rpc('monitorOpen');if(result.notice)report(result.notice,true);monitorActive=true;monitorSignature='';publishMonitor(true);}catch(e){report(e.message,true);}};
+ window.addEventListener('message',e=>{if(e.source!==parent)return;if(e.data?.type==='studio-monitor-active'){monitorActive=e.data.active;monitorSignature='';}if(e.data?.type==='studio-monitor-state')applyMonitor(e.data.payload).catch(e=>report('监视画面加载失败：'+e.message,true));});
+ let monitorBusy=false,nextMonitor=null;
+ async function applyMonitor(packet){nextMonitor={...packet,content:packet.content||nextMonitor?.content};if(monitorBusy)return;monitorBusy=true;try{while(nextMonitor){const p=nextMonitor;nextMonitor=null;if(p.content){clearDesignView(view);await globalThis.studioEditorAPI.loadRender(p.content);monitoring=true;rendering=false;state.ratio='landscape';sync();for(const n of nodes.values()){n.box.append(n.media);if(!n.asset.image&&n.media.requestVideoFrameCallback){const decoded=()=>{if(n.disposed)return;n.frameVersion++;n.frameRequest=n.media.requestVideoFrameCallback(decoded);};n.frameRequest=n.media.requestVideoFrameCallback(decoded);}}project.output.durationMode='custom';origin=p.origin||origin;view.previewRasterScale=.5;resize();}if(!view)continue;const seek=!p.playing||!playing||Math.abs(time-p.time)>.5;if(seek){time=p.time;for(const n of nodes.values())n.needsSeek=true;}if(playing!==p.playing||seek)lastWall=0;playing=p.playing;paint(time);parent.postMessage({type:'studio-monitor-render-ready'},'*');}}finally{monitorBusy=false;}}
+ function publishMonitor(force=false){if(!monitorActive||monitoring||rendering)return;const now=performance.now();if(!force&&now-monitorStamp<120)return;monitorStamp=now;let content;if(force||now-monitorContentStamp>300){monitorContentStamp=now;const design={...state,time:0,playing:false},signature=JSON.stringify([project,design,images]);if(signature!==monitorSignature){content={project:serialize(),design:structuredClone(design),images:structuredClone(images)};monitorSignature=signature;for(const a of content.project.assets){a.proxy=assetURL(a);a.preview=a.proxy;}}}parent.postMessage({type:'studio-editor-monitor-update',payload:{content,time:panel.hidden?state.time:time,playing:panel.hidden?state.playing:playing,origin}},'*');}
+
+ new ResizeObserver(()=>{if(!panel.hidden&&!rendering)resize();}).observe(stage);
+ const tick=now=>{if(!root.isConnected)return;if(!monitoring&&!rendering)syncDuration();publishMonitor();if(!rendering&&panel.hidden&&project.designSync){if(lastDesignPlaying!==state.playing){for(const n of nodes.values())n.needsSeek=true;lastDesignPlaying=state.playing;}applyDesignSync();}if(!rendering&&!panel.hidden&&playing){if(lastWall){const master=project.clips.map(c=>({c,n:nodes.get(c.id)})).find(({c,n})=>n&&!n.asset.image&&n.active&&!n.media.paused&&!n.media.seeking&&n.media.readyState>=2&&n.media.currentTime>=c.in&&n.media.currentTime<c.out);time=Math.min(project.output.duration,master?master.c.start+master.n.media.currentTime-master.c.in:time+(now-lastWall)/1000);}if(time>=project.output.duration)seekTo(time);paint(time);}lastWall=now;requestAnimationFrame(tick);};requestAnimationFrame(tick);
+ globalThis.studioEditorAPI={
+  renderLayerWindows(){return {};},
+  previewStats(){return [...nodes.values()].map(n=>({id:n.asset.id,path:n.box.dataset.previewPath,width:n.media.videoWidth||n.media.naturalWidth,height:n.media.videoHeight||n.media.naturalHeight,seeks:n.stats.seeks,uploads:n.stats.uploads,quality:n.media.getVideoPlaybackQuality?{total:n.media.getVideoPlaybackQuality().totalVideoFrames,dropped:n.media.getVideoPlaybackQuality().droppedVideoFrames}:null,time:n.media.currentTime,paused:n.media.paused}));},
+  async loadRender(payload){clearTimeout(saveTimer);for(const n of nodes.values())disposeNode(n);nodes.clear();rendering=true;monitoring=false;project=payload.project;restore({privateContent:payload.design});Object.assign(images,payload.images);state.playing=false;sync();enter();view.art.classList.add('studio-editor-render-art');root.classList.add('studio-editor-render');document.documentElement.style.setProperty('background','transparent','important');document.body.style.setProperty('background','transparent','important');await document.fonts.ready;rebuild();resize();for(const n of nodes.values())await new Promise((resolve,reject)=>{if(n.asset.kind==='audio'||n.asset.renderFrames)return resolve();if(n.asset.image?n.media.complete:n.media.readyState>=2)return resolve();const timeout=setTimeout(()=>reject(Error('素材加载超时：'+n.asset.name)),60000);n.media.addEventListener(n.asset.image?'load':'loadeddata',()=>{clearTimeout(timeout);resolve();},{once:true});n.media.addEventListener('error',()=>reject(Error('素材加载失败')),{once:true});});await Promise.all([...view.art.querySelectorAll('img')].map(img=>img.complete?Promise.resolve():img.decode().catch(()=>{})));},
+  async seekRender(t,decodedFrames=[]){time=t;state.time=t;motionClock=createMotionClock(t,state.variants,state.edges);state.playing=false;await Promise.all(decodedFrames.map(async f=>{const n=nodes.get(f.id);if(!n?.asset.renderFrames)throw Error('导出帧不匹配');if(n.renderFrame===f.index)return;n.media.src=f.url||('data:image/png;base64,'+f.png);await n.media.decode();n.renderFrame=f.index;n.drawKey='';}));for(const c of project.clips){const n=nodes.get(c.id),p=studioClipPose(c,t);if(!n||n.asset.kind==='audio'||n.asset.image||n.asset.renderFrames||!p.visible)continue;await new Promise((resolve,reject)=>{const m=n.media;if(Math.abs(m.currentTime-p.source)<.0001&&m.readyState>=2)return resolve();const timeout=setTimeout(()=>reject(Error('视频定位超时')),30000);m.addEventListener('seeked',()=>{clearTimeout(timeout);resolve();},{once:true});m.currentTime=p.source;});}paint(t);/* Commit canvas updates before CDP captures the compositor surface. */await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));},
+ };
+ async function refreshAssetPreview(a){
+  try{let updated=await rpc('preview',{id:a.id});while(updated.previewStatus==='preparing'){await new Promise(r=>setTimeout(r,700));updated=await rpc('asset',{id:a.id});}if(updated.previewStatus==='error')throw Error(updated.previewError);if(rendering)return;const previous=assetURL(a);Object.assign(a,updated);if(previous!==assetURL(a)){for(const [id,n]of nodes)if(n.asset.id===a.id){disposeNode(n);nodes.delete(id);}attachLayers();paint(time);}renderAssets();save();}catch(e){report('预览优化失败，保留现有素材：'+e.message,true);}
+ }
+ renderOutput();renderAssets();renderProperties();renderTimeline();
+ setTimeout(async()=>{if(rendering)return;try{const c=await rpc('capabilities');if(rendering||c.renderOnly)return;origin=c.origin;hardware=c.hardware||{};const saved=await rpc('load');if(rendering)return;if(saved?.version===1){applyProject(saved);if(view&&!panel.hidden)resize();}else renderOutput();ready=c.ready;if(c.ready&&!saved?.template)save();if(!rendering)for(const a of project.assets)refreshAssetPreview(a);if(c.openEditor&&panel.hidden)enter(false);report(c.ready?'本机视频引擎已连接 · '+(c.exportPipeline==='sequential'?'原尺寸连续解码导出 · ':'')+'Alpha 素材由 FFmpeg 保留 · 自动保存已开启':c.error,!c.ready);}catch(e){report('剪辑需要本机视频引擎：请运行 start-editor.cmd。'+e.message,true);}},0);
+ return {enter,leave};
+}
+
 // Editor chrome only. Existing inputs and listeners are retained, never cloned.
 function mountStudioWorkspace(root,views){
   root.classList.add('studio-editor');root.dataset.panel='preview';
@@ -4996,10 +5502,11 @@ function mountStudioWorkspace(root,views){
   brand.innerHTML='<span class="studio-emblem" aria-hidden="true">✳</span><div><span class="studio-kicker">SHOWCASE STUDIO</span><h1>角色展示工作台</h1></div>';
   const headerActions=make('div','studio-header-actions');
   const localLabel=make('span','studio-local-label','本地编辑 · 即时预览');
+  const modeButton=button('剪辑工作台');modeButton.classList.add('studio-mode-button');modeButton.dataset.editorMode='editing';modeButton.setAttribute('aria-pressed','false');
   const focusButton=button('专注预览');focusButton.classList.add('studio-focus-button');focusButton.dataset.focusPreview='';focusButton.setAttribute('aria-pressed','false');
   const help=make('details','studio-help');
   help.innerHTML='<summary>使用说明</summary><div class="studio-help-body"><strong>从作品内容到展示画面</strong><ol><li>在左侧选择系列，填写名字与系列资料。</li><li>上传角色图，再选择中间的视觉方案。</li><li>在右侧调整配色、圆环和动效，立即预览。</li></ol><p>系列名称、编号和短句分别保存。配色等视觉设置按方案保存，几何样式按方案与系列保存。</p><p>参数记在当前浏览器。上传的图片仅在本次打开时有效，刷新前请保留原始素材。</p></div>';
-  headerActions.append(localLabel,help,focusButton);header.append(brand,headerActions);
+  headerActions.append(localLabel,help,modeButton,focusButton);header.append(brand,headerActions);
   const tabs=make('nav','studio-mobile-tabs');tabs.setAttribute('aria-label','工作台区域');
   for(const [key,label]of [['content','作品内容'],['preview','画面预览'],['style','画面样式']]){const tab=button(label);tab.dataset.panelTab=key;tab.setAttribute('aria-pressed',String(key==='preview'));tab.addEventListener('click',()=>setPanel(key));tabs.append(tab)}
 
@@ -5077,6 +5584,8 @@ function mountStudioWorkspace(root,views){
   for(const view of views)reorganizeInspector(view);
   const edgeControls=make('div','studio-shared-edges');const edgeSource=findGroup('边框滚动');edgeControls.append(fields([field('direction-top-text'),field('direction-bottom-text')]));for(const el of [...edgeSource.children].slice(1))edgeControls.append(el);
   layout.append(left,toolbar,originalViews);oldHeading.remove();oldCanvasOptions.remove();global.remove();root.append(header,tabs,layout);
+
+  if(!globalThis.studioOutput?.enabled)mountStudioVideoEditor(root,views,{modeButton,layout,tabs,sizePreview});
 
   const rename={
     'direction-series-name':'系列显示名称','direction-prefix':'编号前缀','direction-serial':'作品编号',
@@ -5316,6 +5825,35 @@ function mountStudioPostProcessing(view){
   view.post={viewport,surface,foreground,canvas,ctx:canvas.getContext('2d'),svg,id,prism,amount:0,lastWall:0,lastEffect:'polar',paintKey:'',
     noise:svg.querySelector('feTurbulence'),warp:svg.querySelector('feDisplacementMap'),blur:svg.querySelector('feGaussianBlur'),glow:svg.querySelector('feFuncA'),offsets:[...svg.querySelectorAll('feOffset')]};
 }
+// Split actual text nodes only while the editor needs independent text ordering.
+// Empty scene shells retain container units, layout selectors and animation refs.
+function studioEditorTextLayers(view,enabled){
+  if(!enabled){
+    const split=view.editorTextLayers;if(!split)return;
+    for(const {node,marker} of split.moved){marker.replaceWith(node);}
+    split.pictureStory.remove();split.root.remove();split.below.remove();split.above.remove();view.editorTextLayers=null;return;
+  }
+  if(view.editorTextLayers)return;
+  const root=document.createElement('div');root.className='studio-editor-text-layers';
+  const textComposition=view.composition.cloneNode(false);textComposition.classList.add('studio-editor-text-composition');root.append(textComposition);
+  const moved=[];
+  const move=(node,parent)=>{const marker=document.createComment('editor text home');node.before(marker);moved.push({node,marker});parent.append(node);};
+  for(const node of [...view.composition.children])if(node.matches('.packaging,.dual-information'))move(node,textComposition);
+  const pictureStory=view.storyLayer.cloneNode(false);pictureStory.classList.add('studio-editor-story-picture');
+  const shots=[];
+  for(const part of view.storyShots){const picture=part.el.cloneNode(false);pictureStory.append(picture);const media=part.el.querySelector('.story-media');if(media)move(media,picture);shots.push({source:part.el,picture});}
+  view.post.surface.append(pictureStory);move(view.storyLayer,root);
+  if(view.ending)move(view.ending,root);
+  const below=document.createElement('div'),above=document.createElement('div');below.className='studio-editor-footage-below';above.className='studio-editor-footage-above';move(view.post.foreground,view.post.surface);view.post.surface.append(below,root,above);view.editorTextLayers={root,textComposition,pictureStory,shots,moved,below,above};
+  studioDrawEditorTextLayers(view);
+}
+function studioDrawEditorTextLayers(view){
+  const split=view.editorTextLayers;if(!split)return;
+  split.textComposition.style.cssText=view.composition.style.cssText;
+  // The text and both footage lanes are filtered together by their parent.
+  split.pictureStory.style.cssText=view.storyLayer.style.cssText;
+  for(const {source,picture} of split.shots){picture.style.cssText=source.style.cssText;picture.dataset.corner=source.dataset.corner;}
+}
 function studioPaintPostOptics(ctx,w,h,o){
   ctx.clearRect(0,0,w,h);if(o.amount<.001)return;
   const t=o.time,s=o.amount,accent=/^#[0-9a-f]{6}$/i.test(o.accent)?o.accent:'#bceb45';
@@ -5369,7 +5907,7 @@ function drawStudioPostProcessing(view,pose){
   p.foreground.style.visibility=pose.outro>=1?'hidden':'visible';
   const n=state.narrative,v=state.variants[view.key],now=performance.now(),dt=p.lastWall?Math.min(.1,(now-p.lastWall)/1000):1;p.lastWall=now;
   const target=n.postEffect==='none'?0:studioPostSceneWeight(state.time,state.introDuration,n)*n.postStrength*(1-Math.min(1,pose.shutdown*2));
-  if(globalThis.studioOutput?.sync)p.amount=target;
+  if(globalThis.studioOutput?.sync||view.editorSeek===true)p.amount=target;
   else p.amount+=(target-p.amount)*(1-Math.exp(-dt/Math.max(.04,n.postFade/3)));
   if(Math.abs(target-p.amount)<.0003)p.amount=target;
   if(n.postEffect!=='none'){p.lastEffect=n.postEffect;p.lastGlow=n.postGlow;}
@@ -5381,11 +5919,11 @@ function drawStudioPostProcessing(view,pose){
   p.noise.setAttribute('baseFrequency',`${(.0018+Math.sin(t*.42)*.00025).toFixed(5)} ${(.024+Math.cos(t*.31)*.004).toFixed(5)}`);
   p.blur.setAttribute('stdDeviation',(Math.max(.1,scale)*(effect==='bloom'?8:3.2)).toFixed(2));
   p.glow.setAttribute('slope',((p.lastGlow+(effect==='bloom'?.65:effect==='anamorphic'?.18:0))*s*2.8).toFixed(3));
-  const fringe=(effect==='prism'?3.3:effect==='crt'?.85:effect==='holo'?.6:0)*s*scale;
+  const fringe=(effect==='prism'?3.3:effect==='crt'?.85:effect==='holo'?.6:0)*s*scale*(n.postDispersion??.25);
   p.offsets[0].setAttribute('dx',fringe.toFixed(3));p.offsets[1].setAttribute('dx',(-fringe).toFixed(3));
   const contrast=1+s*(effect==='crt'?.10:effect==='film'?-.055:.025),saturate=1+s*(effect==='holo'?.12:effect==='film'?-.15:effect==='prism'?.10:0),light=1+(effect==='film'?Math.sin(t*8.5)*.009*s:0);
   p.surface.style.filter=`${fringe>0.001?`url(#${p.prism}) `:''}url(#${p.id}) contrast(${contrast.toFixed(4)}) saturate(${saturate.toFixed(4)}) brightness(${light.toFixed(4)})`;
-  const ratio=Math.min((globalThis.devicePixelRatio||1)*Math.max(1,view.outputScale||1),2),pw=Math.max(1,Math.round(w*ratio)),ph=Math.max(1,Math.round(h*ratio));
+  const ratio=view.previewRasterScale||Math.min((globalThis.devicePixelRatio||1)*Math.max(1,view.outputScale||1),2),pw=Math.max(1,Math.round(w*ratio)),ph=Math.max(1,Math.round(h*ratio));
   if(p.canvas.width!==pw||p.canvas.height!==ph){p.canvas.width=pw;p.canvas.height=ph;}
   const key=[pw,ph,effect,s.toFixed(4),t.toFixed(3),v.accent].join('|');
   if(p.paintKey!==key){studioPaintPostOptics(p.ctx,pw,ph,{effect,amount:s,time:t,accent:v.accent});p.paintKey=key;}
@@ -5396,12 +5934,12 @@ function drawStudioPostProcessing(view,pose){
 function mountStudioNarrative(root,views){
   const group=document.createElement('details');group.className='studio-group studio-narrative';group.open=true;
   let legacyIntroDuration=state.narrative.introStyle==='story'?4.5:state.introDuration;
-  const percentKeys=['nameDelay','characterEffectStrength','authorEffectStrength','postStrength','postGlow'];
+  const percentKeys=['nameDelay','characterEffectStrength','authorEffectStrength','postStrength','postGlow','postDispersion'];
   function storyRange(role,key,label,min,max,step){return `<div class="direction-field"><label for="studio-${role}-${key}" class="range-title">${label}<output data-story-value="${role+key}"></output></label><input id="studio-${role}-${key}" data-narrative="${role+key}" class="form-range" type="range" min="${min}" max="${max}" step="${step}"></div>`}
   function storyShot(role,index,label){return `<section class="studio-story-shot" data-story-shot="${role}">
     <div class="studio-story-shot-head"><span><b>${index}</b>${label}</span><label class="form-check form-switch"><input class="form-check-input" data-narrative="${role}ShotEnabled" type="checkbox"><span>启用</span></label></div>
     <div class="direction-settings" data-story-enabled="${role}">
-      <div class="studio-story-pair"><div class="direction-field"><label for="studio-${role}-duration">镜头时长 · 秒</label><input id="studio-${role}-duration" data-narrative="${role}ShotDuration" class="form-control" type="number" min=".5" max="12" step=".1" inputmode="decimal"></div><div class="direction-field"><label for="studio-${role}-corner">字幕位置</label><select id="studio-${role}-corner" data-narrative="${role}Corner" class="form-select"><option value="tl-br">左上 ↔ 右下</option><option value="tr-bl">右上 ↔ 左下</option><option value="bl-tr">左下 ↔ 右上</option><option value="br-tl">右下 ↔ 左上</option><option value="center">画面正中</option></select></div></div>
+      <div class="studio-story-pair"><div class="direction-field"><label for="studio-${role}-duration">镜头时长 · 秒</label><input id="studio-${role}-duration" data-narrative="${role}ShotDuration" class="form-control" type="number" min=".5" max="600" step=".1" inputmode="decimal"></div><div class="direction-field"><label for="studio-${role}-corner">字幕位置</label><select id="studio-${role}-corner" data-narrative="${role}Corner" class="form-select"><option value="tl-br">左上 ↔ 右下</option><option value="tr-bl">右上 ↔ 左下</option><option value="bl-tr">左下 ↔ 右上</option><option value="br-tl">右下 ↔ 左上</option><option value="center">画面正中</option></select></div></div>
       <details class="studio-story-media"><summary>画面缩放与位置</summary>${storyRange(role,'Scale','画面缩放',.6,2.4,.05)}${storyRange(role,'X','水平位置',0,100,1)}${storyRange(role,'Y','垂直位置',0,100,1)}</details>
     </div>
     <button type="button" class="btn studio-story-jump" data-story-jump="${role}">预览${label}</button>
@@ -5410,7 +5948,7 @@ function mountStudioNarrative(root,views){
     <div class="studio-sequence-map" aria-hidden="true"><span data-intro-map>01 引入</span><i>→</i><span data-show-map>02 展示</span><i>→</i><span data-ending-map>03 片尾</span></div>
     <div class="direction-settings">
       <div class="direction-field"><label for="studio-intro-style">引入方式</label><select class="form-select" id="studio-intro-style" data-narrative="introStyle"><option value="story">双镜头海报 · 角色 → 作者</option><option value="model">模型先行 · 信息稍后出现</option><option value="title">大字开场 · 原版</option></select></div>
-      <div class="direction-field" data-legacy-intro><label for="studio-intro-duration">引入页时长 · 秒</label><input id="studio-intro-duration" class="form-control" type="number" min="0" max="30" step="0.5" inputmode="decimal"><small>0 秒跳过 · 按 1× 播放计算</small></div>
+      <div class="direction-field" data-legacy-intro><label for="studio-intro-duration">引入页时长 · 秒</label><input id="studio-intro-duration" class="form-control" type="number" min="0" max="1800" step="0.5" inputmode="decimal"><small>0 秒跳过 · 按 1× 播放计算</small></div>
       <div class="direction-field" data-model-intro><label for="studio-name-reveal">角色名何时出现</label><select class="form-select" id="studio-name-reveal" data-narrative="nameReveal"><option value="show">到展示页再淡入</option><option value="delayed">片头后段轻轻浮现</option></select></div>
       <div class="direction-field" data-name-delay><label for="studio-name-delay" class="range-title">延迟到片头的<output data-name-delay-value></output></label><input class="form-range" id="studio-name-delay" data-narrative="nameDelay" type="range" min="20" max="90" step="5"></div>
     </div>
@@ -5444,7 +5982,7 @@ function mountStudioNarrative(root,views){
       <div data-post-controls>
         <div class="studio-post-label">应用到哪些镜头</div>
         <div class="studio-post-scenes"><label><input type="checkbox" data-narrative="postCharacter"><span>角色镜头</span></label><label><input type="checkbox" data-narrative="postAuthor"><span>作者镜头</span></label><label><input type="checkbox" data-narrative="postShow"><span>展示页</span></label><label><input type="checkbox" data-narrative="postOutro"><span>片尾</span></label></div>
-        ${postRange('postStrength','效果强度',0,100,5)}${postRange('postGlow','附加辉光',0,100,5)}${postRange('postSpeed','动态速度',.1,2,.1)}${postRange('postFade','淡入淡出 · 秒',.15,1.5,.05)}
+        ${postRange('postStrength','效果强度',0,100,5)}${postRange('postGlow','附加辉光',0,100,5)}${postRange('postDispersion','RGB 色散强度',0,100,1)}<p class="studio-note">0 关闭 RGB 彩边，保留棱镜彩色光带。默认 25%，100% 对应原版色散。</p>${postRange('postSpeed','动态速度',.1,2,.1)}${postRange('postFade','淡入淡出 · 秒',.15,1.5,.05)}
       </div>
     </div>
     <p class="studio-note">片头：素材与字幕一起处理。展示页：角色位于滤镜上方，背景与文字接受处理。边框始终独立。效果连续运动，离开所选镜头时柔和淡出。</p>
@@ -5490,7 +6028,7 @@ function mountStudioNarrative(root,views){
     group.querySelector('[data-name-delay-value]').value=Math.round(n.nameDelay*100)+'%';
     group.querySelector('[data-name-delay]').hidden=n.introStyle!=='model'||n.nameReveal!=='delayed';
     group.querySelector('[data-model-intro]').hidden=n.introStyle!=='model';
-    group.querySelector('[data-intro-note]').textContent=story?(n.characterShotEnabled||n.authorShotEnabled?'角色与作者是两张独立海报镜头，可分别调整画面和字幕位置。统一滤镜在下方「画面后处理」设置；圆环运动始终连续。':'两个镜头都已关闭，直接进入主展示。'):n.introStyle==='model'?'先让模型与动态几何出场。名字保持正常排版大小，信息在展示页淡入。':'沿用原版大字开场，角色名从画面中心缩回信息区。';
+    group.querySelector('[data-intro-note]').textContent=story?(n.characterShotEnabled||n.authorShotEnabled?'角色与作者是两张独立海报镜头，每幕可设 0.5–600 秒，并分别调整画面和字幕位置。统一滤镜在下方「画面后处理」设置；圆环运动始终连续。':'两个镜头都已关闭，直接进入主展示。'):n.introStyle==='model'?'先让模型与动态几何出场。名字保持正常排版大小，信息在展示页淡入。':'沿用原版大字开场，角色名从画面中心缩回信息区。';
     group.querySelector('[data-ending-controls]').hidden=!n.outroEnabled;
     group.querySelector('[data-show-playback]').hidden=n.outroEnabled;
     group.querySelector('[data-show-duration-label]').textContent=continuous?'导出展示时长 · 秒':'展示时长 · 秒';
@@ -5929,7 +6467,7 @@ const x=pose.x*scale-(v.textMotionStyle==='refined'?6*entrance:0),y=pose.y*scale
 function measure(view){if(view.section.hidden)return;
 const output=!!view.outputScale,outer=output?{width:view.art.offsetWidth,height:view.art.offsetHeight}:view.art.getBoundingClientRect();if(!outer.width)return;
 const frame=state.frame==='none'?0:Math.max(32,Math.min(66,outer.width*.048));view.art.style.setProperty('--frame-thickness',frame+'px');view.art.style.setProperty('--outer-height',outer.height+'px');view.art.style.setProperty('--safe-x',state.frame==='vertical'?frame+'px':'0px');view.art.style.setProperty('--safe-y',state.frame==='horizontal'?frame+'px':'0px');
-const rect=output?{width:view.composition.clientWidth,height:view.composition.clientHeight}:view.composition.getBoundingClientRect(),dpr=Math.min((devicePixelRatio||1)*(output?Math.max(1,view.outputScale):1),2);
+const rect=output?{width:view.composition.clientWidth,height:view.composition.clientHeight}:view.composition.getBoundingClientRect(),dpr=view.previewRasterScale||Math.min((devicePixelRatio||1)*(output?Math.max(1,view.outputScale):1),2);
 view.w=rect.width;view.h=rect.height;const width=Math.round(view.w*dpr),height=Math.round(view.h*dpr);if(view.canvas.width!==width||view.canvas.height!==height){view.canvas.width=width;view.canvas.height=height}view.ctx.setTransform(dpr,0,0,dpr,0,0);fitText(view);measureEdgeTracks(view)}
 function sync(){workspace.sync();typographyUI.sync();narrativeUI.sync();outputUI.sync();renderBorderControls();const e=currentSeries();for(const[key,id]of Object.entries(sharedFields)){const input=document.getElementById(id);if(input.value!==state[key])input.value=state[key]}root.querySelectorAll('[data-series-field]').forEach(el=>{el.value=e[el.dataset.seriesField]});document.getElementById('direction-type').checked=state.type;document.getElementById('direction-speed').value=state.speed;root.querySelector('[data-speed-value]').value=state.speed.toFixed(1)+'×';root.querySelectorAll('[data-format]').forEach(el=>el.checked=state.formats[el.dataset.format]);picker.querySelectorAll('[data-badge]').forEach(el=>el.checked=state.badges.includes(el.dataset.badge));
 for(const view of views){const {art,section,key}=view,v=state.variants[key];section.querySelector('[data-seek]').max=studioTotalDuration(state.introDuration,state.narrative);art.classList.toggle('is-portrait',state.ratio==='portrait');art.classList.toggle('is-swapped',state.swapped);art.classList.toggle('has-frame',state.frame!=='none');art.classList.toggle('no-type',!state.type);art.classList.toggle('is-dense',state.badges.length>5);if(key==='dual'){art.classList.toggle('dual-guides',v.dualGuides);art.style.setProperty('--dual-split',(v.dualSplit*100)+'%');}art.dataset.frame=state.frame;for(const kind of ['logo','model','portrait'])art.classList.toggle('has-'+(kind==='model'?'character':kind),!!images[kind]);if(images.logo)art.querySelectorAll('.brand-image').forEach(img=>img.src=images.logo);if(images.model)art.querySelector('.character-image').src=images.model;if(images.portrait)art.querySelector('.portrait-crop img').src=images.portrait;
@@ -5938,7 +6476,7 @@ view.name.textContent=studioTypographyValue(state.typography,'name',state.name.t
 for(const span of art.querySelectorAll('[data-edge]')){const key=span.dataset.edge;span.textContent=key==='edition'?(e.label||'EDITION')+' / '+(e.prefix||'ID')+'-'+(e.serial||'001'):key==='name'?state.name||'NOVA':state[key]}
 art.querySelectorAll('[data-format-item]').forEach(el=>el.hidden=!state.formats[el.dataset.formatItem]);section.querySelector('[data-play]').textContent=state.playing?'暂停动态':'播放动态';section.querySelector('[data-play]').setAttribute('aria-pressed',String(state.playing));section.querySelector('[data-swap]').setAttribute('aria-pressed',String(state.swapped));section.querySelector('[data-swap] span').textContent=state.ratio==='portrait'?'上下互换':'左右互换';
 for(const el of section.querySelectorAll('[data-vfield]'))el.value=el.dataset.vfield==='ringStyle'?v.geometryBySeries[state.series]:v[el.dataset.vfield];for(const el of section.querySelectorAll('[data-efield]'))el.value=v.effects[el.dataset.efield];const resolvedBadges=badgeColors(v);for(const el of section.querySelectorAll('[data-vcolor]'))el.value=el.dataset.vcolor==='badgeColor'?resolvedBadges[0]:el.dataset.vcolor==='badgeInk'?resolvedBadges[1]:v[el.dataset.vcolor];for(const el of section.querySelectorAll('[data-ecolor]'))el.value=v.effects[el.dataset.ecolor];for(const el of section.querySelectorAll('[data-vbool]'))el.checked=v[el.dataset.vbool];for(const el of section.querySelectorAll('[data-effect]'))el.checked=v.effects[el.dataset.effect];for(const el of section.querySelectorAll('[data-shadow]'))el.checked=v.shadows[el.dataset.shadow];
-for(const el of section.querySelectorAll('[data-vrange],[data-erange]')){const key=el.dataset.vrange||el.dataset.erange,factor=Number(el.dataset.factor)||1,value=(el.dataset.vrange?v[key]:v.effects[key])*factor;el.value=value;section.querySelector(`[data-value="${key}"]`).value=['ringSpeed','textMotionSpeed'].includes(key)?value.toFixed(2)+'×':(Number.isInteger(value)?value:value.toFixed(1))+'%'}renderBadges(view);renderCodes(view);effects(view);applyStudioTypography(view);renderEdgeContent(view);drawBorderMotion(view);measure(view);draw(view)}error(views.some(v=>v.qrError)&&!images.qr?'请输入完整的 http:// 或 https:// 链接，或上传二维码图片。':'');}
+for(const el of section.querySelectorAll('[data-vrange],[data-erange]')){const key=el.dataset.vrange||el.dataset.erange,factor=Number(el.dataset.factor)||1,value=(el.dataset.vrange?v[key]:v.effects[key])*factor;el.value=value;section.querySelector(`[data-value="${key}"]`).value=['ringSpeed','textMotionSpeed'].includes(key)?value.toFixed(2)+'×':(Number.isInteger(value)?value:value.toFixed(1))+'%'}renderBadges(view);renderCodes(view);effects(view);applyStudioTypography(view);renderEdgeContent(view);drawBorderMotion(view);measure(view);draw(view)}error(views.some(v=>v.qrError)&&!images.qr?'请输入完整的 http:// 或 https:// 链接，或上传二维码图片。':'');root.dispatchEvent?.(new Event('studio-template-change'));}
 function update(){sync();save()}
 for(const side of ['top','bottom']){document.getElementById('direction-edge-'+side).addEventListener('change',event=>{state.edges[side].direction=event.target.value;update()});document.getElementById('direction-edge-'+side+'-duration').addEventListener('input',event=>{state.edges[side].duration=Number(event.target.value);update()})}
 /* Original urban graphic systems: a utility dial, an after-hours signal orbit,
@@ -6884,7 +7422,7 @@ window.addEventListener('openai:set_globals',event=>{const globals=event.detail?
 let last=0;sync();globalThis.lucide?.createIcons({attrs:{width:16,height:16}});
 document.fonts?.ready.then(()=>{if(root.isConnected)for(const view of views){measure(view);draw(view)}});
 if(globalThis.Tweak&&!root.classList.contains('studio-editor'))for(const view of views){const tweak=new Tweak({container:view.art,onChange:update});tweak.addSlider(state.variants[view.key],'geometryOpacity',{label:'几何装饰透明度',min:.3,max:1,step:.05});}
-function frame(now){if(!root.isConnected)return;if(!studioApplyLayerClock()&&last&&state.playing&&!document.hidden){const delta=Math.min((now-last)/1000,.08)*state.speed;state.time=studioAdvanceTime(state.time,delta,state.introDuration,state.narrative);if(state.narrative.outroEnabled&&state.time>=studioTotalDuration(state.introDuration,state.narrative)){state.playing=false;save();views.forEach(v=>{v.section.querySelector('[data-play]').textContent='播放动态';v.section.querySelector('[data-play]').setAttribute('aria-pressed','false')})}advanceMotionClock(motionClock,delta,state.variants,state.edges)}last=now;for(const view of views)if(!view.section.hidden){if(state.playing){view.sx+=(view.px-view.sx)*.07;view.sy+=(view.py-view.sy)*.07}if(view.w)draw(view);else measure(view)}requestAnimationFrame(frame)}requestAnimationFrame(frame);
+function frame(now){if(!root.isConnected)return;if(!studioApplyLayerClock()&&last&&state.playing&&!document.hidden){const delta=Math.min((now-last)/1000,.08)*state.speed;state.time=studioAdvanceTime(state.time,delta,state.introDuration,state.narrative);if(state.narrative.outroEnabled&&state.time>=studioTotalDuration(state.introDuration,state.narrative)){state.playing=false;save();views.forEach(v=>{v.section.querySelector('[data-play]').textContent='播放动态';v.section.querySelector('[data-play]').setAttribute('aria-pressed','false')})}advanceMotionClock(motionClock,delta,state.variants,state.edges)}last=now;for(const view of views)if(!view.section.hidden&&!view.editorSeek){if(state.playing){view.sx+=(view.px-view.sx)*.07;view.sy+=(view.py-view.sy)*.07}if(view.w)draw(view);else measure(view)}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 })();
 
 </script>

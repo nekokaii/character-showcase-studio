@@ -17,7 +17,7 @@ for(const duration of [0,1,4.5,8,30]){
   near(run(`studioAdvanceTime(${duration}+11.9,24.2,${duration},{showPlayback:'repeat'})`),duration+.1);
   if(duration>0)near(run(`studioNarrativeTime(${duration}/2,${duration})`),2.25);
 }
-near(run('studioIntroDuration(-1)'),0);near(run('studioIntroDuration(99)'),30);near(run('studioIntroDuration(NaN)'),4.5);
+near(run('studioIntroDuration(-1)'),0);near(run('studioIntroDuration(99)'),99);near(run('studioIntroDuration(99999)'),1800);near(run('studioIntroDuration(NaN)'),4.5);
 near(run('studioRetime(2.25,4.5,8)'),4);near(run('studioRetime(7.5,4.5,8)'),11);
 near(run('studioRetime(2.25,4.5,0)'),0);near(run('studioRetime(3,0,8)'),11);
 // Use the trusted, fully built template rather than a hand-written surrogate.

@@ -1,0 +1,38 @@
+import {chromium} from 'playwright-core';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {runProcess,mediaTools} from '../tools/editor-media.mjs';
+const base=process.env.STUDIO_TEST_URL||'http://127.0.0.1:19478',root=path.resolve('.'),{ffmpeg,ffprobe}=mediaTools(root);
+const cap=await(await fetch(base+'/__editor/capabilities')).json(),saved=await(await fetch(base+'/__editor/project')).json();
+const put=p=>fetch(base+'/__editor/project',{method:'PUT',headers:{'X-Studio-Token':cap.token,'Content-Type':'application/json'},body:JSON.stringify(p)});
+await fs.mkdir('work/editor-preview-qa',{recursive:true});
+await runProcess(ffmpeg,['-hide_banner','-loglevel','error','-y','-f','lavfi','-i','color=c=black@0:s=320x180:r=30:d=5,format=rgba,drawbox=x=80:y=15:w=120:h=120:color=red@1:t=fill:replace=1,drawbox=x=240:y=50:w=40:h=40:color=blue@0.5:t=fill:replace=1','-c:v','libvpx-vp9','-lossless','1','-auto-alt-ref','0','-pix_fmt','yuva420p','work/editor-preview-qa/alpha.webm']);
+await runProcess(ffmpeg,['-hide_banner','-loglevel','error','-y','-f','lavfi','-i','testsrc2=s=1920x1080:r=30:d=5','-c:v','libx264','-preset','ultrafast','-crf','25','work/editor-preview-qa/1080.mp4']);
+const browser=await chromium.launch({channel:'chrome',headless:true});
+const pixel=async locator=>locator.evaluate(box=>{const source=[...box.children].find(c=>!c.hidden),c=document.createElement('canvas');c.width=source.videoWidth||source.width;c.height=source.videoHeight||source.height;const ctx=c.getContext('2d');ctx.drawImage(source,0,0);return [ctx.getImageData(0,0,1,1).data[3],ctx.getImageData(Math.round(c.width*.4),Math.round(c.height*.4),1,1).data[3]];});
+try{
+ await put(null);const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(base+'/?workspace=edit');const frame=await(await page.waitForSelector('iframe')).contentFrame();await frame.locator('.studio-edit-workspace').waitFor({state:'visible'});
+ const began=performance.now();await frame.locator('[data-editor-import]').setInputFiles('work/editor-preview-qa/alpha.webm');await frame.locator('.studio-asset-card').filter({hasText:'alpha.webm'}).waitFor({timeout:60000});
+ const importMs=performance.now()-began;assert.match(await frame.locator('.studio-asset-type').innerText(),/ALPHA/);
+ await frame.locator('.studio-asset-card').filter({hasText:'alpha.webm'}).dragTo(frame.locator('.studio-edit-track-lane[data-layer="under-border"]'),{targetPosition:{x:1,y:16}});
+ await frame.locator('.studio-edit-workspace [data-seek]').evaluate(e=>{e.value='.5';e.dispatchEvent(new Event('input',{bubbles:true}));});await page.waitForTimeout(400);
+ assert.deepEqual(await pixel(frame.locator('.studio-editor-clip-surface')),[0,255]);
+ let stats=await frame.evaluate(()=>studioEditorAPI.previewStats());assert.equal(stats[0].path,'direct');assert.equal(stats[0].uploads,0);
+ await frame.getByRole('button',{name:'播放',exact:true}).click();await page.waitForTimeout(2000);await frame.getByRole('button',{name:'暂停',exact:true}).click();
+ stats=await frame.evaluate(()=>studioEditorAPI.previewStats());assert.ok(stats[0].time>2);assert.ok(stats[0].seeks<=3,JSON.stringify(stats));assert.equal(stats[0].uploads,0);assert.ok(stats[0].quality.total>40,JSON.stringify(stats));
+ console.log('DIRECT',JSON.stringify({importMs,...stats[0]}));
+ await frame.getByText('色度键',{exact:true}).click();await frame.getByRole('checkbox',{name:'启用色度键',exact:true}).check();await frame.locator('[aria-label="抠像颜色"]').fill('#ff0000');await frame.locator('[aria-label="抠像颜色"]').press('Tab');assert.deepEqual(await pixel(frame.locator('.studio-editor-clip-surface')),[0,0]);
+ await frame.locator('[aria-label="抠像颜色"]').fill('#00ff00');await frame.locator('[aria-label="抠像颜色"]').press('Tab');assert.deepEqual(await pixel(frame.locator('.studio-editor-clip-surface')),[0,255]);
+ const shape=await frame.locator('.studio-editor-clip-surface canvas').evaluate(source=>{const c=document.createElement('canvas');c.width=320;c.height=180;const ctx=c.getContext('2d');ctx.drawImage(source,0,0,320,180);return [ctx.getImageData(128,25,1,1).data[3],ctx.getImageData(128,160,1,1).data[3],ctx.getImageData(260,70,1,1).data[3]];});assert.equal(shape[0],255);assert.equal(shape[1],0);assert.ok(shape[2]>=126&&shape[2]<=129,JSON.stringify(shape));
+ await frame.getByRole('button',{name:'播放',exact:true}).click();await page.waitForTimeout(1600);await frame.getByRole('button',{name:'暂停',exact:true}).click();stats=await frame.evaluate(()=>studioEditorAPI.previewStats());assert.equal(stats[0].path,'gpu-key');assert.ok(stats[0].uploads<90,JSON.stringify(stats));assert.ok(stats[0].seeks<=4,JSON.stringify(stats));console.log('KEY',JSON.stringify(stats[0]));
+ await frame.locator('[data-editor-import]').setInputFiles('work/editor-preview-qa/1080.mp4');await frame.locator('.studio-asset-card').filter({hasText:'1080.mp4'}).waitFor({timeout:60000});
+ await frame.locator('.studio-asset-card').filter({hasText:'1080.mp4'}).dragTo(frame.locator('.studio-edit-track-lane[data-layer="above-border"]'),{targetPosition:{x:1,y:16}});
+ const project=await(await fetch(base+'/__editor/project')).json();await page.waitForTimeout(800);
+ const videos=await frame.locator('.studio-editor-clip-surface video').evaluateAll(es=>es.map(e=>({width:e.videoWidth,height:e.videoHeight})));assert.ok(videos.some(v=>v.width===960&&v.height===540),JSON.stringify(videos));
+ const current=await(await fetch(base+'/__editor/project')).json(),asset=current.assets.find(a=>a.name==='1080.mp4');assert.equal(asset.width,1920);assert.ok(asset.preview.endsWith('.mp4'));assert.equal(asset.proxy,undefined);
+ const metadata=JSON.parse(await runProcess(ffprobe,['-v','error','-show_streams','-of','json','work/editor-preview-qa/alpha.webm']));assert.equal(metadata.streams[0].pix_fmt,'yuv420p');assert.equal(metadata.streams[0].tags.alpha_mode,'1');
+ await page.screenshot({path:'work/editor-preview-qa/workspace.png'});assert.deepEqual(errors,[]);
+ console.log('PASS: VP9 WebM alpha metadata + actual transparent pixels, no-transcode small WebM import, direct playback with zero canvas copies and bounded seeks, GPU key transparency, 1080p source uses 960×540 preview while retaining full-size source');
+}finally{await browser.close();await put(saved);}

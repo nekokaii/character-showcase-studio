@@ -1,5 +1,5 @@
 // Narrative timing is independent of the continuous geometry/text clocks.
-function studioIntroDuration(value){return Number.isFinite(value)?Math.max(0,Math.min(30,value)):4.5}
+function studioIntroDuration(value){return Number.isFinite(value)?Math.max(0,Math.min(1800,value)):4.5}
 function studioShowDuration(narrative){return Number.isFinite(narrative?.showDuration)?Math.max(1,Math.min(60,narrative.showDuration)):12}
 function studioNarrativeSettings(value={}){
   value=value&&typeof value==='object'?value:{};
@@ -8,13 +8,13 @@ function studioNarrativeSettings(value={}){
   const outroDuration=bounded(value.outroDuration,1.5,12,3.5);
   return {introStyle:pick(value.introStyle,['model','title','story'],'model'),nameReveal:pick(value.nameReveal,['show','delayed'],'show'),nameDelay:bounded(value.nameDelay,.2,.9,.65),showDuration:studioShowDuration(value),showPlayback:pick(value.showPlayback,['continuous','repeat'],'continuous'),outroEnabled:value.outroEnabled===true,outroDuration,outroStyle:pick(value.outroStyle,['signature','orbit','quiet'],'signature'),outroContent:pick(value.outroContent,['auto','word','logo'],'auto'),outroTrigger:pick(value.outroTrigger,['auto','manual'],'auto'),shutdownEnabled:value.shutdownEnabled!==false,shutdownDuration:bounded(value.shutdownDuration,.3,Math.min(1.5,outroDuration*.45),Math.min(.8,outroDuration*.45)),
     characterShotEnabled:value.characterShotEnabled!==false,authorShotEnabled:value.authorShotEnabled!==false,
-    characterShotDuration:bounded(value.characterShotDuration,.5,12,2.5),authorShotDuration:bounded(value.authorShotDuration,.5,12,2),storyTransitionDuration:bounded(value.storyTransitionDuration,.15,3,.6),
+    characterShotDuration:bounded(value.characterShotDuration,.5,600,2.5),authorShotDuration:bounded(value.authorShotDuration,.5,600,2),storyTransitionDuration:bounded(value.storyTransitionDuration,.15,3,.6),
     characterCorner:pick(value.characterCorner,['tl-br','tr-bl','bl-tr','br-tl','center'],'tl-br'),authorCorner:pick(value.authorCorner,['tl-br','tr-bl','bl-tr','br-tl','center'],'tr-bl'),
     characterEffect:pick(value.characterEffect,['none','crt','holo','polar'],'polar'),authorEffect:pick(value.authorEffect,['none','crt','holo','polar'],'polar'),
     characterEffectStrength:bounded(value.characterEffectStrength,0,1,.3),authorEffectStrength:bounded(value.authorEffectStrength,0,1,.3),
     characterEffectSpeed:bounded(value.characterEffectSpeed,.1,2,.7),authorEffectSpeed:bounded(value.authorEffectSpeed,.1,2,.7),
     postEffect:pick(value.postEffect,['none','polar','crt','holo','bloom','anamorphic','prism','film'],pick(value.characterEffect,['polar','crt','holo'],'polar')),
-    postStrength:bounded(value.postStrength,0,1,.6),postSpeed:bounded(value.postSpeed,.1,2,.7),postFade:bounded(value.postFade,.15,1.5,.45),postGlow:bounded(value.postGlow,0,1,.25),
+    postStrength:bounded(value.postStrength,0,1,.6),postDispersion:bounded(value.postDispersion,0,1,.25),postSpeed:bounded(value.postSpeed,.1,2,.7),postFade:bounded(value.postFade,.15,1.5,.45),postGlow:bounded(value.postGlow,0,1,.25),
     postCharacter:value.postCharacter!==false,postAuthor:value.postAuthor!==false,postShow:value.postShow===true,postOutro:value.postOutro===true,
     storyPackagingOnly:value.storyPackagingOnly===true,storyFlash:value.storyFlash===true,
     characterScale:bounded(value.characterScale,.6,2.4,1.15),authorScale:bounded(value.authorScale,.6,2.4,1.25),

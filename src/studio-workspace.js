@@ -19,10 +19,11 @@ function mountStudioWorkspace(root,views){
   brand.innerHTML='<span class="studio-emblem" aria-hidden="true">✳</span><div><span class="studio-kicker">SHOWCASE STUDIO</span><h1>角色展示工作台</h1></div>';
   const headerActions=make('div','studio-header-actions');
   const localLabel=make('span','studio-local-label','本地编辑 · 即时预览');
+  const modeButton=button('剪辑工作台');modeButton.classList.add('studio-mode-button');modeButton.dataset.editorMode='editing';modeButton.setAttribute('aria-pressed','false');
   const focusButton=button('专注预览');focusButton.classList.add('studio-focus-button');focusButton.dataset.focusPreview='';focusButton.setAttribute('aria-pressed','false');
   const help=make('details','studio-help');
   help.innerHTML='<summary>使用说明</summary><div class="studio-help-body"><strong>从作品内容到展示画面</strong><ol><li>在左侧选择系列，填写名字与系列资料。</li><li>上传角色图，再选择中间的视觉方案。</li><li>在右侧调整配色、圆环和动效，立即预览。</li></ol><p>系列名称、编号和短句分别保存。配色等视觉设置按方案保存，几何样式按方案与系列保存。</p><p>参数记在当前浏览器。上传的图片仅在本次打开时有效，刷新前请保留原始素材。</p></div>';
-  headerActions.append(localLabel,help,focusButton);header.append(brand,headerActions);
+  headerActions.append(localLabel,help,modeButton,focusButton);header.append(brand,headerActions);
   const tabs=make('nav','studio-mobile-tabs');tabs.setAttribute('aria-label','工作台区域');
   for(const [key,label]of [['content','作品内容'],['preview','画面预览'],['style','画面样式']]){const tab=button(label);tab.dataset.panelTab=key;tab.setAttribute('aria-pressed',String(key==='preview'));tab.addEventListener('click',()=>setPanel(key));tabs.append(tab)}
 
@@ -100,6 +101,8 @@ function mountStudioWorkspace(root,views){
   for(const view of views)reorganizeInspector(view);
   const edgeControls=make('div','studio-shared-edges');const edgeSource=findGroup('边框滚动');edgeControls.append(fields([field('direction-top-text'),field('direction-bottom-text')]));for(const el of [...edgeSource.children].slice(1))edgeControls.append(el);
   layout.append(left,toolbar,originalViews);oldHeading.remove();oldCanvasOptions.remove();global.remove();root.append(header,tabs,layout);
+
+  if(!globalThis.studioOutput?.enabled)mountStudioVideoEditor(root,views,{modeButton,layout,tabs,sizePreview});
 
   const rename={
     'direction-series-name':'系列显示名称','direction-prefix':'编号前缀','direction-serial':'作品编号',

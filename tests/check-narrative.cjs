@@ -124,3 +124,8 @@ let storyDraws=0;scope.drawStudioStoryIntro=(v,p)=>{storyDraws++;assert.ok(p.sto
 for(const t of [0,2,2.5,4.8,5.1,8]){const p=pose(t,storyDuration,storyDefaults);scope.drawStudioNarrative(view,p);near(view.composition.style.opacity,(1-p.outro)*p.story.main);edges.forEach(edge=>near(edge.style.opacity,1))}
 assert.equal(storyDraws,6);new vm.Script(renderer);
 console.log('PASS: story poster shots, independent toggles/durations, third-scene dissolve, retimed seeking, bounded media/effect settings, optional exposure and renderer hook; legacy modes retain their defaults.');
+
+// Long independent poster shots retain their real boundaries past the old 30s intro cap.
+for(const [character,author]of [[30,45],[60,120],[600,600]]){const n=scope.studioNarrativeSettings({introStyle:'story',characterShotDuration:character,authorShotDuration:author,storyTransitionDuration:.6}),duration=scope.studioStoryDuration(n);near(n.characterShotDuration,character);near(n.authorShotDuration,author);near(duration,character+author+.6);assert.equal(scope.studioStoryPose(character-.3,duration,n).role,'character');assert.equal(scope.studioStoryPose(character+.3,duration,n).role,'author');near(scope.studioStoryPose(duration-.3,duration,n).main,.5);assert.equal(scope.studioPhase(duration-.1,duration,n),'intro');assert.equal(scope.studioPhase(duration+.1,duration,n),'show');near(scope.studioTotalDuration(duration,n),duration+12);}
+const shotBounds=scope.studioNarrativeSettings({characterShotDuration:99999,authorShotDuration:99999});near(shotBounds.characterShotDuration,600);near(shotBounds.authorShotDuration,600);
+console.log('PASS: 30/45, 60/120 and 600/600 second poster shots retain exact phase boundaries, transition, full duration and limits');
