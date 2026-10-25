@@ -35,7 +35,7 @@ assert.equal([...fragment.matchAll(/<section\b[^>]*\bdata-variant=/g)].length, 1
 assert.ok(!/<script\b[^>]*\bsrc\s*=/i.test(document), 'runtime is embedded');
 assert.ok(!/@import\b/i.test(fragment), 'fonts do not need the network');
 assert.ok(!/C:[/\\]Users[/\\]|\.codex[/\\]/i.test(document), 'built page has no machine-specific path');
-for (const name of ['check-motion.cjs', 'check-information-motion.cjs', 'check-narrative.cjs', 'check-story-intro.cjs', 'check-typography.cjs', 'check-rounded-font.mjs', 'check-ending-visual-reset.mjs', 'check-post-processing.cjs', 'check-motion-state.cjs', 'check-variant-codec.cjs', 'check-urban-designs.cjs', 'check-output.cjs', 'check-export-packages.cjs', 'check-obs-layer-clock.cjs', 'check-obs-layers.cjs', 'check-obs-sync-server.cjs', 'check-ae-postprocessing.cjs', 'check-resolution.cjs', 'check-ae-geometry-motion.cjs', 'check-ae-transitions.cjs']) {
+for (const name of ['check-motion.cjs', 'check-information-motion.cjs', 'check-narrative.cjs', 'check-story-intro.cjs', 'check-typography.cjs', 'check-rounded-font.mjs', 'check-ending-visual-reset.mjs', 'check-workspace-layout.mjs', 'check-post-processing.cjs', 'check-motion-state.cjs', 'check-variant-codec.cjs', 'check-urban-designs.cjs', 'check-output.cjs', 'check-export-packages.cjs', 'check-obs-layer-clock.cjs', 'check-obs-layers.cjs', 'check-obs-sync-server.cjs', 'check-ae-postprocessing.cjs', 'check-resolution.cjs', 'check-ae-geometry-motion.cjs', 'check-ae-transitions.cjs']) {
   const result = spawnSync(process.execPath, [path.join(root, 'tests', name)], { stdio: 'inherit' });
   assert.equal(result.status, 0, `${name} failed`);
 }

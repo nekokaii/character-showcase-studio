@@ -733,9 +733,14 @@
   padding: 20px;
 }
 #character-directions.studio-editor .studio-preview .stage-viewport > .design-art {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  container-type: size;
   flex: 0 0 auto;
   width: var(--preview-width, 100%);
-  max-width: 100%;
+  max-width: none;
   border-radius: 1px;
   box-shadow: 0 12px 35px #2b352414, 0 2px 6px #2b352409;
 }

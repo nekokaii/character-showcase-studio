@@ -141,16 +141,14 @@ function mountStudioWorkspace(root,views){
   focusButton.addEventListener('click',()=>{const focused=root.classList.toggle('is-focused');focusButton.setAttribute('aria-pressed',String(focused));focusButton.textContent=focused?'退出专注':'专注预览';setPanel('preview')});
   root.addEventListener('keydown',event=>{if(event.key==='Escape'&&root.classList.contains('is-focused'))focusButton.click()});
   function sizePreview(view){
-    const stage=view.preview.querySelector('.stage-viewport');if(!stage.clientWidth||!stage.clientHeight)return;
+    const stage=view.preview.querySelector('.stage-viewport');if(view.art.parentElement!==stage||!stage.clientWidth||!stage.clientHeight)return;
     const style=getComputedStyle(stage),width=stage.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight),height=stage.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);if(width<=0||height<=0)return;
-    if(root.classList.contains('is-clean-output')){
-      const layout=studioOutputLayout(width,height,state.ratio==='portrait',state.output.fit==='cover');
-      view.outputScale=layout.scale;view.art.style.setProperty('--preview-width',layout.width+'px');
-      view.art.style.transform='scale('+layout.scale+')';view.art.style.transformOrigin='center';
-    }else{
-      view.outputScale=0;view.art.style.removeProperty('transform');view.art.style.removeProperty('transform-origin');
-      const ratio=state.ratio==='portrait'?9/16:16/9;view.art.style.setProperty('--preview-width',Math.max(1,Math.min(width,height*ratio))+'px');
-    }
+    // Preview size changes sampling, never typography or the composition's layout.
+    const clean=root.classList.contains('is-clean-output'),layout=studioOutputLayout(width,height,state.ratio==='portrait',clean&&state.output.fit==='cover');
+    view.outputScale=layout.scale;view.previewRasterScale=clean?0:Math.max(.1,Math.min(layout.scale*(devicePixelRatio||1),2));
+    view.art.style.setProperty('--preview-width',layout.width+'px');
+    view.art.style.width=layout.width+'px';view.art.style.height=layout.height+'px';view.art.style.aspectRatio='auto';
+    view.art.style.transform='scale('+layout.scale+')';view.art.style.transformOrigin='center';
     measure(view);draw(view);
   }
   for(const view of views)new ResizeObserver(()=>sizePreview(view)).observe(view.preview.querySelector('.stage-viewport'));
