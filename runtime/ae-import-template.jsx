@@ -189,14 +189,24 @@
         if(storyShots.length>1)pulse+='var cut='+ctl+'.effect("'+storyPrefix(storyShots[1].role)+' Shot Start")(1);pulse=Math.max(pulse,Math.max(0,1-Math.abs(time-cut)/.07));';flash.transform.opacity.expression=pulse+'pulse*18';
       }
     }
-    var borderLayers=[];
+    var borderLayers=[],borderAppearance=d.borderAppearance||{style:'solid',background:[.035,.043,.063,1],text:[.96,.94,.88,1],accent:d.accent,opacity:1,lineWidth:2*u};
+    colorControl('Border Background',borderAppearance.background);colorControl('Border Ink',borderAppearance.text);colorControl('Border Accent',borderAppearance.accent);slider('Border Background Opacity',borderAppearance.opacity*100);
     if(d.frame!=='none')for(var k=0;k<2;k++){
       var vertical=d.frame==='vertical',lane=vertical?d.height:d.width,th=d.frameThickness,key=k?'bottom':'top',side=vertical?(k?'RIGHT':'LEFT'):(k?'BOTTOM':'TOP'),edge=comp('04 BORDER '+side+' · editable text',lane,th);edge.parentFolder=fxFolder;
       // Native backgrounds stay directly editable in MAIN. Only scrolling text
       // is precomposed, so it clips to its own strip and can be edited separately.
       var bx=vertical?(k?d.width-th/2:th/2):d.width/2,by=vertical?d.height/2:(k?d.height-th/2:th/2);
-      var surface=rect(main,'BORDER '+side+' · background',bx,by,vertical?th:d.width,vertical?d.height:th,[.035,.043,.063,1],0);surface.label=5;surface.comment='Independent editable shape. Visible throughout intro, showcase and ending.';borderLayers.push(surface);
-      var item={text:d.borderText[key],name:'Border copy · EDIT THIS',fontSize:Math.min(24*u,Math.max(16*u,d.width*.012)),weight:700,color:[.96,.94,.88,1],x:lane/2,y:th/2},copy=text(edge,item),rr=copy.sourceRectAtTime(0,false),cycle=Math.max(lane,rr.width+100*u),setting=d.edges[key],rate=(setting.direction==='negative'?-1:setting.direction==='positive'?1:0)/setting.duration*d.speed;
+      var surface=rect(main,'BORDER '+side+' · background',bx,by,vertical?th:d.width,vertical?d.height:th,borderAppearance.background,0,ctl+'.effect("Border Background")(1)');surface.transform.opacity.expression=ctl+'.effect("Border Background Opacity")(1)';surface.label=5;surface.comment='Independent editable shape. Visible throughout intro, showcase and ending.';borderLayers.push(surface);
+      if(borderAppearance.style!=='solid'){
+        var outline=shapeLayer(main,'BORDER '+side+' · '+borderAppearance.style),ow=vertical?th:d.width,oh=vertical?d.height:th,lw=borderAppearance.lineWidth;
+        for(var lineIndex=0;lineIndex<(borderAppearance.style==='double'?2:1);lineIndex++){
+          var inset=lw*(.5+lineIndex*2),content=outline.property('ADBE Root Vectors Group').addProperty('ADBE Vector Group').property('ADBE Vectors Group'),box=content.addProperty('ADBE Vector Shape - Rect');box.property('ADBE Vector Rect Size').setValue([Math.max(1,ow-inset*2),Math.max(1,oh-inset*2)]);
+          var stroke=content.addProperty('ADBE Vector Graphic - Stroke');stroke.property('ADBE Vector Stroke Color').setValue(borderAppearance.accent.slice(0,3));stroke.property('ADBE Vector Stroke Color').expression=ctl+'.effect("Border Accent")(1)';stroke.property('ADBE Vector Stroke Width').setValue(lw);
+        }
+        transform(outline,{x:bx,y:by});outline.label=5;borderLayers.push(outline);
+      }
+      var item={text:d.borderText[key],name:'Border copy · EDIT THIS',fontSize:Math.min(24*u,Math.max(16*u,d.width*.012)),weight:700,color:borderAppearance.text,x:lane/2,y:th/2},copy=text(edge,item),rr=copy.sourceRectAtTime(0,false),cycle=Math.max(lane,rr.width+100*u),setting=d.edges[key],rate=(setting.direction==='negative'?-1:setting.direction==='positive'?1:0)/setting.duration*d.speed;
+      copy.property('ADBE Text Properties').property('ADBE Text Document').expression='text.sourceText.style.setFillColor('+ctl+'.effect("Border Ink")(1))';
       for(var n=0;n<(rate?3:1);n++){var l=n===0?copy:copy.duplicate();if(n){l.name='Repeating copy '+n;l.property('ADBE Text Properties').property('ADBE Text Document').expression='thisComp.layer("Border copy · EDIT THIS").text.sourceText'}if(rate)l.property('ADBE Transform Group').property('ADBE Position').expression='['+(n-1)*cycle+'+'+cycle+'/2+((time*'+rate+'%1+1)%1)*'+cycle+','+th+'/2]'}
       copy.label=5;copy.moveToBeginning();
       var el=main.layers.add(edge);el.name='BORDER '+side+' · text';el.label=5;el.comment='Double-click and edit Border copy · EDIT THIS. Repeating copies follow automatically.';transform(el,{x:bx,y:by,rotation:vertical?(k?90:-90):0});borderLayers.push(el);

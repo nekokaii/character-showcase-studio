@@ -2,6 +2,16 @@
 // Rendered output plays the requested animation regardless of OS UI preferences.
 const root=document.getElementById('character-directions'),reduced=globalThis.studioOutput?.enabled===true?{matches:false,addEventListener(){}}:matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n)),lerp=(a,b,p)=>a+(b-a)*p,smooth=n=>{n=clamp(n);return n*n*(3-2*n)};
+function studioBorderSettings(source){
+ const value={mode:'theme',style:'solid',background:'#090b10',text:'#f4efe1',accent:'#bceb45',opacity:1,lineWidth:.12};
+ if(!source||typeof source!=='object'||Array.isArray(source))return value;
+ if(['theme','custom'].includes(source.mode))value.mode=source.mode;
+ if(['solid','outline','double'].includes(source.style))value.style=source.style;
+ for(const key of ['background','text','accent'])if(typeof source[key]==='string'&&/^#[0-9a-f]{6}$/i.test(source[key]))value[key]=source[key];
+ if(Number.isFinite(source.opacity))value.opacity=clamp(source.opacity,0,1);
+ if(Number.isFinite(source.lineWidth))value.lineWidth=clamp(source.lineWidth,.04,.4);
+ return value;
+}
 // Deterministic, seekable CRT power-off envelope shared by browser and AE.
 // ES3 syntax is intentional: this function also runs inside AE expressions.
 function studioCRTPose(progress){
@@ -248,6 +258,7 @@ const shadowDefaults={title:true,badges:true,model:true,geometry:false,floor:tru
 const state={version:6,design:'character-explorations',activeDesign:'couture',ratio:'landscape',frame:'none',name:'NOVA',series:'atelier',seriesData:JSON.parse(JSON.stringify(seriesDefaults)),brand:'YOUR STUDIO',modelCredit:'MODEL / YOUR NAME',designCredit:'DESIGN / YOUR STUDIO',topText:'ORIGINAL / CHARACTER ARCHIVE',bottomText:'MAKE SOME NOISE. STAY CUTE.',formats:{fbx:true,vrchat:true,vrm:true,warudo:true},badges:['mmd','arkit','vrcft','mtoon','liltoon'],qrUrl:'',type:true,swapped:false,playing:!reduced.matches,time:4.5,speed:1,edges:{top:{direction:'negative',duration:32},bottom:{direction:'positive',duration:38}},variants:{}};
 for(const [key,v]of Object.entries(variantDefaults)){const modern=languageKeys.includes(key);state.variants[key]={typeface:key==='wave'?'grotesk':'editorial',cutStrength:.75,badgePalette:'soft',badgeStyle:'filled',badgeColor:'#dfe5d6',badgeInk:'#334036',badgeOpacity:.85,ringSpeed:1,ringScale:1.15,textMotion:true,textMotionStyle:['cloud','plush','wave'].includes(key)?'soft':['play','sticker'].includes(key)?'playful':'refined',textMotionAmount:.55,textMotionSpeed:1,geometryStrength:1,geometryOpacity:1,geometryBySeries:{atelier:'signature',fur:modern?'signature':'ribbon',mini:modern?'signature':'blocks'},grid:true,gridMoving:true,gridOpacity:modern?.035:.065,gridMotion:.14,modelScale:1,parallax:true,...v,accent:palettes[v.palette],effects:{...effectDefaults,...v.effects},shadows:{...shadowDefaults,...v.shadows}}}
 const variantBaseline=JSON.parse(JSON.stringify(state.variants));
+state.borderAppearance=studioBorderSettings();
 state.typography=studioTypographySettings();
 const images={qr:'',barcode:'',logo:'',model:'',portrait:'',introCharacter:'',introAuthor:''};
 const imageNames={};
@@ -264,6 +275,7 @@ function restore(saved){const source=saved?.privateContent,p=source?.variantEnco
 for(const[key,max]of Object.entries(maxLengths))if(typeof p[key]==='string')state[key]=p[key].slice(0,max);
 if(Object.hasOwn(seriesDefaults,p.series))state.series=p.series;if(Object.hasOwn(variantDefaults,p.activeDesign))state.activeDesign=p.activeDesign;
 state.ratio=choose(p.ratio,['landscape','portrait'],state.ratio);state.frame=choose(p.frame,['none','horizontal','vertical'],state.frame);
+state.borderAppearance=studioBorderSettings(p.borderAppearance);
 for(const side of ['top','bottom']){const source=p.edges?.[side];if(!source)continue;state.edges[side].direction=choose(source.direction,['negative','positive','still'],state.edges[side].direction);if(Number.isFinite(source.duration))state.edges[side].duration=clamp(source.duration,12,90)}
 for(const key of ['swapped','type'])if(typeof p[key]==='boolean')state[key]=p[key];
 state.introDuration=Number.isFinite(p.introDuration)?studioIntroDuration(p.introDuration):4.5;
@@ -668,6 +680,7 @@ function mountStudioWorkspace(root,views){
   const originalDesigns=make('optgroup'),urbanDesigns=make('optgroup');originalDesigns.label='原有方案';urbanDesigns.label='街头二游 · 新增';for(const view of views){const option=make('option','',view.section.dataset.variant);option.value=view.key;(['district','tuner','arcade'].includes(view.key)?urbanDesigns:originalDesigns).append(option)}designSelect.append(urbanDesigns,originalDesigns);designField.append(designSelect);
   const previous=button('‹','上一个视觉方案'),next=button('›','下一个视觉方案');previous.classList.add('studio-design-step');next.classList.add('studio-design-step');designRow.append(designField,previous,next);
   const canvasOptions=make('div','studio-canvas-options');for(const el of [...oldCanvasOptions.children])canvasOptions.append(el);
+  const borderButton=button('边框外观');borderButton.title='设置边框颜色、底板与描边样式';borderButton.addEventListener('click',()=>{if(state.frame==='none'){state.frame='horizontal';update();}const active=views.find(v=>v.key===state.activeDesign);if(!active)return;active.edgePanel.open=true;setPanel('style');active.edgePanel.scrollIntoView({block:'nearest',behavior:'smooth'});});canvasOptions.append(borderButton);
   const typeToggle=root.querySelector('#direction-type').closest('label');typeToggle.querySelector('.form-check-label').textContent='显示文字信息';canvasOptions.append(typeToggle);
   const previewMeta=make('div','studio-preview-meta');previewMeta.append(make('span','','实时预览'),phase,make('span','studio-loop-note','片头 4.5s · 展示循环 12s'));
   toolbar.append(designRow,canvasOptions,previewMeta);
@@ -698,14 +711,28 @@ function mountStudioWorkspace(root,views){
     const shadows=old('阴影与空间层次');shadows.classList.add('studio-group');const shadowSwitch=takeCheck('[data-effect="shadowEnabled"]');shadows.insertBefore(shadowSwitch,shadows.children[1]);inspector.append(shadows);
     const effects=old('滤镜、影调与渐变');effects.classList.add('studio-group');effects.querySelector('summary').textContent='滤镜与画面质感';inspector.append(effects);
     const model=old('角色素材与动效调节');model.classList.add('studio-group');model.querySelector('summary').textContent='角色图片大小';inspector.append(model);
-    const edge=group('边框文字与滚动 · 全局');edge.dataset.studioGroup='edges';
+    const edge=group('边框外观、文字与滚动 · 全局');edge.dataset.studioGroup='edges';
     // Borders are shared settings; the single source panel follows the active inspector.
-    inspector.append(edge);edge.append(note('边框文字与滚动由所有方案共用，片头至片尾持续显示。AE 导出后，每侧边框的底板与文字可分别编辑。'));
+    inspector.append(edge);edge.append(note('边框外观、文字与滚动由所有方案共用，片头至片尾持续显示。AE 导出后，每侧边框的底板与文字可分别编辑。'));
     for(const el of original)if(el.parentElement===section)el.remove();
     section.append(preview,inspector);view.preview=preview;view.inspector=inspector;view.playback=playback;view.edgePanel=edge;
   }
   for(const view of views)reorganizeInspector(view);
   const edgeControls=make('div','studio-shared-edges');const edgeSource=findGroup('边框滚动');edgeControls.append(fields([field('direction-top-text'),field('direction-bottom-text')]));for(const el of [...edgeSource.children].slice(1))edgeControls.append(el);
+  const borderAppearance=group('自定义边框颜色与样式',true);borderAppearance.classList.add('studio-subgroup');
+  const borderFields=fields([]);
+  const borderField=(key,label,type,options)=>{
+    const wrap=make('div','direction-field'),title=make('label','',label),input=make(options?'select':'input',options?'form-select':'form-control');input.id='studio-border-'+key;input.setAttribute('aria-label',label);title.htmlFor=input.id;
+    if(options){for(const [value,text]of options){const option=make('option','',text);option.value=value;input.append(option)}}else input.type=type;
+    if(type==='range'){input.className='form-range';input.min=key==='opacity'?0:.04;input.max=key==='opacity'?100:.4;input.step=key==='opacity'?1:.01;const output=make('output');output.dataset.borderValue=key;title.className='range-title';title.append(output);}
+    input.addEventListener(options?'change':'input',()=>{const b=state.borderAppearance;b[key]=options||type==='color'?input.value:Number(input.value)/(key==='opacity'?100:1);update();});wrap.append(title,input);borderFields.append(wrap);
+  };
+  borderField('mode','边框配色','',[['theme','默认 · 强调色跟随方案'],['custom','自定义颜色与样式']]);
+  borderField('style','边框外观','',[['solid','纯色底板'],['outline','细线描边'],['double','双线描边']]);
+  for(const [key,label]of [['background','边框底色'],['text','边框文字色'],['accent','边框强调色']])borderField(key,label,'color');
+  borderField('opacity','边框底板不透明度','range');borderField('lineWidth','边框线宽','range');
+  const resetBorder=button('恢复默认边框');resetBorder.addEventListener('click',()=>{state.borderAppearance=studioBorderSettings();update();});
+  borderAppearance.append(borderFields,resetBorder,note('底板透明度单独调整，文字保持清晰。描边使用强调色；所有方案和画幅共用。'));edgeControls.prepend(borderAppearance);
   layout.append(left,toolbar,originalViews);oldHeading.remove();oldCanvasOptions.remove();global.remove();root.append(header,tabs,layout);
 
   if(!globalThis.studioOutput?.enabled)mountStudioVideoEditor(root,views,{modeButton,layout,tabs,sizePreview});
@@ -760,6 +787,14 @@ function mountStudioWorkspace(root,views){
     requestAnimationFrame(()=>sizePreview(selected));
   }};
   ui.sync();return ui;
+}
+function syncStudioBorderControls(){
+ const b=state.borderAppearance,custom=b.mode==='custom';
+ for(const key of ['mode','style','background','text','accent','opacity','lineWidth']){
+  const input=document.getElementById('studio-border-'+key);if(!input)continue;
+  input.value=key==='opacity'?Math.round(b.opacity*100):b[key];input.disabled=key!=='mode'&&(!custom||(key==='lineWidth'&&b.style==='solid'));
+ }
+ for(const key of ['opacity','lineWidth']){const output=root.querySelector('[data-border-value="'+key+'"]');if(output)output.value=key==='opacity'?Math.round(b.opacity*100)+'%':b.lineWidth.toFixed(2)+'% 画宽';}
 }
 
 const workspace=mountStudioWorkspace(root,views);
@@ -1205,6 +1240,7 @@ function scaleStudioAEScene(scene,width,height){
   const paths=value=>value.map(p=>({...p,v:points(p.v),i:points(p.i),o:points(p.o)}));
   const layer=value=>({...box(value),...(value.points?{points:points(value.points)}:{}),...(value.icon?{icon:box(value.icon)}:{})});
   return {...scene,width,height,frameThickness:scene.frameThickness*scale,
+    ...(scene.borderAppearance?{borderAppearance:{...scene.borderAppearance,lineWidth:scene.borderAppearance.lineWidth*scale}}:{}),
     layers:scene.layers.map(layer),
     ...(scene.story?{story:{...scene.story,shots:scene.story.shots.map(shot=>({...shot,layers:shot.layers.map(layer)}))}}:{}),
     geometry:scene.geometry.map(op=>({...op,...(op.introTransform?{introTransform:{...op.introTransform,from:op.introTransform.from.map(n=>n*scale),to:op.introTransform.to.map(n=>n*scale)}}:{}),width:op.width*scale,paths:paths(op.paths),samples:op.samples.map(sample=>({...sample,...(typeof sample.width==='number'?{width:sample.width*scale}:{}),paths:paths(sample.paths)}))})),
@@ -1339,6 +1375,8 @@ async function collectStudioAEScene(view,options){
     const cs=getComputedStyle(art),composition=view.composition.getBoundingClientRect();
     scene={version:1,name:state.name||'SHOWCASE',design:view.key,width,height,fps:options.fps===60?60:30,intro:options.includeIntro?state.introDuration/state.speed:0,duration:((options.includeIntro?state.introDuration:0)+studioShowDuration(state.narrative)+(state.narrative.outroEnabled?state.narrative.outroDuration:0))/state.speed,speed:state.speed,offset:options.includeIntro?0:state.introDuration,background:rgba(cs.getPropertyValue('--paper')),ink:rgba(cs.getPropertyValue('--ink')),accent:rgba(v.accent),transparent:options.transparent,frame:state.frame,frameThickness:round(parseFloat(cs.getPropertyValue('--frame-thickness'))),layers,assets:[],warnings,geometry:[],motion:{enabled:saved.motion,style:v.textMotionStyle,amount:v.textMotionAmount,speed:v.textMotionSpeed},shadow:{enabled:v.effects.shadowEnabled,color:rgba(v.effects.shadowColor),strength:v.effects.shadowStrength,depth:v.effects.shadowDepth,soft:v.effects.shadowStyle==='soft'},pattern:{kind:v.grid?v.pattern:'none',opacity:v.gridOpacity,moving:v.gridMoving,amount:v.gridMotion},edges:JSON.parse(JSON.stringify(state.edges)),borderText:{top:[state.brand,state.topText,currentSeries().label+' / '+currentSeries().prefix+'-'+currentSeries().serial,state.name].filter(Boolean).join('     /     '),bottom:[state.modelCredit,state.bottomText,state.designCredit].filter(Boolean).join('     /     ')}};
     scene.showDuration=studioShowDuration(state.narrative)/state.speed;
+    const border=state.borderAppearance,customBorder=border.mode==='custom';
+    scene.borderAppearance={style:customBorder?border.style:'solid',background:rgba(customBorder?border.background:'#090b10'),text:rgba(customBorder?border.text:'#f4efe1'),accent:rgba(customBorder?border.accent:v.accent),opacity:customBorder?border.opacity:1,lineWidth:width*border.lineWidth/100};
     scene.narrative={introStyle:state.narrative.introStyle,nameReveal:state.narrative.nameReveal,nameDelay:state.narrative.nameDelay,transitionStart:scene.intro/6,transitionDuration:scene.intro*.8,infoDuration:.85/state.speed,endingTransitionDuration:Math.min(.8/state.speed,(state.narrative.outroEnabled?state.narrative.outroDuration/state.speed:3.5)*.28)};
     const post=state.narrative;
     scene.post={effect:post.postEffect,strength:post.postStrength,glow:post.postGlow,speed:post.postSpeed*state.speed,fade:post.postFade/state.speed,scenes:{character:post.postCharacter,author:post.postAuthor,show:post.postShow,outro:post.postOutro}};
@@ -1577,7 +1615,7 @@ for(const item of [first,second]){cycle.append(item);const separator=document.cr
 track.replaceChildren(cycle,cycle.cloneNode(true));view.edgeTracks[side]={edge,track,cycle,width:0};}
 }
 function measureEdgeTracks(view){if(!view.edgeTracks||state.frame==='none')return;const lane=state.frame==='vertical'?view.art.offsetHeight:view.art.offsetWidth;for(const part of Object.values(view.edgeTracks)){for(const cycle of part.track.children)cycle.style.minWidth=lane+'px';part.width=parseFloat(getComputedStyle(part.cycle).width)||lane}}
-function renderBorderControls(){for(const side of ['top','bottom']){const select=document.getElementById('direction-edge-'+side),vertical=state.frame==='vertical',negative=vertical?(side==='top'?'向下':'向上'):'向左',positive=vertical?(side==='top'?'向上':'向下'):'向右';select.querySelector('[value="negative"]').textContent=negative;select.querySelector('[value="positive"]').textContent=positive;select.querySelector('[value="still"]').textContent='静态排版';select.value=state.edges[side].direction;document.getElementById('direction-edge-'+side+'-duration').value=state.edges[side].duration;root.querySelector(`[data-edge-duration="${side}"]`).value=state.edges[side].duration+' s'}}
+function renderBorderControls(){syncStudioBorderControls();for(const side of ['top','bottom']){const select=document.getElementById('direction-edge-'+side),vertical=state.frame==='vertical',negative=vertical?(side==='top'?'向下':'向上'):'向左',positive=vertical?(side==='top'?'向上':'向下'):'向右';select.querySelector('[value="negative"]').textContent=negative;select.querySelector('[value="positive"]').textContent=positive;select.querySelector('[value="still"]').textContent='静态排版';select.value=state.edges[side].direction;document.getElementById('direction-edge-'+side+'-duration').value=state.edges[side].duration;root.querySelector(`[data-edge-duration="${side}"]`).value=state.edges[side].duration+' s'}}
 function drawBorderMotion(view){if(!view.edgeTracks)return;for(const side of ['top','bottom']){const part=view.edgeTracks[side],active=state.edges[side].direction!=='still'&&!reduced.matches;part.edge.classList.toggle('is-scrolling',active);part.track.style.transform=`translateX(${marqueeOffset(motionClock.edges[side],part.width).toFixed(3)}px)`}}
 function informationItems(view){if(view.informationItems)return view.informationItems;const items=[['.art-edition',0,1],['.copy-caption',1,1],['.copy-subtitle',2,.6],['.formats',3,1],['.art-credit',7,.6]].map(([selector,index,alpha])=>({el:view.art.querySelector(selector),index,alpha}));
 view.art.querySelectorAll('.compatibility').forEach((el,index)=>items.push({el,index:4+index*.22,alpha:1}));items.push({el:view.art.querySelector('.qr-mark'),index:6.1,alpha:1,code:true},{el:view.art.querySelector('.archive-line'),index:7,alpha:1,code:true});view.informationItems=items;return items}
@@ -1593,7 +1631,7 @@ const frame=state.frame==='none'?0:Math.max(32,Math.min(66,outer.width*.048));vi
 const rect=output?{width:view.composition.clientWidth,height:view.composition.clientHeight}:view.composition.getBoundingClientRect(),dpr=view.previewRasterScale||Math.min((devicePixelRatio||1)*(output?Math.max(1,view.outputScale):1),2);
 view.w=rect.width;view.h=rect.height;const width=Math.round(view.w*dpr),height=Math.round(view.h*dpr);if(view.canvas.width!==width||view.canvas.height!==height){view.canvas.width=width;view.canvas.height=height}view.ctx.setTransform(dpr,0,0,dpr,0,0);fitText(view);measureEdgeTracks(view)}
 function sync(){workspace.sync();typographyUI.sync();narrativeUI.sync();outputUI.sync();renderBorderControls();const e=currentSeries();for(const[key,id]of Object.entries(sharedFields)){const input=document.getElementById(id);if(input.value!==state[key])input.value=state[key]}root.querySelectorAll('[data-series-field]').forEach(el=>{el.value=e[el.dataset.seriesField]});document.getElementById('direction-type').checked=state.type;document.getElementById('direction-speed').value=state.speed;root.querySelector('[data-speed-value]').value=state.speed.toFixed(1)+'×';root.querySelectorAll('[data-format]').forEach(el=>el.checked=state.formats[el.dataset.format]);picker.querySelectorAll('[data-badge]').forEach(el=>el.checked=state.badges.includes(el.dataset.badge));
-for(const view of views){const {art,section,key}=view,v=state.variants[key];section.querySelector('[data-seek]').max=studioTotalDuration(state.introDuration,state.narrative);art.classList.toggle('is-portrait',state.ratio==='portrait');art.classList.toggle('is-swapped',state.swapped);art.classList.toggle('has-frame',state.frame!=='none');art.classList.toggle('no-type',!state.type);art.classList.toggle('is-dense',state.badges.length>5);if(key==='dual'){art.classList.toggle('dual-guides',v.dualGuides);art.style.setProperty('--dual-split',(v.dualSplit*100)+'%');}art.dataset.frame=state.frame;for(const kind of ['logo','model','portrait'])art.classList.toggle('has-'+(kind==='model'?'character':kind),!!images[kind]);if(images.logo)art.querySelectorAll('.brand-image').forEach(img=>img.src=images.logo);if(images.model)art.querySelector('.character-image').src=images.model;if(images.portrait)art.querySelector('.portrait-crop img').src=images.portrait;
+for(const view of views){const {art,section,key}=view,v=state.variants[key];section.querySelector('[data-seek]').max=studioTotalDuration(state.introDuration,state.narrative);art.classList.toggle('is-portrait',state.ratio==='portrait');art.classList.toggle('is-swapped',state.swapped);art.classList.toggle('has-frame',state.frame!=='none');art.classList.toggle('no-type',!state.type);art.classList.toggle('is-dense',state.badges.length>5);if(key==='dual'){art.classList.toggle('dual-guides',v.dualGuides);art.style.setProperty('--dual-split',(v.dualSplit*100)+'%');}art.dataset.frame=state.frame;const border=state.borderAppearance,custom=border.mode==='custom';art.dataset.frameStyle=custom?border.style:'solid';art.style.setProperty('--frame-background',custom?rgba(border.background,border.opacity):'#090b10');art.style.setProperty('--frame-text',custom?border.text:'#f4efe1');art.style.setProperty('--frame-accent',custom?border.accent:v.accent);art.style.setProperty('--frame-line-width',border.lineWidth+'cqw');for(const kind of ['logo','model','portrait'])art.classList.toggle('has-'+(kind==='model'?'character':kind),!!images[kind]);if(images.logo)art.querySelectorAll('.brand-image').forEach(img=>img.src=images.logo);if(images.model)art.querySelector('.character-image').src=images.model;if(images.portrait)art.querySelector('.portrait-crop img').src=images.portrait;
 art.querySelector('.language-note').textContent=languageNotes[key]||'';const urbanHello={district:'CHARACTER / SELECT',tuner:'ORIGINAL SIGNAL',arcade:'HEY, ORIGINAL!'};if(urbanHello[key])art.querySelector('.hello').textContent=urbanHello[key];art.querySelector('.field-canvas').setAttribute('aria-label',(section.dataset.variant||'角色展示')+' · 动态背景与开放展示空间');
 view.name.textContent=studioTypographyValue(state.typography,'name',state.name.trim()||'NOVA');art.querySelector('.edition-label').textContent=e.label||'EDITION';art.querySelectorAll('.edition-number,.serial').forEach(el=>el.textContent=(e.prefix||'ID')+'-'+(e.serial||'001'));art.querySelectorAll('.brand-word').forEach(el=>el.textContent=state.brand);for(const[selector,value]of Object.entries({'.copy-caption':studioTypographyValue(state.typography,'caption',e.caption),'.copy-subtitle':studioTypographyValue(state.typography,'subtitle',e.subtitle),'.model-credit':state.modelCredit,'.design-credit':state.designCredit}))art.querySelector(selector).textContent=value;
 for(const span of art.querySelectorAll('[data-edge]')){const key=span.dataset.edge;span.textContent=key==='edition'?(e.label||'EDITION')+' / '+(e.prefix||'ID')+'-'+(e.serial||'001'):key==='name'?state.name||'NOVA':state[key]}

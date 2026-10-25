@@ -19,6 +19,8 @@ for(const portrait of [false,true]){
   assert.deepEqual(plain(restored),before,'every spatial field scales exactly and all timings/styles remain unchanged');
   assert.equal(scaled.layers[0].fontSize,168);assert.equal(scaled.layers[2].icon.w,70);assert.equal(scaled.geometry[0].paths[0].v[0][0],24);assert.equal(scaled.geometry[0].samples[0].paths[0].v[0][0],24,'shared paths must not be scaled twice');
   assert.equal(scaled.geometry[0].samples[0].width,8,'animated stroke width scales with the canvas');
+  scene.borderAppearance={style:'double',background:[.1,.2,.3,1],text:[1,1,1,1],accent:[1,0,0,1],opacity:.35,lineWidth:3.84};
+  const borderScaled=scope.scaleStudioAEScene(scene,reference.width*2,reference.height*2);assert.equal(borderScaled.borderAppearance.lineWidth,7.68);assert.deepEqual(plain(scope.scaleStudioAEScene(borderScaled,reference.width,reference.height).borderAppearance),plain(scene.borderAppearance));
   scene.geometry[0].introTransform={from:[100,200],to:[300,400],scale:1.44,rotation:-6};scene.geometry[0].introOpacity=.24;
   const tagged=scope.scaleStudioAEScene(scene,reference.width*2,reference.height*2).geometry[0];
   assert.deepEqual(plain(tagged.introTransform),{from:[200,400],to:[600,800],scale:1.44,rotation:-6});assert.equal(tagged.introOpacity,.24);

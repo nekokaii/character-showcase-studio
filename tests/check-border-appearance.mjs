@@ -1,0 +1,76 @@
+import fs from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import path from 'node:path';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+import {chromium} from 'playwright-core';
+import {mediaTools} from '../tools/editor-media.mjs';
+const base=process.env.STUDIO_TEST_URL||'http://127.0.0.1:19968';
+assert.ok(!['19378','19379'].includes(new URL(base).port),'use an isolated service');
+const work=path.resolve('work/border-appearance-qa');await fs.mkdir(work,{recursive:true});
+const cap=await(await fetch(base+'/__editor/capabilities')).json(),headers={'X-Studio-Token':cap.token,'Content-Type':'application/json'};
+const saved=await(await fetch(base+'/__editor/project')).json();
+const put=async p=>{const response=await fetch(base+'/__editor/project',{method:'PUT',headers,body:JSON.stringify(p)});assert.ok(response.ok,await response.text());};
+const logic=await fs.readFile('src/exploration-full-logic.js','utf8'),helpers=logic.slice(logic.indexOf('const clamp='),logic.indexOf('/* TIMELINE_FUNCTIONS */'));
+const scope=vm.createContext({});vm.runInContext(helpers,scope);
+const settings=value=>JSON.parse(vm.runInContext('JSON.stringify(studioBorderSettings('+JSON.stringify(value)+'))',scope));
+assert.equal(settings(undefined).mode,'theme');
+assert.deepEqual(settings({mode:'invalid',style:'url(x)',background:'red;display:none',text:123,accent:null,opacity:4,lineWidth:-1}),{mode:'theme',style:'solid',background:'#090b10',text:'#f4efe1',accent:'#bceb45',opacity:1,lineWidth:.04});
+const browser=await chromium.launch({channel:'chrome',headless:true});
+try{
+ await put(null);
+ const page=await browser.newPage({viewport:{width:1600,height:1100}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const connect=async()=>{const f=await(await page.waitForSelector('iframe')).contentFrame();await f.locator('.studio-editor-status').filter({hasText:'本机视频引擎已连接'}).waitFor();return f;};
+ await page.goto(base+'/?workspace=edit');let f=await connect();await f.getByRole('button',{name:'返回展示',exact:true}).click();
+ const set=async(selector,value,event='input')=>f.locator(selector).evaluate((el,{value,event})=>{el.value=value;el.dispatchEvent(new Event(event,{bubbles:true}));},{value,event});
+ await f.getByRole('button',{name:'边框外观',exact:true}).click();assert.equal(await f.locator('#direction-frame').inputValue(),'horizontal');
+ assert.equal(await f.locator('#studio-border-background').isDisabled(),true);
+ await f.locator('#studio-border-mode').selectOption('custom');await f.locator('#studio-border-style').selectOption('double');
+ await set('#studio-border-background','#123456');await set('#studio-border-text','#fedcba');await set('#studio-border-accent','#e65a24');await set('#studio-border-opacity','35');await set('#studio-border-lineWidth','.2');
+ const expected={mode:'custom',style:'double',background:'#123456',text:'#fedcba',accent:'#e65a24',opacity:.35,lineWidth:.2};
+ for(const design of await f.locator('#studio-design option').evaluateAll(es=>es.map(e=>e.value))){
+  await f.locator('#studio-design').selectOption(design);
+  const art=f.locator('[data-design="'+design+'"] .design-art');
+  const style=await art.locator('.edge.top').evaluate(el=>{const css=getComputedStyle(el),line=getComputedStyle(el,'::after');return {background:css.backgroundColor,text:css.color,line:line.borderTopStyle,accent:line.borderTopColor,opacity:css.opacity};});
+  assert.deepEqual(style,{background:'rgba(18, 52, 86, 0.35)',text:'rgb(254, 220, 186)',line:'double',accent:'rgb(230, 90, 36)',opacity:'1'});
+ }
+ await f.locator('#direction-ratio').selectOption('portrait');await f.locator('#direction-frame').selectOption('vertical');
+ assert.equal(await f.locator('[data-design="wave"] .edge.top').evaluate(el=>getComputedStyle(el,'::after').borderTopStyle),'double');
+ await page.waitForTimeout(800);let project=await(await fetch(base+'/__editor/project')).json();assert.deepEqual(project.template.design.borderAppearance,expected);
+ await f.getByRole('button',{name:'剪辑工作台',exact:true}).click();
+ const downloadEvent=page.waitForEvent('download');await f.getByRole('button',{name:'保存剪辑工程',exact:true}).click();const download=await downloadEvent;await download.saveAs(path.join(work,'project.json'));
+ assert.deepEqual(JSON.parse(await fs.readFile(path.join(work,'project.json'),'utf8')).template.design.borderAppearance,expected);
+ await page.reload();f=await connect();assert.equal(await f.locator('.studio-edit-stage>.design-art').getAttribute('data-frame-style'),'double');
+ await f.getByRole('button',{name:'返回展示',exact:true}).click();assert.equal(await f.locator('#studio-border-text').inputValue(),'#fedcba');
+ await f.getByRole('button',{name:'边框外观',exact:true}).click();await f.locator('#studio-border-mode').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(work,'controls.png')});
+ // Render-only pages cannot write the saved project. Inspect 4K and portrait
+ // layout with the exact same template payload used by the video exporter.
+ const render=await browser.newPage({viewport:{width:1920,height:1080}});await render.goto(base+'/?editor-render=1');const rf=await(await render.waitForSelector('iframe')).contentFrame();await rf.waitForFunction(()=>!!globalThis.studioEditorAPI);
+ const grade={exposure:0,contrast:1,saturation:1,hue:0};
+ const renderProject={version:1,assets:[],clips:[],grade,output:{width:1920,height:1080,fps:2,duration:1,bitrate:4,codec:'prores',acceleration:'cpu',workers:2}};
+ const design={...project.template.design,ratio:'landscape',frame:'horizontal',type:false,introDuration:0,narrative:{introStyle:'model',postEffect:'none',outroEnabled:false}};
+ await rf.evaluate(data=>studioEditorAPI.loadRender(data),{project:renderProject,design});await rf.evaluate(()=>studioEditorAPI.seekRender(.5));
+ const geometry=await rf.locator('.studio-edit-stage .edge.top').evaluate(el=>({width:el.offsetWidth,height:el.offsetHeight,line:parseFloat(getComputedStyle(el,'::after').borderTopWidth)}));assert.equal(geometry.width,1920);assert.ok(Math.abs(geometry.line-1920*.002*3)<1,'double line width follows logical canvas width');
+ await render.screenshot({path:path.join(work,'render.png')});
+ await f.locator('#direction-ratio').selectOption('landscape');await f.locator('#direction-frame').selectOption('horizontal');
+ await f.locator('[data-design="dual"] [data-vfield="ringStyle"]').selectOption('none');
+ await f.evaluate(()=>{globalThis.downloadStudioOutput=async payload=>{globalThis.borderCaptured=payload;return {filename:'border-qa'};};});
+ await f.getByRole('button',{name:'输出 / AE 模板',exact:true}).click();await f.locator('[data-output-tab="ae"]').click();
+ await f.locator('#studio-output-resolution').selectOption('2160');await f.locator('#studio-output-ae-intro').uncheck();await f.locator('[data-output-download]').click();
+ await f.locator('.studio-output-status').filter({hasText:'模板已就绪'}).waitFor();await f.locator('[data-output-download]').click();
+ const ae=await f.evaluate(()=>globalThis.borderCaptured.scene.borderAppearance);assert.equal(ae.style,'double');assert.equal(ae.opacity,.35);assert.equal(ae.lineWidth,7.68);assert.ok(Math.abs(ae.text[0]-254/255)<.001);
+ await f.locator('[data-output-close]').click();await page.waitForTimeout(800);const beforeExport=await(await fetch(base+'/__editor/project')).json();
+ console.log('PASS: all thirteen designs, horizontal/vertical borders, custom colors and independent plate opacity, numeric controls, project save/reload and render-only preview');
+ const response=await fetch(base+'/__editor/export',{method:'POST',headers,body:JSON.stringify({project:renderProject,design})});const {id}=await response.json();assert.equal(response.status,202);
+ let job;do{await new Promise(r=>setTimeout(r,100));job=await(await fetch(base+'/__editor/job/'+id)).json();}while(job.status==='rendering');assert.equal(job.status,'complete',job.error);
+ const file=path.join(work,'border.mov');await fs.writeFile(file,Buffer.from(await(await fetch(base+job.download)).arrayBuffer()));
+ const {ffmpeg}=mediaTools(process.cwd()),exec=promisify(execFile),{stdout}=await exec(ffmpeg,['-v','error','-i',file,'-frames:v','1','-pix_fmt','rgb24','-f','rawvideo','-'],{encoding:'buffer',maxBuffer:10*1024**2});
+ const pixel=(x,y)=>[...stdout.subarray((y*1920+x)*3,(y*1920+x)*3+3)];
+ assert.ok(pixel(100,1)[0]>210&&pixel(100,1)[1]<120,'exported double outline retains the custom orange stroke');
+ assert.ok(pixel(100,20)[0]<180,'plate color is distinct from the stroke');
+ assert.deepEqual(await(await fetch(base+'/__editor/project')).json(),beforeExport,'render and export preserve saved project');
+ await f.locator('[data-studio-group="edges"]').filter({visible:true}).evaluate(el=>el.open=true);await f.getByRole('button',{name:'恢复默认边框',exact:true}).click();assert.equal(await f.locator('#studio-border-mode').inputValue(),'theme');
+ assert.equal(await f.locator('#studio-border-background').isDisabled(),true);
+ assert.deepEqual(errors,[]);console.log('PASS: actual ProRes export keeps custom double outline pixels, old/default appearance and reset, sanitization, and saved project preservation');
+}finally{await browser.close();await put(saved);}

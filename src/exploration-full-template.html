@@ -107,14 +107,16 @@
 #character-directions .is-swapped .character-layer{left:3%}
 #character-directions .is-swapped .portrait-layer{right:auto;left:2%}
 #character-directions [data-kind="poster"].is-swapped .art-edition{left:59.5%}
-#character-directions .edge{position:absolute;z-index:20;display:none;background:#090b10;color:#f4efe1;overflow:hidden}
+#character-directions .edge{position:absolute;z-index:20;display:none;background:var(--frame-background,#090b10);color:var(--frame-text,#f4efe1);overflow:hidden}
+#character-directions [data-frame-style="outline"] .edge:after,#character-directions [data-frame-style="double"] .edge:after{content:"";position:absolute;inset:0;pointer-events:none;border:var(--frame-line-width) solid var(--frame-accent,var(--accent))}
+#character-directions [data-frame-style="double"] .edge:after{border-width:calc(var(--frame-line-width)*3);border-style:double}
 #character-directions .edge-inner{position:absolute;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:3px 3%;font:700 clamp(11px,.95cqw,20px)/1.05 Arial,sans-serif;letter-spacing:.03em}
 #character-directions .edge-primary,#character-directions .edge-secondary{display:grid;gap:2px;min-width:0;max-width:58%}
 #character-directions .edge-secondary{text-align:right;max-width:40%}
 #character-directions .edge-line{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 #character-directions .edge-small{font:400 clamp(11px,.72cqw,16px)/1 "Courier New",monospace;opacity:.7;letter-spacing:0}
-#character-directions .edge-primary:before{content:"";position:absolute;left:1.5%;top:40%;width:.65cqw;min-width:4px;height:20%;background:var(--accent);transform:skew(-22deg)}
-#character-directions .edge-highlight{color:var(--accent)}
+#character-directions .edge-primary:before{content:"";position:absolute;left:1.5%;top:40%;width:.65cqw;min-width:4px;height:20%;background:var(--frame-accent,var(--accent));transform:skew(-22deg)}
+#character-directions .edge-highlight{color:var(--frame-accent,var(--accent))}
 #character-directions .edge .brand-image{height:clamp(13px,1.6cqw,25px);max-width:20cqw}
 #character-directions [data-frame="horizontal"] .edge{display:block;left:0;right:0;height:var(--frame-thickness)}
 #character-directions [data-frame="horizontal"] .edge.top{top:0}
@@ -138,7 +140,7 @@
 #character-directions .edge-column{display:grid;gap:2px}
 #character-directions .edge-marquee-logo{display:block;height:clamp(13px,1.6cqw,25px);max-width:20cqw;object-fit:contain}
 #character-directions .edge-marquee .edge-line{overflow:visible;text-overflow:clip;white-space:nowrap;max-width:none}
-#character-directions .edge-separator{display:inline-block;flex:none;color:var(--accent);font-size:.65em;line-height:1;opacity:.85}
+#character-directions .edge-separator{display:inline-block;flex:none;color:var(--frame-accent,var(--accent));font-size:.65em;line-height:1;opacity:.85}
 #character-directions .design-art.no-type .edge-marquee{display:none!important}
 #character-directions .has-frame .composition>.art-brand,#character-directions .has-frame .art-credit,#character-directions .has-frame .issue-stamp{display:none}
 #character-directions .has-frame:not(.is-portrait)[data-kind="orbit"] .name-stack{top:27%}

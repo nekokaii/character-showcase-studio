@@ -12,6 +12,7 @@ function scaleStudioAEScene(scene,width,height){
   const paths=value=>value.map(p=>({...p,v:points(p.v),i:points(p.i),o:points(p.o)}));
   const layer=value=>({...box(value),...(value.points?{points:points(value.points)}:{}),...(value.icon?{icon:box(value.icon)}:{})});
   return {...scene,width,height,frameThickness:scene.frameThickness*scale,
+    ...(scene.borderAppearance?{borderAppearance:{...scene.borderAppearance,lineWidth:scene.borderAppearance.lineWidth*scale}}:{}),
     layers:scene.layers.map(layer),
     ...(scene.story?{story:{...scene.story,shots:scene.story.shots.map(shot=>({...shot,layers:shot.layers.map(layer)}))}}:{}),
     geometry:scene.geometry.map(op=>({...op,...(op.introTransform?{introTransform:{...op.introTransform,from:op.introTransform.from.map(n=>n*scale),to:op.introTransform.to.map(n=>n*scale)}}:{}),width:op.width*scale,paths:paths(op.paths),samples:op.samples.map(sample=>({...sample,...(typeof sample.width==='number'?{width:sample.width*scale}:{}),paths:paths(sample.paths)}))})),

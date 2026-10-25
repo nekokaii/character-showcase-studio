@@ -62,6 +62,7 @@ function mountStudioWorkspace(root,views){
   const originalDesigns=make('optgroup'),urbanDesigns=make('optgroup');originalDesigns.label='原有方案';urbanDesigns.label='街头二游 · 新增';for(const view of views){const option=make('option','',view.section.dataset.variant);option.value=view.key;(['district','tuner','arcade'].includes(view.key)?urbanDesigns:originalDesigns).append(option)}designSelect.append(urbanDesigns,originalDesigns);designField.append(designSelect);
   const previous=button('‹','上一个视觉方案'),next=button('›','下一个视觉方案');previous.classList.add('studio-design-step');next.classList.add('studio-design-step');designRow.append(designField,previous,next);
   const canvasOptions=make('div','studio-canvas-options');for(const el of [...oldCanvasOptions.children])canvasOptions.append(el);
+  const borderButton=button('边框外观');borderButton.title='设置边框颜色、底板与描边样式';borderButton.addEventListener('click',()=>{if(state.frame==='none'){state.frame='horizontal';update();}const active=views.find(v=>v.key===state.activeDesign);if(!active)return;active.edgePanel.open=true;setPanel('style');active.edgePanel.scrollIntoView({block:'nearest',behavior:'smooth'});});canvasOptions.append(borderButton);
   const typeToggle=root.querySelector('#direction-type').closest('label');typeToggle.querySelector('.form-check-label').textContent='显示文字信息';canvasOptions.append(typeToggle);
   const previewMeta=make('div','studio-preview-meta');previewMeta.append(make('span','','实时预览'),phase,make('span','studio-loop-note','片头 4.5s · 展示循环 12s'));
   toolbar.append(designRow,canvasOptions,previewMeta);
@@ -92,14 +93,28 @@ function mountStudioWorkspace(root,views){
     const shadows=old('阴影与空间层次');shadows.classList.add('studio-group');const shadowSwitch=takeCheck('[data-effect="shadowEnabled"]');shadows.insertBefore(shadowSwitch,shadows.children[1]);inspector.append(shadows);
     const effects=old('滤镜、影调与渐变');effects.classList.add('studio-group');effects.querySelector('summary').textContent='滤镜与画面质感';inspector.append(effects);
     const model=old('角色素材与动效调节');model.classList.add('studio-group');model.querySelector('summary').textContent='角色图片大小';inspector.append(model);
-    const edge=group('边框文字与滚动 · 全局');edge.dataset.studioGroup='edges';
+    const edge=group('边框外观、文字与滚动 · 全局');edge.dataset.studioGroup='edges';
     // Borders are shared settings; the single source panel follows the active inspector.
-    inspector.append(edge);edge.append(note('边框文字与滚动由所有方案共用，片头至片尾持续显示。AE 导出后，每侧边框的底板与文字可分别编辑。'));
+    inspector.append(edge);edge.append(note('边框外观、文字与滚动由所有方案共用，片头至片尾持续显示。AE 导出后，每侧边框的底板与文字可分别编辑。'));
     for(const el of original)if(el.parentElement===section)el.remove();
     section.append(preview,inspector);view.preview=preview;view.inspector=inspector;view.playback=playback;view.edgePanel=edge;
   }
   for(const view of views)reorganizeInspector(view);
   const edgeControls=make('div','studio-shared-edges');const edgeSource=findGroup('边框滚动');edgeControls.append(fields([field('direction-top-text'),field('direction-bottom-text')]));for(const el of [...edgeSource.children].slice(1))edgeControls.append(el);
+  const borderAppearance=group('自定义边框颜色与样式',true);borderAppearance.classList.add('studio-subgroup');
+  const borderFields=fields([]);
+  const borderField=(key,label,type,options)=>{
+    const wrap=make('div','direction-field'),title=make('label','',label),input=make(options?'select':'input',options?'form-select':'form-control');input.id='studio-border-'+key;input.setAttribute('aria-label',label);title.htmlFor=input.id;
+    if(options){for(const [value,text]of options){const option=make('option','',text);option.value=value;input.append(option)}}else input.type=type;
+    if(type==='range'){input.className='form-range';input.min=key==='opacity'?0:.04;input.max=key==='opacity'?100:.4;input.step=key==='opacity'?1:.01;const output=make('output');output.dataset.borderValue=key;title.className='range-title';title.append(output);}
+    input.addEventListener(options?'change':'input',()=>{const b=state.borderAppearance;b[key]=options||type==='color'?input.value:Number(input.value)/(key==='opacity'?100:1);update();});wrap.append(title,input);borderFields.append(wrap);
+  };
+  borderField('mode','边框配色','',[['theme','默认 · 强调色跟随方案'],['custom','自定义颜色与样式']]);
+  borderField('style','边框外观','',[['solid','纯色底板'],['outline','细线描边'],['double','双线描边']]);
+  for(const [key,label]of [['background','边框底色'],['text','边框文字色'],['accent','边框强调色']])borderField(key,label,'color');
+  borderField('opacity','边框底板不透明度','range');borderField('lineWidth','边框线宽','range');
+  const resetBorder=button('恢复默认边框');resetBorder.addEventListener('click',()=>{state.borderAppearance=studioBorderSettings();update();});
+  borderAppearance.append(borderFields,resetBorder,note('底板透明度单独调整，文字保持清晰。描边使用强调色；所有方案和画幅共用。'));edgeControls.prepend(borderAppearance);
   layout.append(left,toolbar,originalViews);oldHeading.remove();oldCanvasOptions.remove();global.remove();root.append(header,tabs,layout);
 
   if(!globalThis.studioOutput?.enabled)mountStudioVideoEditor(root,views,{modeButton,layout,tabs,sizePreview});
@@ -154,4 +169,12 @@ function mountStudioWorkspace(root,views){
     requestAnimationFrame(()=>sizePreview(selected));
   }};
   ui.sync();return ui;
+}
+function syncStudioBorderControls(){
+ const b=state.borderAppearance,custom=b.mode==='custom';
+ for(const key of ['mode','style','background','text','accent','opacity','lineWidth']){
+  const input=document.getElementById('studio-border-'+key);if(!input)continue;
+  input.value=key==='opacity'?Math.round(b.opacity*100):b[key];input.disabled=key!=='mode'&&(!custom||(key==='lineWidth'&&b.style==='solid'));
+ }
+ for(const key of ['opacity','lineWidth']){const output=root.querySelector('[data-border-value="'+key+'"]');if(output)output.value=key==='opacity'?Math.round(b.opacity*100)+'%':b.lineWidth.toFixed(2)+'% 画宽';}
 }
