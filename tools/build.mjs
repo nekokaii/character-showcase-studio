@@ -36,7 +36,8 @@ fragment = replaceRequired(fragment, '/* STUDIO_WORKSPACE_STYLES */', `${await r
 fragment = replaceRequired(fragment, '/* STUDIO_OUTPUT_STYLES */', `${await read('src', 'studio-output.css')}\n${await read('src', 'obs-layers.css')}`);
 fragment = replaceRequired(fragment, '/* STUDIO_NARRATIVE_STYLES */', `${await read('src', 'studio-narrative.css')}\n${await read('src', 'story-intro.css')}\n${await read('src', 'studio-post.css')}\n${await read('src', 'studio-text.css')}`);
 fragment = replaceRequired(fragment, '<!-- DUAL_LANGUAGE_MARKUP -->', await read('src', 'dual-language-markup.html'));
-let fontCss = await read('assets/fonts', 'fonts.css');
+const fontLicense = (await read('assets/fonts', 'chill-round-OFL.txt')).replace(/[ \t]+$/gm, '');
+let fontCss = `${await read('assets/fonts', 'fonts.css')}\n/* ${fontLicense} */\n${await read('assets/fonts', 'rounded-cn.css')}`;
 fontCss = await (async () => {
   const paths = [...new Set([...fontCss.matchAll(/url\(['"]?([^)'"\s]+)['"]?\)/g)].map(match => match[1]))];
   for (const file of paths) {
@@ -77,7 +78,7 @@ exportPackages = replaceRequired(exportPackages, '__STUDIO_OBS_LAYER_SERVER__', 
 exportPackages = replaceRequired(exportPackages, '__STUDIO_OBS_LAYER_CONTROL__', JSON.stringify(await read('runtime', 'obs-layer-control.html')));
 const outputHost = inlineScript(`${await read('runtime', 'export-zip.js')}\n${exportPackages}\n${await read('runtime', 'obs-layer-host.js')}\n${await read('runtime', 'studio-output-host.js')}\n${await read('runtime', 'editor-host.js')}`);
 // The original sandbox and CSP policies are retained. The generated page embeds
-// all required scripts, styles, icons and Latin fonts, so they need no connection.
+// all required scripts, styles, icons and bundled fonts, so they need no connection.
 const sources = 'blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com';
 const frameCsp = ["default-src 'none'", `script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' ${sources}`, `style-src 'unsafe-inline' ${sources}`, `img-src ${sources} http://127.0.0.1:*`, `font-src ${sources}`, `media-src ${sources} http://127.0.0.1:*`, 'worker-src blob:', 'connect-src blob: data:', "frame-src 'none'", "object-src 'none'", "base-uri 'none'", "form-action 'none'"].join('; ');
 const shellCsp = frameCsp.replace("frame-src 'none'", "frame-src 'self'").replace("connect-src blob: data:", "connect-src 'self' blob: data:");

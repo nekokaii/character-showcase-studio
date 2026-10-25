@@ -63,11 +63,11 @@
 #character-directions .design-art[data-kind="cloud"]{--copy-x:7%;--copy-w:31%;--name-x:6.3%;--name-w:33%;--edition-y:26%;--name-y:38%;--caption-y:59%;--subtitle-y:65%;--tech-y:76%;--title-size:11.5cqw;--title-angle:-2deg;--title-track:-.08em;--title-weight:800;--caption-size:1.8cqw;--note-x:45%;--note-y:88%;--note-rotate:0deg}
 #character-directions .design-art[data-kind="cloud"] .art-brand:before{height:.85cqw;width:.85cqw;background:var(--accent);border-radius:50%;clip-path:none;transform:none}
 #character-directions .design-art[data-kind="cloud"] .art-edition{width:fit-content;max-width:34%;padding:.75cqw 1.2cqw;border-radius:4cqw;background:color-mix(in srgb,var(--accent),transparent 82%);backdrop-filter:blur(8px);align-items:center}
-#character-directions .design-art[data-kind="cloud"] .edition-label{font-family:"Nunito","Noto Sans SC",sans-serif;letter-spacing:0;font-weight:800;font-size:clamp(11px,1.1cqw,23px)}
-#character-directions .design-art[data-kind="cloud"] .edition-type{font-family:"Nunito",sans-serif;opacity:.55}
+#character-directions .design-art[data-kind="cloud"] .edition-label{font-family:"Nunito","ChillRoundF","Noto Sans SC",sans-serif;letter-spacing:0;font-weight:800;font-size:clamp(11px,1.1cqw,23px)}
+#character-directions .design-art[data-kind="cloud"] .edition-type{font-family:"Nunito","ChillRoundF",sans-serif;opacity:.55}
 #character-directions .design-art[data-kind="cloud"] .hero-name{letter-spacing:-.07em;line-height:.92}
-#character-directions .design-art[data-kind="cloud"] .copy-caption{font-family:"Nunito","Noto Sans SC",sans-serif;font-weight:700;letter-spacing:.01em}
-#character-directions .design-art[data-kind="cloud"] .copy-subtitle{font-family:"Nunito","Noto Sans SC",sans-serif;letter-spacing:.02em}
+#character-directions .design-art[data-kind="cloud"] .copy-caption{font-family:"Nunito","ChillRoundF","Noto Sans SC",sans-serif;font-weight:700;letter-spacing:.01em}
+#character-directions .design-art[data-kind="cloud"] .copy-subtitle{font-family:"Nunito","ChillRoundF","Noto Sans SC",sans-serif;letter-spacing:.02em}
 #character-directions .design-art[data-kind="cloud"] .compatibility{border-radius:1.25cqw}
 #character-directions .design-art[data-kind="cloud"] .language-sculpture:before{left:-10%;top:12%;width:51%;height:55%;border-radius:42% 58% 65% 35% / 40% 52% 48% 60%;background:radial-gradient(ellipse at 26% 20%,color-mix(in srgb,var(--paper),#fff 20%),color-mix(in srgb,var(--accent),transparent 90%) 50%,color-mix(in srgb,var(--accent),transparent 78%));opacity:.7;transform:rotate(-11deg)}
 #character-directions .design-art[data-kind="cloud"] .language-sculpture:after{right:-5%;bottom:-12%;width:25%;height:31%;border:1px solid color-mix(in srgb,var(--accent),transparent 55%);border-radius:48% 52% 60% 40% / 42% 60% 40% 58%;transform:rotate(-18deg);opacity:.6}
@@ -90,15 +90,15 @@
 
 /* 05 PLAY: a small friendly identity, a displaced dot and a clean column of air. */
 #character-directions .design-art[data-kind="play"]{--copy-x:6%;--copy-w:31%;--name-x:4.8%;--name-w:35%;--edition-y:51%;--name-y:26%;--caption-y:59%;--subtitle-y:65%;--tech-y:76%;--title-size:12.6cqw;--title-weight:900;--title-track:-.09em;--caption-size:2cqw;--note-x:44%;--note-y:11%;--note-rotate:0deg}
-#character-directions .design-art[data-kind="play"] .art-brand{font-family:"Nunito","Noto Sans SC",sans-serif;font-weight:900;letter-spacing:-.04em}
+#character-directions .design-art[data-kind="play"] .art-brand{font-family:"Nunito","ChillRoundF","Noto Sans SC",sans-serif;font-weight:900;letter-spacing:-.04em}
 #character-directions .design-art[data-kind="play"] .art-brand:before{height:1.1cqw;width:1.1cqw;border-radius:50%;clip-path:none;background:var(--ink);transform:none}
 #character-directions .design-art[data-kind="play"] .hero-name{line-height:.9}
 #character-directions .design-art[data-kind="play"] .hero-name:after{content:"";position:absolute;left:72%;top:-2.7cqw;width:1.9cqw;height:1.9cqw;background:var(--accent);border-radius:50%}
 #character-directions .design-art[data-kind="play"] .art-edition{gap:.8cqw;align-items:center}
-#character-directions .design-art[data-kind="play"] .edition-label{font-family:"Nunito","Noto Sans SC",sans-serif;font-weight:900;font-size:clamp(11px,1.2cqw,25px);letter-spacing:-.025em}
-#character-directions .design-art[data-kind="play"] .edition-type{font-family:"Nunito",sans-serif;letter-spacing:0}
-#character-directions .design-art[data-kind="play"] .copy-caption{font-family:"Nunito","Noto Sans SC",sans-serif;font-weight:800;letter-spacing:-.015em}
-#character-directions .design-art[data-kind="play"] .copy-subtitle{font-family:"Nunito","Noto Sans SC",sans-serif;letter-spacing:0}
+#character-directions .design-art[data-kind="play"] .edition-label{font-family:"Nunito","ChillRoundF","Noto Sans SC",sans-serif;font-weight:900;font-size:clamp(11px,1.2cqw,25px);letter-spacing:-.025em}
+#character-directions .design-art[data-kind="play"] .edition-type{font-family:"Nunito","ChillRoundF",sans-serif;letter-spacing:0}
+#character-directions .design-art[data-kind="play"] .copy-caption{font-family:"Nunito","ChillRoundF","Noto Sans SC",sans-serif;font-weight:800;letter-spacing:-.015em}
+#character-directions .design-art[data-kind="play"] .copy-subtitle{font-family:"Nunito","ChillRoundF","Noto Sans SC",sans-serif;letter-spacing:0}
 #character-directions .design-art[data-kind="play"] .compatibility{border-radius:1.45cqw}
 #character-directions .design-art[data-kind="play"] .language-sculpture:before{left:30%;top:73%;width:3%;aspect-ratio:1;background:var(--accent);border-radius:38%;transform:rotate(-15deg)}
 #character-directions .design-art[data-kind="play"] .language-sculpture:after{right:5%;top:7%;width:5%;aspect-ratio:1;border:1.1cqw solid var(--accent);border-radius:50%}
@@ -112,7 +112,7 @@
 #character-directions .design-art[data-kind="sticker"] .edition-type{font-size:clamp(11px,.65cqw,16px)}
 #character-directions .design-art[data-kind="sticker"] .hero-name{line-height:.88}
 #character-directions .design-art[data-kind="sticker"] .hero-name:before{display:block;left:-.75cqw;right:-.25cqw;top:55%;bottom:-1.3cqw;clip-path:polygon(0 6%,99% 0,96% 96%,2% 100%);transform:rotate(2deg)}
-#character-directions .design-art[data-kind="sticker"] .copy-caption{font-family:"Nunito","Noto Sans SC",sans-serif;font-weight:900;letter-spacing:-.03em}
+#character-directions .design-art[data-kind="sticker"] .copy-caption{font-family:"Nunito","ChillRoundF","Noto Sans SC",sans-serif;font-weight:900;letter-spacing:-.03em}
 #character-directions .design-art[data-kind="sticker"] .compatibility{border-radius:.38cqw}
 #character-directions .design-art[data-kind="sticker"] .language-sculpture:before{left:38%;top:23%;width:4%;height:2%;background:var(--accent);transform:rotate(-23deg)}
 #character-directions .design-art[data-kind="sticker"] .language-sculpture:after{right:-2%;bottom:7%;width:17%;height:10%;border:1px solid var(--ink);border-radius:100%;transform:rotate(-16deg);opacity:.45}

@@ -1,0 +1,17 @@
+/* ChillRoundF v3.200, Copyright 2023 ChillType. SIL Open Font License 1.1.
+   Full license is embedded below by tools/build.mjs and kept in chill-round-OFL.txt.
+   Original glyph coverage and outlines are retained in these WOFF2 conversions. */
+@font-face {
+  font-family: 'ChillRoundF';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(chill-round-f-regular.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'ChillRoundF';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(chill-round-f-bold.woff2) format('woff2');
+}

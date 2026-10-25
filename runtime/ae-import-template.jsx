@@ -41,7 +41,8 @@
     function shadow(layer){if(!d.shadow.enabled)return;var s=layer.property('ADBE Effect Parade').addProperty('ADBE Drop Shadow');s.property(1).setValue(d.shadow.color.slice(0,3));s.property(2).setValue(d.shadow.strength*45);s.property(3).setValue(135);s.property(4).setValue(d.shadow.depth*12*d.width/1920);s.property(5).setValue(d.shadow.soft?24*d.width/1920:0)}
     var fontCache={};
     function fontFor(item){var bold=item.weight>=600,desired=bold?'Arial-BoldMT':'ArialMT',family=item.fontFamily||'',serif=false,narrow=false,rounded=false;
-      if(/[\u2e80-\u9fff]/.test(item.text))desired=bold?'MicrosoftYaHei-Bold':'MicrosoftYaHei';
+      var chinese=/[\u2e80-\u9fff]/.test(item.text);
+      if(chinese){desired=bold?'MicrosoftYaHei-Bold':'MicrosoftYaHei';if(family.indexOf('ChillRoundF')>=0)desired='ChillRoundF'+(item.weight>=600?'Bold':'Regular');}
       else{var weight=item.weight||400,suffix=weight>=800?'ExtraBold':weight>=700?'Bold':weight>=600?'SemiBold':weight>=500?'Medium':'Regular';
         if(family.indexOf('Cormorant')>=0)desired='CormorantGaramond-'+(weight>=700?'Bold':weight>=600?'SemiBold':weight>=500?'Medium':'Regular');
         else if(family.indexOf('Barlow')>=0)desired='BarlowCondensed-'+(weight>=900?'Black':suffix);
@@ -49,7 +50,7 @@
         else if(family.indexOf('Manrope')>=0)desired='Manrope-'+suffix;
         else if(family.indexOf('Nunito')>=0)desired='Nunito-'+(weight>=900?'Black':suffix);
         serif=family.indexOf('Cormorant')>=0;narrow=family.indexOf('Barlow')>=0;rounded=family.indexOf('Nunito')>=0;if(family.indexOf('Arial Black')>=0)desired='Arial-Black';if(family.indexOf('Courier')>=0)desired=bold?'CourierNewPS-BoldMT':'CourierNewPSMT'}
-      if(fontCache[desired])return fontCache[desired];var candidates=[desired,serif?(bold?'Georgia-Bold':'Georgia'):narrow?(bold?'ArialNarrow-Bold':'ArialNarrow'):rounded?'ArialRoundedMTBold':bold?'Arial-BoldMT':'ArialMT',bold?'Arial-BoldMT':'ArialMT'];
+      if(fontCache[desired])return fontCache[desired];var candidates=[desired,chinese?(bold?'MicrosoftYaHei-Bold':'MicrosoftYaHei'):serif?(bold?'Georgia-Bold':'Georgia'):narrow?(bold?'ArialNarrow-Bold':'ArialNarrow'):rounded?'ArialRoundedMTBold':bold?'Arial-BoldMT':'ArialMT',bold?'Arial-BoldMT':'ArialMT'];
       if(app.fonts&&app.fonts.getFontsByPostScriptName)for(var j=0;j<candidates.length;j++){var matches=app.fonts.getFontsByPostScriptName(candidates[j]);for(var n=0;n<matches.length;n++)if(!matches[n].isSubstitute){fontCache[desired]=candidates[j];if(j)warnings.push('Font '+desired+' → '+candidates[j]);return candidates[j]}}
       warnings.push('Font availability could not be confirmed: '+desired+'. Install the selected desktop font or replace it in AE.');fontCache[desired]=desired;return desired;
     }

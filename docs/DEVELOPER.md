@@ -91,7 +91,7 @@
 
 `tests/check-output.cjs` 验证可变片头、素材选择、输入边界、脚本转义、横竖屏及透明模式下十三套方案的背景填充。输出文件是快照，不包含项目回导或实时同步。
 
-完整页面采用外层壳与 `sandbox="allow-scripts"` iframe，保留原 CSP。构建会用随包资源替换模板和运行时中的 CDN 引用，并内嵌所有必要运行时、库、图标和拉丁字体；常规预览无需联网。外层运行时负责本地状态回执、主题及高度适配；当前方案导航与编辑器布局由 `studio-workspace.js` 管理。
+完整页面采用外层壳与 `sandbox="allow-scripts"` iframe，保留原 CSP。构建会用随包资源替换模板和运行时中的 CDN 引用，并内嵌所有必要运行时、库、图标、拉丁字体及中文圆体；常规预览无需联网。中文圆体单独放在 `assets/fonts/rounded-cn.css`，不受 `prepare-vendor.py` 刷新拉丁字体影响；来源及许可见 `assets/fonts/CHILL-ROUND.md`。外层运行时负责本地状态回执、主题及高度适配；当前方案导航与编辑器布局由 `studio-workspace.js` 管理。
 
 如果今后改为常规网页框架，可重构这层适配，但不要直接取消沙盒和 CSP。改变安全边界属于独立开发事项，应单独审查。
 
