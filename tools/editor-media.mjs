@@ -7,6 +7,7 @@ import { pipeline } from 'node:stream/promises';
 import { chromium } from 'playwright-core';
 import { probeFrameTimes, createSequentialDecoder } from './editor-frames.mjs';
 import { pngAviHeader, pngAviPacket, validateCapturePNG } from './editor-png.mjs';
+import { exportPerformance } from './editor-performance.mjs';
 
 const idPattern=/^[a-f0-9-]{36}$/;
 const jobs=new Map(), assets=new Map();
@@ -28,6 +29,8 @@ export function validateOutput(raw={}){
   const result={width:num('width',64,7680,true),height:num('height',64,7680,true),fps:num('fps',1,60,true),duration:num('duration',.1,3600),bitrate:num('bitrate',.1,250),codec:raw.codec,acceleration:raw.acceleration||'auto'};
   if(!['h264','h265','av1','vp9','prores'].includes(result.codec))throw Error('不支持的编码器');
   if(!['auto','cpu','nvenc','qsv','amf'].includes(result.acceleration))throw Error('不支持的编码设备');
+  if(raw.workers!==undefined&&![0,1,2,4,8].includes(raw.workers))throw Error('无效的导出并行度');
+  result.workers=raw.workers||0;
   if(['vp9','prores'].includes(result.codec)&&!['auto','cpu'].includes(result.acceleration))throw Error('透明 VP9 / ProRes 请使用自动或 CPU 编码');
   if(result.codec!=='prores'&&(result.width%2||result.height%2))throw Error('此编码器的宽高需要为偶数');
   return result;
@@ -81,7 +84,16 @@ export function createMediaService(root,getOrigin){
   const readJSON=async(req,max=160*1024*1024)=>{let size=0;const chunks=[];for await(const chunk of req){size+=chunk.length;if(size>max)throw Error('请求过大');chunks.push(chunk);}return JSON.parse(Buffer.concat(chunks).toString());};
   const assetDir=id=>{if(!idPattern.test(id))throw Error('无效素材编号');return path.join(store,'assets',id);};
   async function getAsset(id){if(assets.has(id))return assets.get(id);const data=JSON.parse(await fs.readFile(path.join(assetDir(id),'asset.json'),'utf8'));assets.set(id,data);return data;}
-  const previewTasks=new Map(), fullTasks=new Map();let hardwarePromise;const hardware=()=>hardwarePromise||(hardwarePromise=detectHardwareEncoders(ffmpeg).catch(()=>({h264:[],h265:[],av1:[]})));
+  const previewTasks=new Map(), fullTasks=new Map(),frameIndexCache=new Map();let hardwarePromise;const hardware=()=>hardwarePromise||(hardwarePromise=detectHardwareEncoders(ffmpeg).catch(()=>({h264:[],h265:[],av1:[]})));
+  async function frameTimes(id,signal){
+    // Imported originals are immutable. Repeated exports can reuse their exact
+    // time-base index instead of decoding the full source again with FFprobe.
+    if(signal.aborted)throw Error('已取消导出');
+    if(frameIndexCache.has(id))return frameIndexCache.get(id);
+    const times=await probeFrameTimes({ffprobe,file:path.join(assetDir(id),'original'),signal});
+    if(frameIndexCache.size>=32)frameIndexCache.delete(frameIndexCache.keys().next().value);
+    frameIndexCache.set(id,times);return times;
+  }
   const persist=a=>fs.writeFile(path.join(assetDir(a.id),'asset.json'),JSON.stringify(a));
   async function probeAsset(id,source,name){
     const info=JSON.parse(await runProcess(ffprobe,['-v','error','-show_streams','-show_format','-of','json',source]));
@@ -131,9 +143,10 @@ export function createMediaService(root,getOrigin){
     const a=assets.get(id);try{Object.assign(a,await probeAsset(id,source,name));await ensurePreview(a);}catch(e){a.status='error';a.error=e.message;}
   }
   async function render(job){
-    exporting=true;const controller=new AbortController(),decoders=new Map(),indexes=new Map(),workers=[],pendingFrames=[];job.controller=controller;let browser,encoder,terminal='error',layerWindows={},decodeSequence=Promise.resolve();
+    exporting=true;const controller=new AbortController(),decoders=new Map(),indexes=new Map(),workers=[],pendingFrames=[],browserInstances=[];job.controller=controller;let browser,encoder,terminal='error',layerWindows={},decodeSequence=Promise.resolve();
     try{
       const o=validateOutput(job.payload.project.output),extension=o.codec==='prores'?'mov':o.codec==='vp9'?'webm':'mp4';
+      const performancePlan=exportPerformance(o);job.performance=performancePlan;
       const dir=path.join(store,'exports',job.id);await fs.mkdir(dir,{recursive:true});
       const output=path.join(dir,'showcase.'+extension);
       const requested=o.acceleration;let selected=requested==='auto'?((await hardware())[o.codec]?.[0]||'cpu'):requested;
@@ -146,7 +159,7 @@ export function createMediaService(root,getOrigin){
       if(frameURLs){job.frameToken=crypto.randomUUID();job.frameBuffers=new Map();}
       for(const a of payload.project.assets){if(controller.signal.aborted)throw Error('已取消导出');const stored=await getAsset(a.id);if(stored.status!=='ready')throw Error('素材未就绪');if(payload.project.clips.some(c=>c.assetId===a.id&&c.start<o.duration)){
         if(stored.kind==='audio'){Object.assign(a,stored,{renderFrames:false});continue;}
-        if(sequential&&!stored.image){const times=await probeFrameTimes({ffprobe,file:path.join(assetDir(a.id),'original'),signal:controller.signal});indexes.set(a.id,times);Object.assign(a,stored,{renderFrames:true});}
+        if(sequential&&!stored.image){const times=await frameTimes(a.id,controller.signal);indexes.set(a.id,times);Object.assign(a,stored,{renderFrames:true});}
         else{await ensureFull(stored,controller.signal);Object.assign(a,stored,{renderFrames:false,proxy:getOrigin()+stored.proxy});}
       }else Object.assign(a,stored,{renderFrames:false});}
       for(const c of payload.project.clips){const a=await getAsset(c.assetId);if((a.kind==='audio')!==c.layer.startsWith('audio-'))throw Error('音频与画面轨道不匹配');if(!a.image&&c.out>a.duration+.001)throw Error('素材出点超过原始时长');}
@@ -154,21 +167,24 @@ export function createMediaService(root,getOrigin){
       const decodeAt=async time=>Promise.all(payload.project.clips.map(async c=>{
         const decoderId=c.id,window=layerWindows[c.layer];if(time>=c.start+c.out-c.in||(window&&(time<window[0]||time>=window[1]))){const old=decoders.get(decoderId);if(old){await old.dispose();decoders.delete(decoderId);}return null;}
         if(time<c.start)return null;const a=payload.project.assets.find(a=>a.id===c.assetId);if(!a.renderFrames)return null;
-        let decoder=decoders.get(decoderId);if(!decoder){decoder=createSequentialDecoder({ffmpeg,file:path.join(assetDir(a.id),'original'),codec:a.codec,times:indexes.get(a.id),signal:controller.signal});decoders.set(decoderId,decoder);}
+        let decoder=decoders.get(decoderId);if(!decoder){decoder=createSequentialDecoder({ffmpeg,file:path.join(assetDir(a.id),'original'),codec:a.codec,times:indexes.get(a.id),signal:controller.signal,threads:performancePlan.sourceThreads,pngThreads:performancePlan.pngThreads});decoders.set(decoderId,decoder);}
         const frame=await decoder.frameAt(c.in+time-c.start);return {id:c.id,...frame};
       })).then(frames=>frames.filter(Boolean));
-      if(controller.signal.aborted)throw Error('已取消导出');job.phase='rendering';
+      if(controller.signal.aborted)throw Error('已取消导出');job.phase='preparing-workers';
       const launch=channel=>chromium.launch({channel,headless:true,args:['--autoplay-policy=no-user-gesture-required','--force-device-scale-factor=1','--disable-background-timer-throttling','--disable-renderer-backgrounding','--disable-backgrounding-occluded-windows',...(process.env.STUDIO_EXPORT_CAPTURE_PACING==='display'?[]:['--disable-features=CDPScreenshotNewSurface','--disable-frame-rate-limit','--disable-gpu-vsync'])]});
-      try{browser=await launch(process.env.STUDIO_BROWSER||'chrome');}catch(e){if(process.env.STUDIO_BROWSER)throw e;browser=await launch('msedge');}
-      job.browser=browser;
       const total=Math.ceil(o.duration*o.fps);
       // Independent compositor surfaces overlap frame commitment and PNG capture.
       // Each worker samples a monotonic subsequence; results enter the encoder in
       // exact timeline order, with only one captured frame queued per worker.
-      const workerLimit=o.width*o.height<=3840*2160?2:1;
-      const workerCount=sequential?Math.min(total,Math.max(1,Math.min(workerLimit,Math.trunc(Number(process.env.STUDIO_EXPORT_WORKERS)||2)))):1;job.workers=workerCount;
+      const workerCount=sequential?performancePlan.workers:1;job.workers=workerCount;
+      const browserCount=Math.min(workerCount,performancePlan.browsers);
+      browser={close:()=>Promise.allSettled(browserInstances.map(instance=>instance.close()))};job.browser=browser;
+      await Promise.all(Array.from({length:browserCount},async(_,id)=>{
+        try{browserInstances[id]=await launch(process.env.STUDIO_BROWSER||'chrome');}catch(e){if(process.env.STUDIO_BROWSER)throw e;browserInstances[id]=await launch('msedge');}
+        if(controller.signal.aborted){await browserInstances[id].close();throw Error('已取消导出');}
+      }));
       await Promise.all(Array.from({length:workerCount},async(_,id)=>{
-        const page=await browser.newPage({viewport:{width:o.width,height:o.height},deviceScaleFactor:1,reducedMotion:'no-preference'});
+        const page=await browserInstances[id%browserCount].newPage({viewport:{width:o.width,height:o.height},deviceScaleFactor:1,reducedMotion:'no-preference'});
         await page.goto(getOrigin()+'/?editor-render=1');
         await page.evaluate(()=>{document.documentElement.style.setProperty('background','transparent','important');document.body.style.setProperty('background','transparent','important');});
         const handle=await page.waitForSelector('iframe'),frame=await handle.contentFrame();
@@ -190,19 +206,25 @@ export function createMediaService(root,getOrigin){
         chain.push(`atrim=start=${start-clip.start}:duration=${visibleLength}`,'asetpts=PTS-STARTPTS',`adelay=${Math.round(start*1000)}:all=1[${label}]`);audioFilters.push(chain.join(','));audioLabels.push(`[${label}]`);input++;
       }
       const filters=audioLabels.length?['-filter_complex',audioFilters.concat(`${audioLabels.join('')}amix=inputs=${audioLabels.length}:normalize=0,asetpts=N/SR/TB,apad[audio]`).join(';'),'-map','0:v','-map','[audio]','-c:a',o.codec==='prores'?'pcm_s16le':o.codec==='vp9'?'libopus':'aac']:['-an'];
-      encoder=spawn(ffmpeg,['-hide_banner','-loglevel',process.env.STUDIO_EXPORT_TRACE?'verbose':'error','-y','-f','avi','-threads','1','-probesize','32','-analyzeduration','0','-fpsprobesize','0','-i','pipe:0',...audioInputs,...filters,...encoderArgs(o),'-fps_mode','passthrough','-frames:v',String(total),'-t',String(o.duration),output],{windowsHide:true,signal:controller.signal});
+      encoder=spawn(ffmpeg,['-hide_banner','-loglevel',process.env.STUDIO_EXPORT_TRACE?'verbose':'error','-y','-filter_threads',String(performancePlan.inputThreads),'-f','avi','-threads',String(performancePlan.inputThreads),'-probesize','32','-analyzeduration','0','-fpsprobesize','0','-i','pipe:0',...audioInputs,...filters,...encoderArgs(o),'-fps_mode','passthrough','-frames:v',String(total),'-t',String(o.duration),output],{windowsHide:true,signal:controller.signal});
       job.encoder=encoder;let errors='';encoder.stderr.on('data',data=>errors=(errors+data).slice(-12000));
       const done=new Promise((resolve,reject)=>{encoder.on('error',reject);encoder.on('close',code=>code===0?resolve():reject(Error(errors||'编码已取消')));});done.catch(()=>{});encoder.stdin.on('error',()=>{});
       await new Promise((resolve,reject)=>encoder.stdin.write(pngAviHeader({width:o.width,height:o.height,fps:o.fps,totalFrames:total}),error=>error?reject(error):resolve()));
+      job.phase='rendering';
       const started=performance.now();job.timings={decodeMs:0,seekMs:0,captureMs:0,pipeMs:0};
-      // Keep source decoding shared and strictly chronological. Two compositor
+      // Keep source decoding shared and strictly chronological. Compositor
       // workers must not decode the same source twice or race it backwards.
       const queueDecode=index=>{const result=decodeSequence.then(()=>decodeAt(index/o.fps));decodeSequence=result.catch(()=>{});return result;};
       const renderFrame=async(worker,index)=>{
         if(controller.signal.aborted)throw Error('已取消导出');
         let decodedFrames=[];if(sequential){const beforeDecode=performance.now(),decoded=await worker.pendingDecode;job.timings.decodeMs+=performance.now()-beforeDecode;if(frameURLs){const active=new Set(decoded.map(f=>worker.id+':'+f.id));for(const key of job.frameBuffers.keys())if(key.startsWith(worker.id+':')&&!active.has(key))job.frameBuffers.delete(key);}decodedFrames=decoded.filter(f=>worker.sentFrames.get(f.id)!==f.index).map(f=>{worker.sentFrames.set(f.id,f.index);if(frameURLs){job.frameBuffers.set(worker.id+':'+f.id,{index:f.index,png:f.png});return {id:f.id,index:f.index,url:`${getOrigin()}/__editor/render-frame/${job.id}/${job.frameToken}/${worker.id}/${f.id}/${f.index}.png`};}return {id:f.id,index:f.index,png:f.png.toString('base64')};});}
         const beforeSeek=performance.now();await worker.frame.evaluate(({time,frames})=>globalThis.studioEditorAPI.seekRender(time,frames),{time:index/o.fps,frames:decodedFrames});job.timings.seekMs+=performance.now()-beforeSeek;
-        const beforeCapture=performance.now(),shot=await worker.capture.send('Page.captureScreenshot',{format:'png',fromSurface:true,optimizeForSpeed:true,captureBeyondViewport:false});const png=Buffer.from(shot.data,'base64');job.timings.captureMs+=performance.now()-beforeCapture;
+        const beforeCapture=performance.now(),captureOptions={format:'png',fromSurface:true,optimizeForSpeed:true,captureBeyondViewport:false};
+        // The first high-resolution GPU surface may still be allocating/rastering
+        // when its initial compositor commit completes. Prime that exact frame
+        // once, then commit it again before accepting a capture for the encoder.
+        if(!worker.warmed){await worker.capture.send('Page.captureScreenshot',captureOptions);await worker.frame.evaluate(t=>globalThis.studioEditorAPI.seekRender(t),index/o.fps);worker.warmed=true;}
+        const shot=await worker.capture.send('Page.captureScreenshot',captureOptions);const png=Buffer.from(shot.data,'base64');job.timings.captureMs+=performance.now()-beforeCapture;
         if(process.env.STUDIO_EXPORT_VALIDATE_PNG)try{await validateCapturePNG(png);}catch(e){await fs.writeFile(path.join(dir,`invalid-${index}.png`),png);throw e;}
         return png;
       };
@@ -232,7 +254,7 @@ export function createMediaService(root,getOrigin){
       // The opaque-origin artwork sandbox can read only the currently offered
       // lossless frame. The unguessable task secret expires on every exit path;
       // no source path or whole-video decoded cache is exposed here.
-      const renderFrame=url.pathname.match(/^\/__editor\/render-frame\/([a-f0-9-]{36})\/([a-f0-9-]{36})\/([01])\/([a-f0-9-]{36})\/(\d+)\.png$/);
+      const renderFrame=url.pathname.match(/^\/__editor\/render-frame\/([a-f0-9-]{36})\/([a-f0-9-]{36})\/([0-7])\/([a-f0-9-]{36})\/(\d+)\.png$/);
       if(renderFrame&&['GET','HEAD'].includes(req.method)){
         const job=jobs.get(renderFrame[1]),frame=job?.frameBuffers?.get(renderFrame[3]+':'+renderFrame[4]);
         if(job?.status!=='rendering'||job.frameToken!==renderFrame[2]||frame?.index!==Number(renderFrame[5])){send(res,404,{error:'导出帧已释放'});return true;}
@@ -249,7 +271,7 @@ export function createMediaService(root,getOrigin){
       }
       if(req.headers['sec-fetch-site']==='cross-site'||(req.headers.origin&&req.headers.origin!==origin)){send(res,403,{error:'仅接受本机工作台请求'});return true;}
       if(url.pathname==='/__editor/capabilities'&&req.method==='GET'){
-        try{const version=await runProcess(ffmpeg,['-version']);send(res,200,{ready:true,version:version.split('\n')[0],exportPipeline:process.env.STUDIO_EXPORT_PIPELINE==='browser'?'browser':'sequential',token,origin,hardware:await hardware()});}catch{send(res,200,{ready:false,error:'请运行 setup-editor.cmd 安装本机视频组件',token,origin});}return true;
+        try{const version=await runProcess(ffmpeg,['-version']);send(res,200,{ready:true,version:version.split('\n')[0],parallelExport:true,exportPipeline:process.env.STUDIO_EXPORT_PIPELINE==='browser'?'browser':'sequential',token,origin,hardware:await hardware()});}catch{send(res,200,{ready:false,error:'请运行 setup-editor.cmd 安装本机视频组件',token,origin});}return true;
       }
       if(req.method!=='GET'&&req.headers['x-studio-token']!==token){send(res,403,{error:'会话验证失败，请刷新'});return true;}
       if(url.pathname==='/__editor/project/validate'&&req.method==='POST'){validateProject(await readJSON(req));send(res,200,{ok:true});return true;}
@@ -274,7 +296,7 @@ export function createMediaService(root,getOrigin){
         const job={id:crypto.randomUUID(),status:'rendering',progress:0,payload};jobs.set(job.id,job);render(job);send(res,202,{id:job.id});return true;
       }
       const jobMatch=url.pathname.match(/^\/__editor\/job\/([a-f0-9-]{36})$/);
-      if(jobMatch){const job=jobs.get(jobMatch[1]);if(!job)throw Error('找不到导出任务');if(req.method==='DELETE'){job.cancelled=true;job.controller?.abort();await job.browser?.close().catch(()=>{});}send(res,200,{id:job.id,status:job.status,phase:job.phase,progress:job.progress,encoding:job.encoding,acceleration:job.acceleration,pipeline:job.pipeline,transport:job.transport,workers:job.workers,frames:job.frames,fps:job.fps,elapsed:job.elapsed,timings:job.timings,notice:job.notice,error:job.error,download:job.download});return true;}
+      if(jobMatch){const job=jobs.get(jobMatch[1]);if(!job)throw Error('找不到导出任务');if(req.method==='DELETE'){job.cancelled=true;job.controller?.abort();await job.browser?.close().catch(()=>{});}send(res,200,{id:job.id,status:job.status,phase:job.phase,progress:job.progress,encoding:job.encoding,acceleration:job.acceleration,pipeline:job.pipeline,transport:job.transport,workers:job.workers,performance:job.performance,frames:job.frames,fps:job.fps,elapsed:job.elapsed,timings:job.timings,notice:job.notice,error:job.error,download:job.download});return true;}
       const download=url.pathname.match(/^\/__editor\/download\/([a-f0-9-]{36})\/(showcase\.(?:mp4|webm|mov))$/);
       if(download&&req.method==='GET'){const file=path.join(store,'exports',download[1],download[2]),stat=await fs.stat(file);res.writeHead(200,{'Content-Type':'application/octet-stream','Content-Disposition':`attachment; filename="${download[2]}"`,'Content-Length':stat.size});createReadStream(file).pipe(res);return true;}
       send(res,404,{error:'接口不存在'});

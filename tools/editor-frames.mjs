@@ -145,7 +145,7 @@ class PngReader {
  * The requested time uses the media timeline returned by probeFrameTimes().
  * A repeated frame returns the same Buffer. Seeking backwards needs a new decoder.
  */
-export function createSequentialDecoder({ ffmpeg, file, codec, times, signal }) {
+export function createSequentialDecoder({ ffmpeg, file, codec, times, signal, threads=4, pngThreads=4 }) {
   if (!Array.isArray(times) || !times.length || times.some((time, index) => !Number.isFinite(time) || time < 0 || (index && time < times[index - 1]))) {
     throw Error('Video frame timestamps must be a nonempty sorted array');
   }
@@ -168,12 +168,14 @@ export function createSequentialDecoder({ ffmpeg, file, codec, times, signal }) 
   };
   const start = () => {
     check();
+    const boundedThreads=value=>String(Math.max(1,Math.min(8,Math.trunc(Number(value))||1)));
     child = spawn(ffmpeg, [
       '-hide_banner', '-loglevel', 'error', '-nostdin',
       ...(codec === 'vp9' ? ['-c:v', 'libvpx-vp9'] : []),
+      '-threads', boundedThreads(threads), '-filter_threads', boundedThreads(threads),
       '-i', file, '-map', '0:v:0', '-an', '-sn', '-dn',
-      '-fps_mode', 'passthrough', '-c:v', 'png', '-threads', '1',
-      '-pix_fmt', 'rgba', '-compression_level', '1', '-f', 'image2pipe', 'pipe:1',
+      '-fps_mode', 'passthrough', '-c:v', 'png', '-threads', boundedThreads(pngThreads),
+      '-pix_fmt', 'rgba', '-compression_level', '1', '-pred', 'sub', '-f', 'image2pipe', 'pipe:1',
     ], { windowsHide: true });
     child.stderr.on('data', chunk => { stderr = (stderr + chunk).slice(-16000); });
     child.stderr.on('error', () => {});
