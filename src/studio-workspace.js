@@ -1,6 +1,7 @@
 // Editor chrome only. Existing inputs and listeners are retained, never cloned.
 function mountStudioWorkspace(root,views){
   root.classList.add('studio-editor');root.dataset.panel='preview';
+  let visualResetSnapshot=null;
   const make=(tag,className,text)=>{const el=document.createElement(tag);if(className)el.className=className;if(text)el.textContent=text;return el};
   const button=(text,aria)=>{const el=make('button','btn',text);el.type='button';if(aria)el.setAttribute('aria-label',aria);return el};
   const note=text=>make('p','studio-note',text);
@@ -77,6 +78,10 @@ function mountStudioWorkspace(root,views){
     const inspector=make('aside','studio-inspector');inspector.setAttribute('aria-label','当前方案画面样式');
     const title=make('div','studio-panel-title');title.append(make('h2','','画面样式'),make('span','studio-scope-label','仅当前方案'));
     inspector.append(title,make('div','studio-active-design',section.dataset.variant),scopeNote.cloneNode(true));if(section.dataset.description)inspector.append(note(section.dataset.description));
+    const resets=make('div','studio-visual-reset'),reset=button('所有视觉方案恢复默认'),undo=button('撤销恢复默认');reset.dataset.resetVisuals='';undo.dataset.undoVisuals='';undo.hidden=true;
+    reset.addEventListener('click',()=>{visualResetSnapshot=JSON.parse(JSON.stringify(state.variants));studioRestoreVariants(state.variants,variantBaseline);update();});
+    undo.addEventListener('click',()=>{if(!visualResetSnapshot)return;studioRestoreVariants(state.variants,visualResetSnapshot);visualResetSnapshot=null;update();});
+    resets.append(reset,undo,note('恢复十三套方案各自的画面参数，保留当前文字与素材。'));inspector.append(resets);
     const original=[...section.querySelectorAll(':scope > details')];
     const old=text=>original.find(el=>el.querySelector('summary').textContent===text);
     const take=selector=>section.querySelector(selector)?.closest('.direction-field');
@@ -151,6 +156,7 @@ function mountStudioWorkspace(root,views){
   for(const view of views)new ResizeObserver(()=>sizePreview(view)).observe(view.preview.querySelector('.stage-viewport'));
   const ui={sync(){
     const selected=views.find(v=>v.key===state.activeDesign)||views[0];state.activeDesign=selected.key;designSelect.value=selected.key;
+    const visualsAreDefault=JSON.stringify(state.variants)===JSON.stringify(variantBaseline);for(const el of root.querySelectorAll('[data-reset-visuals]'))el.disabled=visualsAreDefault;for(const el of root.querySelectorAll('[data-undo-visuals]'))el.hidden=!visualResetSnapshot;
     for(const view of views)view.section.hidden=view!==selected;
     if(sharedPlayback.parentElement!==selected.playback)selected.playback.append(sharedPlayback);
     if(edgeControls.parentElement!==selected.edgePanel)selected.edgePanel.append(edgeControls);

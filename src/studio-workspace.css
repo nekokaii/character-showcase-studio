@@ -291,6 +291,9 @@
   font-size: 12px;
   font-weight: 550;
 }
+#character-directions.studio-editor .studio-visual-reset{display:grid;gap:6px;margin:10px 0 14px}
+#character-directions.studio-editor .studio-visual-reset .btn{width:100%;white-space:normal}
+#character-directions.studio-editor .studio-visual-reset .studio-note{margin:0}
 #character-directions.studio-editor .studio-panel-note,
 #character-directions.studio-editor .studio-note {
   margin: 5px 0 12px;

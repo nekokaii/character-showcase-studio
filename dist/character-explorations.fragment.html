@@ -1443,6 +1443,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   font-size: 12px;
   font-weight: 550;
 }
+#character-directions.studio-editor .studio-visual-reset{display:grid;gap:6px;margin:10px 0 14px}
+#character-directions.studio-editor .studio-visual-reset .btn{width:100%;white-space:normal}
+#character-directions.studio-editor .studio-visual-reset .studio-note{margin:0}
 #character-directions.studio-editor .studio-panel-note,
 #character-directions.studio-editor .studio-note {
   margin: 5px 0 12px;
@@ -5041,6 +5044,7 @@ function studioNarrativeSettings(value={}){
   const bounded=(v,min,max,fallback)=>Number.isFinite(v)?Math.max(min,Math.min(max,v)):fallback;
   const outroDuration=bounded(value.outroDuration,1.5,12,3.5);
   return {introStyle:pick(value.introStyle,['model','title','story'],'model'),nameReveal:pick(value.nameReveal,['show','delayed'],'show'),nameDelay:bounded(value.nameDelay,.2,.9,.65),showDuration:studioShowDuration(value),showPlayback:pick(value.showPlayback,['continuous','repeat'],'continuous'),outroEnabled:value.outroEnabled===true,outroDuration,outroStyle:pick(value.outroStyle,['signature','orbit','quiet'],'signature'),outroContent:pick(value.outroContent,['auto','word','logo'],'auto'),outroTrigger:pick(value.outroTrigger,['auto','manual'],'auto'),shutdownEnabled:value.shutdownEnabled!==false,shutdownDuration:bounded(value.shutdownDuration,.3,Math.min(1.5,outroDuration*.45),Math.min(.8,outroDuration*.45)),
+    outroColorMode:pick(value.outroColorMode,['theme','custom'],'theme'),outroColor:typeof value.outroColor==='string'&&/^#[0-9a-f]{6}$/i.test(value.outroColor)?value.outroColor:'#f3f0e5',
     characterShotEnabled:value.characterShotEnabled!==false,authorShotEnabled:value.authorShotEnabled!==false,
     characterShotDuration:bounded(value.characterShotDuration,.5,600,2.5),authorShotDuration:bounded(value.authorShotDuration,.5,600,2),storyTransitionDuration:bounded(value.storyTransitionDuration,.15,3,.6),
     characterCorner:pick(value.characterCorner,['tl-br','tr-bl','bl-tr','br-tl','center'],'tl-br'),authorCorner:pick(value.authorCorner,['tl-br','tr-bl','bl-tr','br-tl','center'],'tr-bl'),
@@ -5259,6 +5263,8 @@ const shadowDefaults={title:true,badges:true,model:true,geometry:false,floor:tru
 const state={version:6,design:'character-explorations',activeDesign:'couture',ratio:'landscape',frame:'none',name:'NOVA',series:'atelier',seriesData:JSON.parse(JSON.stringify(seriesDefaults)),brand:'YOUR STUDIO',modelCredit:'MODEL / YOUR NAME',designCredit:'DESIGN / YOUR STUDIO',topText:'ORIGINAL / CHARACTER ARCHIVE',bottomText:'MAKE SOME NOISE. STAY CUTE.',formats:{fbx:true,vrchat:true,vrm:true,warudo:true},badges:['mmd','arkit','vrcft','mtoon','liltoon'],qrUrl:'',type:true,swapped:false,playing:!reduced.matches,time:4.5,speed:1,edges:{top:{direction:'negative',duration:32},bottom:{direction:'positive',duration:38}},variants:{}};
 for(const [key,v]of Object.entries(variantDefaults)){const modern=languageKeys.includes(key);state.variants[key]={typeface:key==='wave'?'grotesk':'editorial',cutStrength:.75,badgePalette:'soft',badgeStyle:'filled',badgeColor:'#dfe5d6',badgeInk:'#334036',badgeOpacity:.85,ringSpeed:1,ringScale:1.15,textMotion:true,textMotionStyle:['cloud','plush','wave'].includes(key)?'soft':['play','sticker'].includes(key)?'playful':'refined',textMotionAmount:.55,textMotionSpeed:1,geometryStrength:1,geometryOpacity:1,geometryBySeries:{atelier:'signature',fur:modern?'signature':'ribbon',mini:modern?'signature':'blocks'},grid:true,gridMoving:true,gridOpacity:modern?.035:.065,gridMotion:.14,modelScale:1,parallax:true,...v,accent:palettes[v.palette],effects:{...effectDefaults,...v.effects},shadows:{...shadowDefaults,...v.shadows}}}
 const variantBaseline=JSON.parse(JSON.stringify(state.variants));
+// Keep each variant object alive: existing input handlers retain its reference.
+function studioRestoreVariants(variants,source){for(const [key,value]of Object.entries(source)){const target=variants[key];if(!target)continue;for(const field of Object.keys(target))delete target[field];Object.assign(target,JSON.parse(JSON.stringify(value)));}}
 state.borderAppearance=studioBorderSettings();
 state.typography=studioTypographySettings();
 const images={qr:'',barcode:'',logo:'',model:'',portrait:'',introCharacter:'',introAuthor:''};
@@ -5620,6 +5626,7 @@ function mountStudioVideoEditor(root,views,{modeButton,layout,tabs,sizePreview})
 // Editor chrome only. Existing inputs and listeners are retained, never cloned.
 function mountStudioWorkspace(root,views){
   root.classList.add('studio-editor');root.dataset.panel='preview';
+  let visualResetSnapshot=null;
   const make=(tag,className,text)=>{const el=document.createElement(tag);if(className)el.className=className;if(text)el.textContent=text;return el};
   const button=(text,aria)=>{const el=make('button','btn',text);el.type='button';if(aria)el.setAttribute('aria-label',aria);return el};
   const note=text=>make('p','studio-note',text);
@@ -5696,6 +5703,10 @@ function mountStudioWorkspace(root,views){
     const inspector=make('aside','studio-inspector');inspector.setAttribute('aria-label','当前方案画面样式');
     const title=make('div','studio-panel-title');title.append(make('h2','','画面样式'),make('span','studio-scope-label','仅当前方案'));
     inspector.append(title,make('div','studio-active-design',section.dataset.variant),scopeNote.cloneNode(true));if(section.dataset.description)inspector.append(note(section.dataset.description));
+    const resets=make('div','studio-visual-reset'),reset=button('所有视觉方案恢复默认'),undo=button('撤销恢复默认');reset.dataset.resetVisuals='';undo.dataset.undoVisuals='';undo.hidden=true;
+    reset.addEventListener('click',()=>{visualResetSnapshot=JSON.parse(JSON.stringify(state.variants));studioRestoreVariants(state.variants,variantBaseline);update();});
+    undo.addEventListener('click',()=>{if(!visualResetSnapshot)return;studioRestoreVariants(state.variants,visualResetSnapshot);visualResetSnapshot=null;update();});
+    resets.append(reset,undo,note('恢复十三套方案各自的画面参数，保留当前文字与素材。'));inspector.append(resets);
     const original=[...section.querySelectorAll(':scope > details')];
     const old=text=>original.find(el=>el.querySelector('summary').textContent===text);
     const take=selector=>section.querySelector(selector)?.closest('.direction-field');
@@ -5770,6 +5781,7 @@ function mountStudioWorkspace(root,views){
   for(const view of views)new ResizeObserver(()=>sizePreview(view)).observe(view.preview.querySelector('.stage-viewport'));
   const ui={sync(){
     const selected=views.find(v=>v.key===state.activeDesign)||views[0];state.activeDesign=selected.key;designSelect.value=selected.key;
+    const visualsAreDefault=JSON.stringify(state.variants)===JSON.stringify(variantBaseline);for(const el of root.querySelectorAll('[data-reset-visuals]'))el.disabled=visualsAreDefault;for(const el of root.querySelectorAll('[data-undo-visuals]'))el.hidden=!visualResetSnapshot;
     for(const view of views)view.section.hidden=view!==selected;
     if(sharedPlayback.parentElement!==selected.playback)selected.playback.append(sharedPlayback);
     if(edgeControls.parentElement!==selected.edgePanel)selected.edgePanel.append(edgeControls);
@@ -6130,6 +6142,8 @@ function mountStudioNarrative(root,views){
       <div class="direction-field"><label for="studio-outro-duration">片尾时长 · 秒</label><input id="studio-outro-duration" data-narrative="outroDuration" class="form-control" type="number" min="1.5" max="12" step="0.5" inputmode="decimal"></div>
       <div class="direction-field"><label for="studio-outro-style">品牌小动画</label><select id="studio-outro-style" data-narrative="outroStyle" class="form-select"><option value="signature">签名落版 · 一笔收束</option><option value="orbit">轨道回声 · 环绕落版</option><option value="quiet">安静留白 · 轻柔淡入</option></select></div>
       <div class="direction-field"><label for="studio-outro-content">片尾内容</label><select id="studio-outro-content" data-narrative="outroContent" class="form-select"><option value="auto">优先 Logo，否则品牌字样</option><option value="word">品牌字样</option><option value="logo">品牌 Logo</option></select></div>
+      <div class="direction-field"><label for="studio-outro-color-mode">品牌字样颜色</label><select id="studio-outro-color-mode" data-narrative="outroColorMode" class="form-select"><option value="theme">跟随视觉方案</option><option value="custom">自定义颜色</option></select></div>
+      <div class="direction-field" data-ending-color><label for="studio-outro-color">自定义品牌字样颜色</label><input id="studio-outro-color" data-narrative="outroColor" type="color" class="form-control form-control-color"><small>各方案共用，仅调整片尾的品牌文字。</small></div>
       <label class="form-check form-switch"><input class="form-check-input" id="studio-shutdown-enabled" data-narrative="shutdownEnabled" type="checkbox"><span>老电视关机 · 亮线、光点与余辉</span></label>
       <div class="direction-field" data-shutdown-controls><label for="studio-shutdown-duration">关机动画时长 · 秒</label><input id="studio-shutdown-duration" data-narrative="shutdownDuration" class="form-control" type="number" min="0.3" max="1.5" step="0.1" inputmode="decimal"><small>包含在片尾内，不额外增加总时长。最多占片尾的 45%。</small></div>
     </div><p class="studio-note" data-ending-note></p></div>`;
@@ -6159,7 +6173,7 @@ function mountStudioNarrative(root,views){
     if(state.narrative.introStyle==='story')state.introDuration=studioStoryDuration(state.narrative);else if(before.introStyle==='story')state.introDuration=legacyIntroDuration;
     if(state.introDuration!==beforeIntro)state.time=studioRetime(state.time,beforeIntro,state.introDuration);
     if(key==='showDuration')state.time=studioRetimeShow(state.time,state.introDuration,before,state.narrative);state.time=Math.min(state.time,studioTotalDuration(state.introDuration,state.narrative));if(final&&input.type==='number')input.value=state.narrative[key];update();
-  };input.addEventListener(input.type==='range'||input.type==='number'?'input':'change',()=>apply(false));if(input.type==='number')input.addEventListener('change',()=>apply(true));}
+  };input.addEventListener(['range','number','color'].includes(input.type)?'input':'change',()=>apply(false));if(input.type==='number')input.addEventListener('change',()=>apply(true));}
   for(const button of controlGroups.flatMap(el=>[...el.querySelectorAll('[data-story-jump]')]))button.addEventListener('click',()=>{const role=button.dataset.storyJump,n=state.narrative;state.time=role==='show'?state.introDuration:role==='author'&&n.characterShotEnabled?n.characterShotDuration:0;state.playing=true;last=0;update()});
   if(state.narrative.introStyle==='story'){const next=studioStoryDuration(state.narrative);state.time=studioRetime(state.time,state.introDuration,next);state.introDuration=next;}
   for(const view of views){
@@ -6189,6 +6203,7 @@ function mountStudioNarrative(root,views){
     group.querySelector('[data-model-intro]').hidden=n.introStyle!=='model';
     group.querySelector('[data-intro-note]').textContent=story?(n.characterShotEnabled||n.authorShotEnabled?'角色与作者是两张独立海报镜头，每幕可设 0.5–600 秒，并分别调整画面和字幕位置。统一滤镜在下方「画面后处理」设置；圆环运动始终连续。':'两个镜头都已关闭，直接进入主展示。'):n.introStyle==='model'?'先让模型与动态几何出场。名字保持正常排版大小，信息在展示页淡入。':'沿用原版大字开场，角色名从画面中心缩回信息区。';
     group.querySelector('[data-ending-controls]').hidden=!n.outroEnabled;
+    group.querySelector('[data-ending-color]').hidden=n.outroColorMode!=='custom';
     group.querySelector('[data-show-playback]').hidden=n.outroEnabled;
     group.querySelector('[data-show-duration-label]').textContent=continuous?'导出展示时长 · 秒':'展示时长 · 秒';
     group.querySelector('[data-show-duration-note]').textContent=continuous?'网页 / OBS 持续播放，不受此时长限制；此处用于 AE 导出及进度预览。':'1–60 秒 · 循环播放时为每轮时长 · AE 同步使用';
@@ -6196,7 +6211,7 @@ function mountStudioNarrative(root,views){
     group.querySelector('#studio-shutdown-duration').max=Math.min(1.5,n.outroDuration*.45);
     group.querySelector('[data-ending-map]').classList.toggle('is-disabled',!n.outroEnabled);
     group.querySelector('[data-ending-note]').textContent=!n.outroEnabled?(continuous?'引入只播放一次，随后停留在展示页。圆环、背景、文字与滚动边框持续运动；暂停后继续也不会重播。':'引入只播放一次，展示页按设定时长重新播放入场。'):(n.outroContent==='logo'&&!images.logo?'尚未上传 Logo，暂用品牌字样。请在「角色与品牌 → 署名与品牌 Logo」上传。':'沿用「角色与品牌」中的字样 / Logo。')+(n.outroTrigger==='manual'?'点击预览下的「片尾」，或在 OBS 源交互中按 E 进入。AE 按 '+n.showDuration+' 秒展示段落导出。':'展示 '+n.showDuration+' 秒后进入片尾。')+(n.shutdownEnabled?'最后 '+n.shutdownDuration+' 秒收成亮线与光点，连同边框一起关机，最后停在全黑画面。':'最后停在品牌画面。');
-    for(const view of views){view.section.querySelector('[data-ending-preview]').disabled=!n.outroEnabled;view.ending.dataset.style=n.outroStyle;view.ending.classList.toggle('uses-logo',n.outroContent!=='word'&&!!images.logo);view.ending.querySelector('.ending-word').textContent=state.brand||'YOUR STUDIO';if(images.logo)view.ending.querySelector('img').src=images.logo;}
+    for(const view of views){view.section.querySelector('[data-ending-preview]').disabled=!n.outroEnabled;view.ending.dataset.style=n.outroStyle;view.ending.classList.toggle('uses-logo',n.outroContent!=='word'&&!!images.logo);const word=view.ending.querySelector('.ending-word');word.textContent=state.brand||'YOUR STUDIO';word.style.color=n.outroColorMode==='custom'?n.outroColor:'';if(images.logo)view.ending.querySelector('img').src=images.logo;}
   }};
 }
 function drawStudioNarrative(view,pose){
@@ -6389,7 +6404,7 @@ async function collectStudioAEScene(view,options){
       scene.story={enabled:true,transitionStart:cursor/state.speed,transitionDuration:transition/state.speed,packagingOnly:n.storyPackagingOnly===true,flash:n.storyFlash===true,shots};
       scene.narrative.transitionStart=scene.story.transitionStart;scene.narrative.transitionDuration=scene.story.transitionDuration;scene.narrative.infoDuration=scene.story.transitionDuration;
     }
-    scene.ending={shutdownEnabled:state.narrative.shutdownEnabled,shutdownDuration:state.narrative.shutdownDuration/state.speed,duration:state.narrative.outroEnabled?state.narrative.outroDuration/state.speed:0,style:state.narrative.outroStyle,brand:state.brand||'YOUR STUDIO',logoAsset:'',word:geometry(view.ending.querySelector('.ending-word'))};
+    scene.ending={shutdownEnabled:state.narrative.shutdownEnabled,shutdownDuration:state.narrative.shutdownDuration/state.speed,duration:state.narrative.outroEnabled?state.narrative.outroDuration/state.speed:0,style:state.narrative.outroStyle,brand:state.brand||'YOUR STUDIO',colorMode:state.narrative.outroColorMode,color:rgba(getComputedStyle(view.ending.querySelector('.ending-word')).color),logoAsset:'',word:geometry(view.ending.querySelector('.ending-word'))};
     if(scene.ending.duration&&state.narrative.outroContent!=='word'&&images.logo){const data=images.logo;scene.ending.logoAsset=addAsset(data,data.startsWith('data:image/jpeg')?'jpg':data.startsWith('data:image/webp')?'webp':'png')}
     if(state.type){
       surface(art.querySelector('.art-edition'),'系列标牌底板');surface(art.querySelector('.edition-label'),'系列标签底板');surface(art.querySelector('.dual-handle'),'贴纸底板');

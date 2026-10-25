@@ -39,6 +39,8 @@ function mountStudioNarrative(root,views){
       <div class="direction-field"><label for="studio-outro-duration">片尾时长 · 秒</label><input id="studio-outro-duration" data-narrative="outroDuration" class="form-control" type="number" min="1.5" max="12" step="0.5" inputmode="decimal"></div>
       <div class="direction-field"><label for="studio-outro-style">品牌小动画</label><select id="studio-outro-style" data-narrative="outroStyle" class="form-select"><option value="signature">签名落版 · 一笔收束</option><option value="orbit">轨道回声 · 环绕落版</option><option value="quiet">安静留白 · 轻柔淡入</option></select></div>
       <div class="direction-field"><label for="studio-outro-content">片尾内容</label><select id="studio-outro-content" data-narrative="outroContent" class="form-select"><option value="auto">优先 Logo，否则品牌字样</option><option value="word">品牌字样</option><option value="logo">品牌 Logo</option></select></div>
+      <div class="direction-field"><label for="studio-outro-color-mode">品牌字样颜色</label><select id="studio-outro-color-mode" data-narrative="outroColorMode" class="form-select"><option value="theme">跟随视觉方案</option><option value="custom">自定义颜色</option></select></div>
+      <div class="direction-field" data-ending-color><label for="studio-outro-color">自定义品牌字样颜色</label><input id="studio-outro-color" data-narrative="outroColor" type="color" class="form-control form-control-color"><small>各方案共用，仅调整片尾的品牌文字。</small></div>
       <label class="form-check form-switch"><input class="form-check-input" id="studio-shutdown-enabled" data-narrative="shutdownEnabled" type="checkbox"><span>老电视关机 · 亮线、光点与余辉</span></label>
       <div class="direction-field" data-shutdown-controls><label for="studio-shutdown-duration">关机动画时长 · 秒</label><input id="studio-shutdown-duration" data-narrative="shutdownDuration" class="form-control" type="number" min="0.3" max="1.5" step="0.1" inputmode="decimal"><small>包含在片尾内，不额外增加总时长。最多占片尾的 45%。</small></div>
     </div><p class="studio-note" data-ending-note></p></div>`;
@@ -68,7 +70,7 @@ function mountStudioNarrative(root,views){
     if(state.narrative.introStyle==='story')state.introDuration=studioStoryDuration(state.narrative);else if(before.introStyle==='story')state.introDuration=legacyIntroDuration;
     if(state.introDuration!==beforeIntro)state.time=studioRetime(state.time,beforeIntro,state.introDuration);
     if(key==='showDuration')state.time=studioRetimeShow(state.time,state.introDuration,before,state.narrative);state.time=Math.min(state.time,studioTotalDuration(state.introDuration,state.narrative));if(final&&input.type==='number')input.value=state.narrative[key];update();
-  };input.addEventListener(input.type==='range'||input.type==='number'?'input':'change',()=>apply(false));if(input.type==='number')input.addEventListener('change',()=>apply(true));}
+  };input.addEventListener(['range','number','color'].includes(input.type)?'input':'change',()=>apply(false));if(input.type==='number')input.addEventListener('change',()=>apply(true));}
   for(const button of controlGroups.flatMap(el=>[...el.querySelectorAll('[data-story-jump]')]))button.addEventListener('click',()=>{const role=button.dataset.storyJump,n=state.narrative;state.time=role==='show'?state.introDuration:role==='author'&&n.characterShotEnabled?n.characterShotDuration:0;state.playing=true;last=0;update()});
   if(state.narrative.introStyle==='story'){const next=studioStoryDuration(state.narrative);state.time=studioRetime(state.time,state.introDuration,next);state.introDuration=next;}
   for(const view of views){
@@ -98,6 +100,7 @@ function mountStudioNarrative(root,views){
     group.querySelector('[data-model-intro]').hidden=n.introStyle!=='model';
     group.querySelector('[data-intro-note]').textContent=story?(n.characterShotEnabled||n.authorShotEnabled?'角色与作者是两张独立海报镜头，每幕可设 0.5–600 秒，并分别调整画面和字幕位置。统一滤镜在下方「画面后处理」设置；圆环运动始终连续。':'两个镜头都已关闭，直接进入主展示。'):n.introStyle==='model'?'先让模型与动态几何出场。名字保持正常排版大小，信息在展示页淡入。':'沿用原版大字开场，角色名从画面中心缩回信息区。';
     group.querySelector('[data-ending-controls]').hidden=!n.outroEnabled;
+    group.querySelector('[data-ending-color]').hidden=n.outroColorMode!=='custom';
     group.querySelector('[data-show-playback]').hidden=n.outroEnabled;
     group.querySelector('[data-show-duration-label]').textContent=continuous?'导出展示时长 · 秒':'展示时长 · 秒';
     group.querySelector('[data-show-duration-note]').textContent=continuous?'网页 / OBS 持续播放，不受此时长限制；此处用于 AE 导出及进度预览。':'1–60 秒 · 循环播放时为每轮时长 · AE 同步使用';
@@ -105,7 +108,7 @@ function mountStudioNarrative(root,views){
     group.querySelector('#studio-shutdown-duration').max=Math.min(1.5,n.outroDuration*.45);
     group.querySelector('[data-ending-map]').classList.toggle('is-disabled',!n.outroEnabled);
     group.querySelector('[data-ending-note]').textContent=!n.outroEnabled?(continuous?'引入只播放一次，随后停留在展示页。圆环、背景、文字与滚动边框持续运动；暂停后继续也不会重播。':'引入只播放一次，展示页按设定时长重新播放入场。'):(n.outroContent==='logo'&&!images.logo?'尚未上传 Logo，暂用品牌字样。请在「角色与品牌 → 署名与品牌 Logo」上传。':'沿用「角色与品牌」中的字样 / Logo。')+(n.outroTrigger==='manual'?'点击预览下的「片尾」，或在 OBS 源交互中按 E 进入。AE 按 '+n.showDuration+' 秒展示段落导出。':'展示 '+n.showDuration+' 秒后进入片尾。')+(n.shutdownEnabled?'最后 '+n.shutdownDuration+' 秒收成亮线与光点，连同边框一起关机，最后停在全黑画面。':'最后停在品牌画面。');
-    for(const view of views){view.section.querySelector('[data-ending-preview]').disabled=!n.outroEnabled;view.ending.dataset.style=n.outroStyle;view.ending.classList.toggle('uses-logo',n.outroContent!=='word'&&!!images.logo);view.ending.querySelector('.ending-word').textContent=state.brand||'YOUR STUDIO';if(images.logo)view.ending.querySelector('img').src=images.logo;}
+    for(const view of views){view.section.querySelector('[data-ending-preview]').disabled=!n.outroEnabled;view.ending.dataset.style=n.outroStyle;view.ending.classList.toggle('uses-logo',n.outroContent!=='word'&&!!images.logo);const word=view.ending.querySelector('.ending-word');word.textContent=state.brand||'YOUR STUDIO';word.style.color=n.outroColorMode==='custom'?n.outroColor:'';if(images.logo)view.ending.querySelector('img').src=images.logo;}
   }};
 }
 function drawStudioNarrative(view,pose){

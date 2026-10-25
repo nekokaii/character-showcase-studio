@@ -3,6 +3,7 @@ const scope={};vm.createContext(scope);vm.runInContext(fs.readFileSync(__dirname
 const config=scope.studioNarrativeSettings(),near=(a,b)=>assert.ok(Math.abs(a-b)<1e-7,`${a} != ${b}`);
 const pose=(time,intro=4.5,n=config)=>scope.studioNarrativePose(time,intro,n);
 assert.equal(config.introStyle,'model');assert.equal(config.outroEnabled,false);
+assert.equal(config.outroColorMode,'theme');assert.equal(scope.studioNarrativeSettings({outroColorMode:'custom',outroColor:'#f372a9'}).outroColor,'#f372a9');assert.equal(scope.studioNarrativeSettings({outroColorMode:'invalid',outroColor:'red;display:none'}).outroColorMode,'theme');assert.equal(scope.studioNarrativeSettings({outroColor:123}).outroColor,'#f3f0e5');
 assert.equal(config.showPlayback,'continuous');
 assert.equal(scope.studioNarrativeSettings({showPlayback:'invalid'}).showPlayback,'continuous');
 for(const t of [0,.2,1,3,4.499]){const p=pose(t);near(p.model,1);near(p.titleMove,1);near(p.titleAlpha,0);near(p.info,0);near(p.outro,0)}

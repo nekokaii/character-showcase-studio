@@ -40,7 +40,7 @@ async function collectStudioAEScene(view,options){
       scene.story={enabled:true,transitionStart:cursor/state.speed,transitionDuration:transition/state.speed,packagingOnly:n.storyPackagingOnly===true,flash:n.storyFlash===true,shots};
       scene.narrative.transitionStart=scene.story.transitionStart;scene.narrative.transitionDuration=scene.story.transitionDuration;scene.narrative.infoDuration=scene.story.transitionDuration;
     }
-    scene.ending={shutdownEnabled:state.narrative.shutdownEnabled,shutdownDuration:state.narrative.shutdownDuration/state.speed,duration:state.narrative.outroEnabled?state.narrative.outroDuration/state.speed:0,style:state.narrative.outroStyle,brand:state.brand||'YOUR STUDIO',logoAsset:'',word:geometry(view.ending.querySelector('.ending-word'))};
+    scene.ending={shutdownEnabled:state.narrative.shutdownEnabled,shutdownDuration:state.narrative.shutdownDuration/state.speed,duration:state.narrative.outroEnabled?state.narrative.outroDuration/state.speed:0,style:state.narrative.outroStyle,brand:state.brand||'YOUR STUDIO',colorMode:state.narrative.outroColorMode,color:rgba(getComputedStyle(view.ending.querySelector('.ending-word')).color),logoAsset:'',word:geometry(view.ending.querySelector('.ending-word'))};
     if(scene.ending.duration&&state.narrative.outroContent!=='word'&&images.logo){const data=images.logo;scene.ending.logoAsset=addAsset(data,data.startsWith('data:image/jpeg')?'jpg':data.startsWith('data:image/webp')?'webp':'png')}
     if(state.type){
       surface(art.querySelector('.art-edition'),'系列标牌底板');surface(art.querySelector('.edition-label'),'系列标签底板');surface(art.querySelector('.dual-handle'),'贴纸底板');

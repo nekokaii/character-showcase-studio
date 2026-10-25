@@ -40,6 +40,7 @@ function validateStudioAEScene(payload){
   for(const [key,fallback]of Object.entries(timingDefaults)){if(d.narrative[key]===undefined)d.narrative[key]=fallback;number(d.narrative[key],0,3600)}
   if(!d.ending)d.ending={duration:0,style:'quiet',brand:'YOUR STUDIO',logoAsset:'',word:{x:d.width/2,y:d.height/2,w:d.width*.6,h:d.height*.1}};
   number(d.ending.duration,0,24);str(d.ending.brand,24);str(d.ending.logoAsset,80);if(!['signature','orbit','quiet'].includes(d.ending.style))throw Error('AE 片尾类型无效。');
+  if(d.ending.colorMode===undefined)d.ending.colorMode='theme';if(!['theme','custom'].includes(d.ending.colorMode))throw Error('AE 片尾文字配色无效。');if(d.ending.color===undefined)d.ending.color=d.ink.slice();color(d.ending.color);
   if(d.ending.logoAsset)asset(d.ending.logoAsset);for(const key of ['x','y','w','h'])number(d.ending.word[key]);
   if(d.showDuration===undefined)d.showDuration=d.duration-d.intro-d.ending.duration;
   number(d.showDuration,1/1.8,120);if(Math.abs(d.intro+d.showDuration+d.ending.duration-d.duration)>.01)throw Error('AE 展示时长无效。');

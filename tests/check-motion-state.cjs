@@ -35,6 +35,10 @@ function harness(widgetState){
 const reverseKeys=value=>Array.isArray(value)?value.map(reverseKeys):value&&typeof value==='object'
   ?Object.fromEntries(Object.entries(value).reverse().map(([key,item])=>[key,reverseKeys(item)])):value;
 const near=(actual,expected)=>assert.ok(Math.abs(actual-expected)<1e-9,`${actual} != ${expected}`);
+const resetApp=harness();resetApp.run("state.name='保留角色';state.brand='保留品牌';state.typography.name.text='自定义标题';state.narrative.outroColorMode='custom';state.narrative.outroColor='#f372a9';for(const v of Object.values(state.variants)){v.accent='#123abc';v.ringSpeed=2.4;v.effects.grain=.2;v.geometryBySeries.fur='burst';}globalThis.heldVariant=state.variants.couture;");
+const resetBefore=resetApp.inspect().state;resetApp.run('studioRestoreVariants(state.variants,variantBaseline)');const resetAfter=resetApp.inspect().state;
+assert.equal(resetApp.run('heldVariant===state.variants.couture'),true,'reset preserves references held by input handlers');assert.deepEqual(resetAfter.variants,JSON.parse(resetApp.run('JSON.stringify(variantBaseline)')),'all thirteen schemes restore their own built-in defaults');delete resetBefore.variants;delete resetAfter.variants;assert.deepEqual(resetAfter,resetBefore,'visual reset preserves every other content, typography, border, timing and output field');
+resetApp.run('state.variants.couture.effects.grain=.1');assert.equal(resetApp.run('variantBaseline.couture.effects.grain'),0,'editing after reset never mutates defaults');
 
 const app=harness();
 const initialTime=app.inspect().state.time;

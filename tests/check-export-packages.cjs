@@ -24,6 +24,9 @@ assert.throws(()=>scope.buildStudioAEFiles({...payload,assets:[{name:'../evil.pn
 const missing=JSON.parse(JSON.stringify(payload));missing.scene.layers=[{kind:'image',name:'Missing',asset:'assets/asset-001.png',x:0,y:0,w:100,h:100,fit:'contain'}];assert.throws(()=>scope.buildStudioAEFiles(missing),/缺失/);
 const ending=JSON.parse(JSON.stringify(payload));ending.scene.duration=20;ending.scene.narrative={introStyle:'model',nameReveal:'delayed',nameDelay:.65};ending.scene.ending={duration:3.5,style:'orbit',brand:'STUDIO',logoAsset:'',word:{x:960,y:540,w:500,h:90}};
 const eb=scope.buildStudioAEFiles(ending);new vm.Script(eb.files[0].data);assert.equal(eb.scene.ending.duration,3.5);
+assert.equal(eb.scene.ending.colorMode,'theme');assert.deepEqual(eb.scene.ending.color,eb.scene.ink);
+const customEnding=structuredClone(ending);Object.assign(customEnding.scene.ending,{colorMode:'custom',color:[.95,.25,.55,1]});const customEndingFiles=scope.buildStudioAEFiles(customEnding);assert.deepEqual(Array.from(customEndingFiles.scene.ending.color),[.95,.25,.55,1]);assert.ok(customEndingFiles.files[0].data.includes('Ending Brand Color'));new vm.Script(customEndingFiles.files[0].data);
+for(const invalid of [{colorMode:'invalid'},{color:'red'},{color:[NaN,0,0,1]}]){const bad=structuredClone(ending);Object.assign(bad.scene.ending,invalid);assert.throws(()=>scope.buildStudioAEFiles(bad),/配色|颜色|数值/);}
 assert.ok(eb.files[0].data.includes('Information Start'));assert.ok(eb.files[0].data.includes('Ending Start'));assert.ok(eb.files[0].data.includes('Show Transition Duration'));
 assert.equal(eb.scene.narrative.transitionStart,eb.scene.intro/6);
 for(const key of ['transitionStart','transitionDuration','infoDuration','endingTransitionDuration']){const bad=structuredClone(ending);bad.scene.narrative[key]='0;alert(1)';assert.throws(()=>scope.buildStudioAEFiles(bad),/数值/)}

@@ -16,6 +16,7 @@
     function colorControl(name,value){effect(controls,'ADBE Color Control',name,value.slice(0,3))}
     function slider(name,value){effect(controls,'ADBE Slider Control',name,value)}
     colorControl('Accent',d.accent);colorControl('Ink',d.ink);colorControl('Background',d.background);
+    if(d.ending.colorMode==='custom')colorControl('Ending Brand Color',d.ending.color);
     var firstBadge=null;for(var b=0;b<d.layers.length;b++)if(d.layers[b].kind==='badge'){firstBadge=d.layers[b];break}
     colorControl('Badge Surface',firstBadge?firstBadge.color:[0,0,0,1]);colorControl('Badge Ink',firstBadge?firstBadge.ink:d.ink);
     slider('Badge Opacity',firstBadge?firstBadge.color[3]*100:100);slider('Geometry Speed',1);slider('Text Motion',d.motion.enabled?d.motion.amount*100:0);
@@ -222,7 +223,7 @@
       }
       var brand;
       if(d.ending.logoAsset){var src=footage(d.ending.logoAsset);brand=ending.layers.add(src);brand.name='Brand logo · replace footage';var fit=Math.min(d.width*.38/src.width,d.height*.24/src.height)*100;brand.property('ADBE Transform Group').property('ADBE Scale').setValue([fit,fit]);transform(brand,{x:d.width/2,y:d.height/2});}
-      else{brand=text(ending,{text:d.ending.brand,name:'Brand wordmark · editable',fontFamily:'Manrope',fontSize:d.width*(d.width<d.height?.09:.058),weight:700,color:d.ink,x:d.width/2,y:d.height/2,w:d.ending.word.w||d.width*.6});}
+      else{brand=text(ending,{text:d.ending.brand,name:'Brand wordmark · editable',fontFamily:'Manrope',fontSize:d.width*(d.width<d.height?.09:.058),weight:700,color:d.ending.colorMode==='custom'?d.ending.color:d.ink,x:d.width/2,y:d.height/2,w:d.ending.word.w||d.width*.6});if(d.ending.colorMode==='custom')brand.property('ADBE Text Properties').property('ADBE Text Document').expression='text.sourceText.style.setFillColor('+ctl+'.effect("Ending Brand Color")(1))';}
       endingMotion(brand,.12,Math.min(1/d.speed,d.ending.duration*.35),true);
       // Deterministic CRT collapse: raster flicker, vertical squeeze, horizontal
       // electron beam, central phosphor dot, then a short fading afterglow.
