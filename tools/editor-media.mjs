@@ -29,7 +29,7 @@ export function validateOutput(raw={}){
   const result={width:num('width',64,7680,true),height:num('height',64,7680,true),fps:num('fps',1,60,true),duration:num('duration',.1,3600),bitrate:num('bitrate',.1,250),codec:raw.codec,acceleration:raw.acceleration||'auto'};
   if(!['h264','h265','av1','vp9','prores'].includes(result.codec))throw Error('不支持的编码器');
   if(!['auto','cpu','nvenc','qsv','amf'].includes(result.acceleration))throw Error('不支持的编码设备');
-  if(raw.workers!==undefined&&![0,1,2,4,8].includes(raw.workers))throw Error('无效的导出并行度');
+  if(raw.workers!==undefined&&![0,1,2,4,8,12,16,24].includes(raw.workers))throw Error('无效的导出并行度');
   result.workers=raw.workers||0;
   if(['vp9','prores'].includes(result.codec)&&!['auto','cpu'].includes(result.acceleration))throw Error('透明 VP9 / ProRes 请使用自动或 CPU 编码');
   if(result.codec!=='prores'&&(result.width%2||result.height%2))throw Error('此编码器的宽高需要为偶数');
@@ -183,7 +183,7 @@ export function createMediaService(root,getOrigin){
         try{browserInstances[id]=await launch(process.env.STUDIO_BROWSER||'chrome');}catch(e){if(process.env.STUDIO_BROWSER)throw e;browserInstances[id]=await launch('msedge');}
         if(controller.signal.aborted){await browserInstances[id].close();throw Error('已取消导出');}
       }));
-      await Promise.all(Array.from({length:workerCount},async(_,id)=>{
+      const prepareWorker=async id=>{
         const page=await browserInstances[id%browserCount].newPage({viewport:{width:o.width,height:o.height},deviceScaleFactor:1,reducedMotion:'no-preference'});
         await page.goto(getOrigin()+'/?editor-render=1');
         await page.evaluate(()=>{document.documentElement.style.setProperty('background','transparent','important');document.body.style.setProperty('background','transparent','important');});
@@ -192,7 +192,14 @@ export function createMediaService(root,getOrigin){
         await frame.evaluate(data=>globalThis.studioEditorAPI.loadRender(data),payload);
         const capture=await page.context().newCDPSession(page);await capture.send('Emulation.setDefaultBackgroundColorOverride',{color:{r:0,g:0,b:0,a:0}});
         workers[id]={id,frame,capture,sentFrames:new Map()};
-      }));
+      };
+      // Parsing the embedded template and allocating every GPU surface at once
+      // can stall Chromium startup at 24 workers. Bound initialization as well
+      // as frame queues; the completed workers still render concurrently.
+      for(let first=0;first<workerCount;first+=8){
+        if(controller.signal.aborted)throw Error('已取消导出');
+        await Promise.all(Array.from({length:Math.min(8,workerCount-first)},(_,i)=>prepareWorker(first+i)));
+      }
       layerWindows=await workers[0].frame.evaluate(()=>globalThis.studioEditorAPI.renderLayerWindows());
       const audioInputs=[],audioFilters=[],audioLabels=[];let input=1;
       for(const clip of payload.project.clips){
@@ -254,7 +261,7 @@ export function createMediaService(root,getOrigin){
       // The opaque-origin artwork sandbox can read only the currently offered
       // lossless frame. The unguessable task secret expires on every exit path;
       // no source path or whole-video decoded cache is exposed here.
-      const renderFrame=url.pathname.match(/^\/__editor\/render-frame\/([a-f0-9-]{36})\/([a-f0-9-]{36})\/([0-7])\/([a-f0-9-]{36})\/(\d+)\.png$/);
+      const renderFrame=url.pathname.match(/^\/__editor\/render-frame\/([a-f0-9-]{36})\/([a-f0-9-]{36})\/([0-9]|1[0-9]|2[0-3])\/([a-f0-9-]{36})\/(\d+)\.png$/);
       if(renderFrame&&['GET','HEAD'].includes(req.method)){
         const job=jobs.get(renderFrame[1]),frame=job?.frameBuffers?.get(renderFrame[3]+':'+renderFrame[4]);
         if(job?.status!=='rendering'||job.frameToken!==renderFrame[2]||frame?.index!==Number(renderFrame[5])){send(res,404,{error:'导出帧已释放'});return true;}
@@ -271,7 +278,7 @@ export function createMediaService(root,getOrigin){
       }
       if(req.headers['sec-fetch-site']==='cross-site'||(req.headers.origin&&req.headers.origin!==origin)){send(res,403,{error:'仅接受本机工作台请求'});return true;}
       if(url.pathname==='/__editor/capabilities'&&req.method==='GET'){
-        try{const version=await runProcess(ffmpeg,['-version']);send(res,200,{ready:true,version:version.split('\n')[0],parallelExport:true,exportPipeline:process.env.STUDIO_EXPORT_PIPELINE==='browser'?'browser':'sequential',token,origin,hardware:await hardware()});}catch{send(res,200,{ready:false,error:'请运行 setup-editor.cmd 安装本机视频组件',token,origin});}return true;
+        try{const version=await runProcess(ffmpeg,['-version']);send(res,200,{ready:true,version:version.split('\n')[0],parallelExport:true,maxExportWorkers:24,exportPipeline:process.env.STUDIO_EXPORT_PIPELINE==='browser'?'browser':'sequential',token,origin,hardware:await hardware()});}catch{send(res,200,{ready:false,error:'请运行 setup-editor.cmd 安装本机视频组件',token,origin});}return true;
       }
       if(req.method!=='GET'&&req.headers['x-studio-token']!==token){send(res,403,{error:'会话验证失败，请刷新'});return true;}
       if(url.pathname==='/__editor/project/validate'&&req.method==='POST'){validateProject(await readJSON(req));send(res,200,{ok:true});return true;}

@@ -86,7 +86,7 @@ if(process.env.STUDIO_TEST_4K==='1'){
  console.log('PASS: all eight 4K worker first frames retain complete poster text/images and footage against the single-worker reference');
 }
 
-// Cancel while both compositor workers/source decoder are active, then prove a
+// Cancel while compositor workers/source decoder are active, then prove a
 // fresh export succeeds. This also waits for browser/FFmpeg cleanup to finish.
 b.output.duration=1.4;b.clips[0].out=1.5;
 const started=await request(parallel,'export',{project:b});let active;
@@ -96,7 +96,7 @@ await request(parallel,'job/'+started.id,undefined,'DELETE');
 for(let i=0;i<300;i++){active=await(await fetch(parallel+'/__editor/job/'+started.id)).json();if(active.status!=='rendering')break;await new Promise(r=>setTimeout(r,30));}
 assert.equal(active.status,'cancelled',JSON.stringify(active));
 b.output.duration=1;await exportProject(parallel,b,'after-cancel');
-console.log('PASS: cancel active two-worker export, wait for resource cleanup, then export again');
+console.log('PASS: cancel active '+active.workers+'-worker export, wait for resource cleanup, then export again');
 const vp9=await exportProject(parallel,{...b,output:{...b.output,fps:6,codec:'vp9'}},'vp9-alpha');
 assert.equal(vp9.pixels.length,320*180*4*6);let min=255,max=0;for(let i=3;i<vp9.pixels.length;i+=4){min=Math.min(min,vp9.pixels[i]);max=Math.max(max,vp9.pixels[i]);}
 assert.equal(min,0);assert.ok(max>250);assert.ok(vp9.audio.length>90000,'Opus audio retains the full one-second timeline');
