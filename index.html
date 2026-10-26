@@ -4483,6 +4483,7 @@ html.studio-output-root,body.studio-output-body{background:transparent!important
 #character-directions .studio-typography [hidden]{display:none!important}
 #character-directions .studio-font-sample{padding:15px 12px;margin-bottom:15px;border:1px solid var(--studio-line,#dfe4d8);border-radius:8px;font-size:26px;line-height:1.5;overflow-wrap:anywhere;background:#f8faf5;color:#293025}
 #character-directions .studio-font-library{margin:0 0 15px}
+#character-directions .studio-system-font-button{width:100%;margin:0 0 12px}
 #character-directions .studio-font-library-row{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:11px}
 #character-directions .studio-font-library-row&gt;span{min-width:0;flex:1;overflow-wrap:anywhere}
 #character-directions .studio-font-library-row&gt;.btn{flex:none;padding:5px 8px;font-size:10px}
@@ -7916,7 +7917,7 @@ function validateStudioFonts(value=[]){
  return value.map(font=&gt;{
   if(!font||typeof font.id!=='string'||!/^custom:[a-f0-9]{32}$/.test(font.id)||ids.has(font.id)||typeof font.name!=='string'||!font.name.trim()||font.name.length&gt;64||/[\u0000-\u001f\u007f]/.test(font.name))throw Error('自定义字体资料无效');
   const data=font.data,match=typeof data==='string'&amp;&amp;data.match(/^data:font\/(woff2|woff|ttf|otf);base64,([a-z0-9+/]+={0,2})$/i);
-  if(!match||match[2].length%4||match[2].length&gt;Math.ceil(16*1024*1024/3)*4)throw Error('字体文件无效或超过 16 MB');
+  if(!match||match[2].length%4||match[2].length&gt;Math.ceil(32*1024*1024/3)*4)throw Error('字体文件无效或超过 32 MB');
   const signatures={woff2:'wOF2',woff:'wOFF',ttf:'\x00\x01\x00\x00',otf:'OTTO'};
   if(atob(match[2].slice(0,8)).slice(0,4)!==signatures[match[1].toLowerCase()])throw Error('字体内容与格式不符');
   bytes+=match[2].length;if(bytes&gt;Math.ceil(32*1024*1024/3)*4)throw Error('自定义字体总大小不能超过 32 MB');
@@ -7928,8 +7929,8 @@ function createStudioFontLibrary(root){
  let records=[],faces=new Map(),revision=0,pending=Promise.resolve(),requestId=0;
  const requests=new Map();
  const notify=()=&gt;root.dispatchEvent(new Event('studio-fonts-change'));
- const rpc=(action,fonts)=&gt;new Promise((resolve,reject)=&gt;{const id=++requestId,timeout=setTimeout(()=&gt;{requests.delete(id);reject(Error('字体缓存未响应，请保存剪辑工程保留字体'));},10000);requests.set(id,{resolve,reject,timeout});parent.postMessage({type:'studio-font-library-request',id,action,fonts},'*');});
- window.addEventListener('message',event=&gt;{if(event.source!==parent||event.data?.type!=='studio-font-library-response')return;const q=requests.get(event.data.id);if(!q)return;requests.delete(event.data.id);clearTimeout(q.timeout);event.data.error?q.reject(Error(event.data.error)):q.resolve(event.data.fonts);});
+ const rpc=(action,fonts)=&gt;new Promise((resolve,reject)=&gt;{const id=++requestId,timeout=action==='system-pick'?null:setTimeout(()=&gt;{requests.delete(id);reject(Error('字体缓存未响应，请保存剪辑工程保留字体'));},10000);requests.set(id,{resolve,reject,timeout});parent.postMessage({type:'studio-font-library-request',id,action,fonts},'*');});
+ window.addEventListener('message',event=&gt;{if(event.source!==parent||event.data?.type!=='studio-font-library-response')return;const q=requests.get(event.data.id);if(!q)return;requests.delete(event.data.id);clearTimeout(q.timeout);event.data.error?q.reject(Error(event.data.error)):q.resolve(event.data.file??event.data.fonts);});
  function replace(value,persist=false){
   const next=validateStudioFonts(value),previous=new Map(records.map(f=&gt;[f.id,f]));records=next;revision++;
   for(const [id,face]of faces)if(!next.some(f=&gt;f.id===id&amp;&amp;f.data===previous.get(id)?.data)){document.fonts.delete(face);faces.delete(id);}
@@ -7944,8 +7945,9 @@ function createStudioFontLibrary(root){
  if(globalThis.studioOutput?.enabled)replace(globalThis.studioFonts||[]).catch(()=&gt;{});
  else rpc('load').then(fonts=&gt;{if(revision===initialRevision&amp;&amp;fonts?.length)replace(fonts).catch(()=&gt;{});}).catch(()=&gt;{});
  return {list:()=&gt;records.map(f=&gt;({...f})),get revision(){return revision;},get ready(){return pending;},replace,
+  async pickSystem(){const file=await rpc('system-pick');return file?this.import(file):null;},
   async import(file){
-   if(!/\.(ttf|otf|woff2?)$/i.test(file.name)||!file.size||file.size&gt;16*1024*1024)throw Error('请选择不超过 16 MB 的 TTF / OTF / WOFF / WOFF2 字体');
+   if(!/\.(ttf|otf|woff2?)$/i.test(file.name)||!file.size||file.size&gt;32*1024*1024)throw Error('请选择不超过 32 MB 的 TTF / OTF / WOFF / WOFF2 字体');
    const buffer=await file.arrayBuffer(),header=new Uint8Array(buffer,0,Math.min(4,buffer.byteLength)),signature=String.fromCharCode(...header),format=signature==='wOF2'?'woff2':signature==='wOFF'?'woff':signature==='OTTO'?'otf':header.join(',')==='0,1,0,0'?'ttf':null;
    if(!format)throw Error('无法识别字体内容，请使用 TTF / OTF / WOFF / WOFF2');
    const hash=await crypto.subtle.digest('SHA-256',buffer),id='custom:'+Array.from(new Uint8Array(hash)).slice(0,16).map(n=&gt;n.toString(16).padStart(2,'0')).join('');
@@ -8009,7 +8011,8 @@ function mountStudioTypography(root,views){
     &lt;div class=&quot;direction-field studio-text-target&quot;&gt;&lt;label for=&quot;studio-text-target&quot;&gt;正在编辑&lt;/label&gt;&lt;select id=&quot;studio-text-target&quot; class=&quot;form-select&quot;&gt;&lt;option value=&quot;name&quot;&gt;展示页 · 角色名&lt;/option&gt;&lt;option value=&quot;character&quot;&gt;第一幕 · 角色标题&lt;/option&gt;&lt;option value=&quot;author&quot;&gt;第二幕 · 作者标题&lt;/option&gt;&lt;option value=&quot;caption&quot;&gt;展示页 · 系列短句&lt;/option&gt;&lt;option value=&quot;subtitle&quot;&gt;展示页 · 英文说明&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;
     &lt;div class=&quot;direction-settings&quot;&gt;&lt;div class=&quot;direction-field&quot;&gt;&lt;label for=&quot;studio-text-content&quot;&gt;自定义文案&lt;/label&gt;&lt;input id=&quot;studio-text-content&quot; class=&quot;form-control&quot; type=&quot;text&quot; maxlength=&quot;64&quot; data-text-field=&quot;text&quot;&gt;&lt;small data-text-fallback&gt;&lt;/small&gt;&lt;/div&gt;
     &lt;div class=&quot;direction-field&quot;&gt;&lt;label for=&quot;studio-text-font&quot;&gt;字体&lt;/label&gt;&lt;select id=&quot;studio-text-font&quot; class=&quot;form-select&quot; data-text-field=&quot;font&quot;&gt;${fontOptions}&lt;/select&gt;&lt;/div&gt;
-    &lt;details class=&quot;studio-subgroup studio-font-library&quot;&gt;&lt;summary&gt;导入与管理自定义字体&lt;/summary&gt;&lt;p class=&quot;studio-note&quot;&gt;支持 TTF / OTF / WOFF / WOFF2，每款最多 16 MB。导入后应用于当前文字，也可在各方案的「标题字体」中选择。&lt;/p&gt;&lt;label class=&quot;studio-import-button&quot;&gt;＋ 导入字体&lt;input id=&quot;studio-font-import&quot; type=&quot;file&quot; accept=&quot;.ttf,.otf,.woff,.woff2&quot; multiple&gt;&lt;/label&gt;&lt;div data-font-library&gt;&lt;/div&gt;&lt;p data-font-status role=&quot;status&quot; class=&quot;studio-note&quot;&gt;&lt;/p&gt;&lt;/details&gt;
+    &lt;button type=&quot;button&quot; class=&quot;btn studio-system-font-button&quot; data-system-font-open&gt;读取系统字体&lt;/button&gt;
+    &lt;details class=&quot;studio-subgroup studio-font-library&quot;&gt;&lt;summary&gt;导入与管理自定义字体&lt;/summary&gt;&lt;p class=&quot;studio-note&quot;&gt;可直接选择系统字体，或导入 TTF / OTF / WOFF / WOFF2。最多 8 款，总计 32 MB。选中后应用于当前文字，也可在各方案的「标题字体」中选择。&lt;/p&gt;&lt;label class=&quot;studio-import-button&quot;&gt;＋ 导入字体&lt;input id=&quot;studio-font-import&quot; type=&quot;file&quot; accept=&quot;.ttf,.otf,.woff,.woff2&quot; multiple&gt;&lt;/label&gt;&lt;div data-font-library&gt;&lt;/div&gt;&lt;p data-font-status role=&quot;status&quot; class=&quot;studio-note&quot;&gt;&lt;/p&gt;&lt;/details&gt;
     &lt;div class=&quot;studio-font-sample&quot; data-font-sample aria-label=&quot;当前字体预览&quot;&gt;&lt;/div&gt;
     &lt;div class=&quot;direction-field&quot;&gt;&lt;label for=&quot;studio-text-scale&quot; class=&quot;range-title&quot;&gt;字号比例&lt;output data-text-value=&quot;scale&quot;&gt;&lt;/output&gt;&lt;/label&gt;&lt;input id=&quot;studio-text-scale&quot; class=&quot;form-range&quot; type=&quot;range&quot; min=&quot;60&quot; max=&quot;150&quot; step=&quot;5&quot; data-text-field=&quot;scale&quot;&gt;&lt;small&gt;文字过长时自动缩小，避免超出文字区域。&lt;/small&gt;&lt;/div&gt;
     &lt;div class=&quot;studio-text-row&quot;&gt;&lt;div class=&quot;direction-field&quot;&gt;&lt;label for=&quot;studio-text-weight&quot;&gt;字重&lt;/label&gt;&lt;select id=&quot;studio-text-weight&quot; class=&quot;form-select&quot; data-text-field=&quot;weight&quot;&gt;&lt;option value=&quot;auto&quot;&gt;跟随方案&lt;/option&gt;&lt;option value=&quot;400&quot;&gt;常规 · 400&lt;/option&gt;&lt;option value=&quot;500&quot;&gt;中等 · 500&lt;/option&gt;&lt;option value=&quot;600&quot;&gt;半粗 · 600&lt;/option&gt;&lt;option value=&quot;700&quot;&gt;粗体 · 700&lt;/option&gt;&lt;option value=&quot;800&quot;&gt;特粗 · 800&lt;/option&gt;&lt;option value=&quot;900&quot;&gt;黑体 · 900&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;div class=&quot;direction-field&quot;&gt;&lt;label for=&quot;studio-text-italic&quot;&gt;倾斜&lt;/label&gt;&lt;select id=&quot;studio-text-italic&quot; class=&quot;form-select&quot; data-text-field=&quot;italic&quot;&gt;&lt;option value=&quot;auto&quot;&gt;跟随方案&lt;/option&gt;&lt;option value=&quot;normal&quot;&gt;正体&lt;/option&gt;&lt;option value=&quot;italic&quot;&gt;斜体&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;&lt;/div&gt;
@@ -8021,7 +8024,8 @@ function mountStudioTypography(root,views){
   const identity=root.querySelector('.studio-content &gt; details:nth-of-type(2)');identity.after(group);
   const target=group.querySelector('#studio-text-target');let selected='name';
   const fontInput=group.querySelector('#studio-font-import'),fontStatus=group.querySelector('[data-font-status]');let libraryKey='';
-  fontInput.onchange=async()=&gt;{const fontTarget=selected;fontInput.disabled=true;try{for(const file of fontInput.files){fontStatus.textContent='正在载入 '+file.name+' …';const id=await studioFonts.import(file);state.typography[fontTarget].font=id;update();}fontStatus.textContent='字体已导入。保存剪辑工程可将字体一并携带。';}catch(error){fontStatus.textContent=error.message;}finally{fontInput.value='';fontInput.disabled=false;}};
+  const systemButton=group.querySelector('[data-system-font-open]');systemButton.onclick=async()=&gt;{const fontTarget=selected;systemButton.disabled=true;fontInput.disabled=true;try{const id=await studioFonts.pickSystem();if(id){state.typography[fontTarget].font=id;update();fontStatus.textContent='系统字体已应用，并会随剪辑工程和输出携带。';}}catch(error){fontStatus.textContent=error.message;group.querySelector('.studio-font-library').open=true;}finally{systemButton.disabled=false;fontInput.disabled=false;}};
+  fontInput.onchange=async()=&gt;{const fontTarget=selected;fontInput.disabled=true;systemButton.disabled=true;try{for(const file of fontInput.files){fontStatus.textContent='正在载入 '+file.name+' …';const id=await studioFonts.import(file);state.typography[fontTarget].font=id;update();}fontStatus.textContent='字体已导入。保存剪辑工程可将字体一并携带。';}catch(error){fontStatus.textContent=error.message;}finally{fontInput.value='';fontInput.disabled=false;systemButton.disabled=false;}};
   root.addEventListener('studio-fonts-error',event=&gt;fontStatus.textContent=event.detail);
   function syncFonts(){const fonts=studioFonts.list(),key=JSON.stringify(fonts.map(f=&gt;[f.id,f.name]));if(key!==libraryKey){libraryKey=key;for(const select of [group.querySelector('#studio-text-font'),...root.querySelectorAll('[data-vfield=&quot;typeface&quot;]')]){select.querySelectorAll('[data-custom-font]').forEach(el=&gt;el.remove());for(const font of fonts){const option=document.createElement('option');option.value=font.id;option.textContent='自定义 · '+font.name;option.dataset.customFont='';select.append(option);}}
    const list=group.querySelector('[data-font-library]');list.replaceChildren();for(const font of fonts){const row=document.createElement('div'),name=document.createElement('span'),remove=document.createElement('button');row.className='studio-font-library-row';name.textContent=font.name;remove.className='btn';remove.type='button';remove.textContent='移除';remove.setAttribute('aria-label','移除字体 '+font.name);remove.onclick=async()=&gt;{for(const k of ['name','character','author','caption','subtitle'])if(state.typography[k].font===font.id)state.typography[k].font='auto';for(const v of Object.values(state.variants))if(v.typeface===font.id)v.typeface='editorial';await studioFonts.remove(font.id);update();};row.append(name,remove);list.append(row);}}
@@ -29889,7 +29893,7 @@ function validateStudioFonts(value=[]){
  return value.map(font=>{
   if(!font||typeof font.id!=='string'||!/^custom:[a-f0-9]{32}$/.test(font.id)||ids.has(font.id)||typeof font.name!=='string'||!font.name.trim()||font.name.length>64||/[\u0000-\u001f\u007f]/.test(font.name))throw Error('自定义字体资料无效');
   const data=font.data,match=typeof data==='string'&&data.match(/^data:font\/(woff2|woff|ttf|otf);base64,([a-z0-9+/]+={0,2})$/i);
-  if(!match||match[2].length%4||match[2].length>Math.ceil(16*1024*1024/3)*4)throw Error('字体文件无效或超过 16 MB');
+  if(!match||match[2].length%4||match[2].length>Math.ceil(32*1024*1024/3)*4)throw Error('字体文件无效或超过 32 MB');
   const signatures={woff2:'wOF2',woff:'wOFF',ttf:'\x00\x01\x00\x00',otf:'OTTO'};
   if(atob(match[2].slice(0,8)).slice(0,4)!==signatures[match[1].toLowerCase()])throw Error('字体内容与格式不符');
   bytes+=match[2].length;if(bytes>Math.ceil(32*1024*1024/3)*4)throw Error('自定义字体总大小不能超过 32 MB');
@@ -29901,13 +29905,45 @@ function validateStudioFonts(value=[]){
 (()=>{
  const frame=document.getElementById('codex-visualization'),key=location.pathname;
  let writes=Promise.resolve();
+ let pickerOpen=false;
+ function pickSystemFont(){
+  if(pickerOpen)throw Error('系统字体窗口已打开');pickerOpen=true;
+  return new Promise(resolve=>{
+   const previous=document.activeElement,dialog=document.createElement('dialog');dialog.dataset.systemFontPicker='';dialog.setAttribute('aria-label','选择系统字体');
+   dialog.innerHTML='<style>[data-system-font-picker]{box-sizing:border-box;width:min(780px,94vw);max-height:90dvh;padding:24px;border:1px solid #cbd4c4;border-radius:16px;background:#f6f8f2;color:#293025;font:14px/1.5 system-ui,sans-serif;box-shadow:0 20px 80px #0005}[data-system-font-picker]::backdrop{background:#0007}[data-system-font-picker] *{box-sizing:border-box}[data-system-font-picker] header,[data-system-font-picker] footer{display:flex;align-items:center;justify-content:space-between;gap:12px}[data-system-font-picker] h2{font:600 20px system-ui;margin:0}[data-system-font-picker] button,[data-system-font-picker] input{font:inherit;border:1px solid #cbd4c4;border-radius:8px;padding:9px 12px;background:white;color:inherit}[data-system-font-picker] button{cursor:pointer}[data-system-font-picker] button:disabled{opacity:.5;cursor:default}[data-system-font-picker] p{margin:12px 0;color:#596452}[data-system-font-picker] input{width:100%;margin-bottom:12px}[data-system-font-picker] [data-system-list]{display:flex;flex-direction:column;gap:5px;overflow:auto;height:clamp(140px,42dvh,400px);margin-bottom:12px}[data-system-font-picker] [data-system-list] button{text-align:left;display:flex;align-items:center;gap:12px;justify-content:space-between}[data-system-font-picker] [data-system-list] button[aria-selected=true]{border-color:#57764c;background:#e5eddf}[data-system-font-picker] [data-system-list] small{color:#68745f;font:11px system-ui}[data-system-font-picker] [data-system-preview]{padding:16px 12px;border:1px solid #cbd4c4;border-radius:8px;min-height:80px;font-size:30px;overflow-wrap:anywhere;margin-bottom:14px}[data-system-font-picker] [hidden]{display:none!important}@media(max-width:480px){[data-system-font-picker]{padding:16px}[data-system-font-picker] [data-system-list] button{display:block}[data-system-font-picker] [data-system-list] small{display:block}}</style><header><h2>选择系统字体</h2><button type="button" data-system-close aria-label="关闭系统字体窗口">关闭</button></header><p data-system-status role="status">正在读取本机字体库…</p><button type="button" data-system-authorize hidden>授权读取系统字体</button><input type="search" data-system-search aria-label="搜索系统字体" placeholder="搜索字体名称、家族或样式" disabled><div data-system-list role="listbox" aria-label="系统字体列表"></div><div data-system-preview aria-label="字体效果预览"></div><footer><small>选中字体会自动随工程、视频和 HTML 输出携带。</small><button type="button" data-system-use disabled>使用此字体</button></footer>';
+   const get=key=>dialog.querySelector('[data-system-'+key+']'),status=get('status'),search=get('search'),list=get('list'),preview=get('preview'),use=get('use'),authorize=get('authorize');
+   preview.textContent='角色展示 · 夏风与海浪 Aa 0123';let fonts=[],selected=null,closed=false,busy=false;
+   const finish=file=>{if(closed)return;closed=true;dialog.close();dialog.remove();pickerOpen=false;previous?.focus();resolve(file||null);};
+   get('close').onclick=()=>finish();dialog.addEventListener('cancel',event=>{event.preventDefault();finish();});
+   const render=()=>{
+    const needle=search.value.trim().toLocaleLowerCase(),filtered=fonts.filter(font=>[font.family,font.fullName,font.style,font.postscriptName].join(' ').toLocaleLowerCase().includes(needle));list.replaceChildren();
+    // Keep large font libraries responsive. Search still covers every record.
+    for(const font of filtered.slice(0,200)){const button=document.createElement('button'),title=document.createElement('span'),style=document.createElement('small');button.type='button';button.setAttribute('role','option');button.setAttribute('aria-selected',String(selected===font));title.textContent=font.fullName||font.family;style.textContent=font.style||'Regular';button.append(title,style);button.disabled=busy;button.onclick=()=>{selected=font;preview.style.fontFamily=JSON.stringify(font.family)+',sans-serif';preview.style.fontWeight=/bold|black|heavy|粗|黑/i.test(font.style)?'700':'400';preview.style.fontStyle=/italic|oblique|斜/i.test(font.style)?'italic':'normal';use.disabled=false;render();};list.append(button);}
+    if(fonts.length)status.textContent=filtered.length?filtered.length+' 款匹配字体'+(filtered.length>200?'，当前显示前 200 款，请搜索缩小范围':''):'没有匹配字体，请尝试其他名称';
+   };
+   const setFonts=value=>{fonts=value;selected=null;search.disabled=false;authorize.hidden=true;use.disabled=true;render();if(!fonts.length)status.textContent='未读取到字体，可使用浏览器授权读取或保留文件导入。';search.focus();};search.oninput=render;
+   const canBrowser=window.isSecureContext&&typeof window.queryLocalFonts==='function';
+   authorize.onclick=async()=>{authorize.disabled=true;status.textContent='请允许浏览器读取系统字体…';try{setFonts(await window.queryLocalFonts());if(!fonts.length)authorize.hidden=false;}catch(error){if(!closed)status.textContent=error.name==='NotAllowedError'?'未获得读取权限。可在站点权限中允许本地字体后重试。':error.message;}finally{authorize.disabled=false;}};
+   use.onclick=async()=>{if(!selected||busy)return;busy=true;use.disabled=true;search.disabled=true;authorize.disabled=true;render();status.textContent='正在准备 '+selected.fullName+' …';try{
+    let blob;if(selected.blob)blob=await selected.blob();else{const r=await fetch('/__editor/fonts/'+encodeURIComponent(selected.id));if(!r.ok){const error=await r.json();throw Error(error.error||'系统字体读取失败');}blob=await r.blob();}
+    if(!blob.size||blob.size>32*1024*1024)throw Error('所选字体为空或超过 32 MB，请选择其他字体');
+    finish(new File([blob],(selected.fullName||selected.family)+'.ttf',{type:'font/sfnt'}));
+   }catch(error){if(!closed){status.textContent=error.message;use.disabled=false;search.disabled=false;authorize.disabled=false;}}finally{busy=false;for(const button of list.querySelectorAll('button'))button.disabled=false;}};
+   document.body.append(dialog);dialog.showModal();
+   (async()=>{try{
+    if(!['localhost','127.0.0.1','[::1]'].includes(location.hostname)||!['http:','https:'].includes(location.protocol))throw Error('网页版请授权浏览器读取字体');
+    const r=await fetch('/__editor/fonts');if(!r.ok)throw Error('本机字体服务尚未启用；保存工程并重启本机服务后可直接读取');const data=await r.json();if(!Array.isArray(data.fonts))throw Error('本机字体服务尚未启用；保存工程并重启本机服务后可直接读取');if(closed)return;setFonts(data.fonts);if(!fonts.length&&canBrowser)authorize.hidden=false;
+   }catch(error){if(closed)return;status.textContent=error.message+(canBrowser?'，也可点击下方按钮授权读取。':'。浏览器授权方式需要桌面 Chrome / Edge 和 localhost 或 HTTPS。');authorize.hidden=!canBrowser;}})();
+  });
+ }
  const database=()=>new Promise((resolve,reject)=>{const q=indexedDB.open('showcase-font-library',1);q.onupgradeneeded=()=>q.result.createObjectStore('fonts');q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(Error('浏览器无法打开字体缓存，请保存剪辑工程保留字体'));});
  async function access(action,fonts){const db=await database();try{return await new Promise((resolve,reject)=>{const tx=db.transaction('fonts',action==='save'?'readwrite':'readonly'),store=tx.objectStore('fonts'),q=action==='save'?store.put(fonts,key):store.get(key);tx.oncomplete=()=>resolve(q.result||[]);tx.onerror=tx.onabort=()=>reject(Error('字体缓存保存失败，请保存剪辑工程保留字体'));});}finally{db.close();}}
  window.addEventListener('message',async event=>{
   const q=event.data;if(event.source!==frame?.contentWindow||q?.type!=='studio-font-library-request')return;
   try{
-   if(!Number.isSafeInteger(q.id)||q.id<1||!['load','save'].includes(q.action))throw Error('字体缓存操作无效');
-   const readOnly=new URLSearchParams(location.search).has('editor-render');if(readOnly){event.source.postMessage({type:'studio-font-library-response',id:q.id,fonts:[]},'*');return;}
+   if(!Number.isSafeInteger(q.id)||q.id<1||!['load','save','system-pick'].includes(q.action))throw Error('字体操作无效');
+   const readOnly=new URLSearchParams(location.search).has('editor-render');if(readOnly){event.source.postMessage({type:'studio-font-library-response',id:q.id,...(q.action==='system-pick'?{file:null}:{fonts:[]})},'*');return;}
+   if(q.action==='system-pick'){const file=await pickSystemFont();event.source.postMessage({type:'studio-font-library-response',id:q.id,file},'*');return;}
    let fonts;if(q.action==='save'){const value=validateStudioFonts(q.fonts),write=writes.then(()=>access('save',value));writes=write.catch(()=>{});await write;fonts=[];}else{await writes;fonts=validateStudioFonts(await access('load'));}
    event.source.postMessage({type:'studio-font-library-response',id:q.id,fonts},'*');
   }catch(error){event.source.postMessage({type:'studio-font-library-response',id:q.id,error:error.message},'*');}

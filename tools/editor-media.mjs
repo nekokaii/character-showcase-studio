@@ -9,10 +9,12 @@ import { probeFrameTimes, createSequentialDecoder } from './editor-frames.mjs';
 import { pngAviHeader, pngAviPacket, validateCapturePNG } from './editor-png.mjs';
 import { exportPerformance } from './editor-performance.mjs';
 import { validateStudioFonts } from '../runtime/studio-font-data.mjs';
+import { createSystemFontLibrary } from './system-fonts.mjs';
 
 const idPattern=/^[a-f0-9-]{36}$/;
 const jobs=new Map(), assets=new Map();
 const token=crypto.randomUUID();
+const systemFonts=createSystemFontLibrary();
 let exporting=false;
 export function runProcess(command,args,{signal}={}){
   return new Promise((resolve,reject)=>{
@@ -279,6 +281,9 @@ export function createMediaService(root,getOrigin){
         if(req.method==='HEAD')res.end();else createReadStream(file,{start,end}).pipe(res);return true;
       }
       if(req.headers['sec-fetch-site']==='cross-site'||(req.headers.origin&&req.headers.origin!==origin)){send(res,403,{error:'仅接受本机工作台请求'});return true;}
+      if(url.pathname==='/__editor/fonts'&&req.method==='GET'){send(res,200,{fonts:await systemFonts.list()});return true;}
+      const fontRequest=url.pathname.match(/^\/__editor\/fonts\/([a-f0-9]{64})$/);
+      if(fontRequest&&req.method==='GET'){const font=await systemFonts.read(fontRequest[1]);res.writeHead(200,{'Content-Type':'font/sfnt','Content-Length':font.data.length,'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(font.data);return true;}
       if(url.pathname==='/__editor/capabilities'&&req.method==='GET'){
         try{const version=await runProcess(ffmpeg,['-version']);send(res,200,{ready:true,version:version.split('\n')[0],parallelExport:true,maxExportWorkers:24,exportPipeline:process.env.STUDIO_EXPORT_PIPELINE==='browser'?'browser':'sequential',token,origin,hardware:await hardware()});}catch{send(res,200,{ready:false,error:'请运行 setup-editor.cmd 安装本机视频组件',token,origin});}return true;
       }

@@ -2,8 +2,8 @@ function createStudioFontLibrary(root){
  let records=[],faces=new Map(),revision=0,pending=Promise.resolve(),requestId=0;
  const requests=new Map();
  const notify=()=>root.dispatchEvent(new Event('studio-fonts-change'));
- const rpc=(action,fonts)=>new Promise((resolve,reject)=>{const id=++requestId,timeout=setTimeout(()=>{requests.delete(id);reject(Error('字体缓存未响应，请保存剪辑工程保留字体'));},10000);requests.set(id,{resolve,reject,timeout});parent.postMessage({type:'studio-font-library-request',id,action,fonts},'*');});
- window.addEventListener('message',event=>{if(event.source!==parent||event.data?.type!=='studio-font-library-response')return;const q=requests.get(event.data.id);if(!q)return;requests.delete(event.data.id);clearTimeout(q.timeout);event.data.error?q.reject(Error(event.data.error)):q.resolve(event.data.fonts);});
+ const rpc=(action,fonts)=>new Promise((resolve,reject)=>{const id=++requestId,timeout=action==='system-pick'?null:setTimeout(()=>{requests.delete(id);reject(Error('字体缓存未响应，请保存剪辑工程保留字体'));},10000);requests.set(id,{resolve,reject,timeout});parent.postMessage({type:'studio-font-library-request',id,action,fonts},'*');});
+ window.addEventListener('message',event=>{if(event.source!==parent||event.data?.type!=='studio-font-library-response')return;const q=requests.get(event.data.id);if(!q)return;requests.delete(event.data.id);clearTimeout(q.timeout);event.data.error?q.reject(Error(event.data.error)):q.resolve(event.data.file??event.data.fonts);});
  function replace(value,persist=false){
   const next=validateStudioFonts(value),previous=new Map(records.map(f=>[f.id,f]));records=next;revision++;
   for(const [id,face]of faces)if(!next.some(f=>f.id===id&&f.data===previous.get(id)?.data)){document.fonts.delete(face);faces.delete(id);}
@@ -18,8 +18,9 @@ function createStudioFontLibrary(root){
  if(globalThis.studioOutput?.enabled)replace(globalThis.studioFonts||[]).catch(()=>{});
  else rpc('load').then(fonts=>{if(revision===initialRevision&&fonts?.length)replace(fonts).catch(()=>{});}).catch(()=>{});
  return {list:()=>records.map(f=>({...f})),get revision(){return revision;},get ready(){return pending;},replace,
+  async pickSystem(){const file=await rpc('system-pick');return file?this.import(file):null;},
   async import(file){
-   if(!/\.(ttf|otf|woff2?)$/i.test(file.name)||!file.size||file.size>16*1024*1024)throw Error('请选择不超过 16 MB 的 TTF / OTF / WOFF / WOFF2 字体');
+   if(!/\.(ttf|otf|woff2?)$/i.test(file.name)||!file.size||file.size>32*1024*1024)throw Error('请选择不超过 32 MB 的 TTF / OTF / WOFF / WOFF2 字体');
    const buffer=await file.arrayBuffer(),header=new Uint8Array(buffer,0,Math.min(4,buffer.byteLength)),signature=String.fromCharCode(...header),format=signature==='wOF2'?'woff2':signature==='wOFF'?'woff':signature==='OTTO'?'otf':header.join(',')==='0,1,0,0'?'ttf':null;
    if(!format)throw Error('无法识别字体内容，请使用 TTF / OTF / WOFF / WOFF2');
    const hash=await crypto.subtle.digest('SHA-256',buffer),id='custom:'+Array.from(new Uint8Array(hash)).slice(0,16).map(n=>n.toString(16).padStart(2,'0')).join('');

@@ -9,6 +9,7 @@
 #character-directions .studio-typography [hidden]{display:none!important}
 #character-directions .studio-font-sample{padding:15px 12px;margin-bottom:15px;border:1px solid var(--studio-line,#dfe4d8);border-radius:8px;font-size:26px;line-height:1.5;overflow-wrap:anywhere;background:#f8faf5;color:#293025}
 #character-directions .studio-font-library{margin:0 0 15px}
+#character-directions .studio-system-font-button{width:100%;margin:0 0 12px}
 #character-directions .studio-font-library-row{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:11px}
 #character-directions .studio-font-library-row>span{min-width:0;flex:1;overflow-wrap:anywhere}
 #character-directions .studio-font-library-row>.btn{flex:none;padding:5px 8px;font-size:10px}
