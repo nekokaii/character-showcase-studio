@@ -3,6 +3,7 @@ async function collectStudioAEScene(view,options){
   const {width,height}=studioReferenceSize(options.width<options.height),v=state.variants[view.key],art=view.art;
   const saved={style:art.style.cssText,time:state.time,clock:motionClock,motion:v.textMotion,playing:state.playing};
   const packedAssets=[],layers=[],warnings=['Canvas 金属、云雾渐变转为近似纯色形状；细毛纤维简化。CSS 滤镜、毛玻璃与颗粒不会逐像素还原。'];
+  if(studioFonts.list().length)warnings.push('本工程导入了自定义字体：'+studioFonts.list().map(f=>f.name).join('、')+'。请在桌面安装原字体，并在 AE 中为对应文字重新指定字体。');
   const addAsset=(data,ext='png')=>{const file='assets/asset-'+String(packedAssets.length+1).padStart(3,'0')+'.'+ext;packedAssets.push({name:file,data});return file};
   const round=x=>Math.round(x*100)/100;
   const rgba=value=>{const c=document.createElement('canvas');c.width=c.height=1;const cx=c.getContext('2d');cx.fillStyle=value||'#000';cx.fillRect(0,0,1,1);return [...cx.getImageData(0,0,1,1).data].map(x=>x/255)};

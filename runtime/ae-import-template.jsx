@@ -43,7 +43,7 @@
     var fontCache={};
     function fontFor(item){var bold=item.weight>=600,desired=bold?'Arial-BoldMT':'ArialMT',family=item.fontFamily||'',serif=false,narrow=false,rounded=false;
       var chinese=/[\u2e80-\u9fff]/.test(item.text);
-      if(chinese){desired=bold?'MicrosoftYaHei-Bold':'MicrosoftYaHei';if(family.indexOf('ChillRoundF')>=0)desired='ChillRoundF'+(item.weight>=600?'Bold':'Regular');}
+      if(chinese){desired=bold?'MicrosoftYaHei-Bold':'MicrosoftYaHei';if(family.indexOf('ChillRoundF')>=0)desired='ChillRoundF'+(item.weight>=600?'Bold':'Regular');else if(family.indexOf('ZCOOL XiaoWei')>=0)desired='ZCOOLXiaoWei-Regular';else if(family.indexOf('ZCOOL KuaiLe')>=0)desired='ZCOOLKuaiLe-Regular';else if(family.indexOf('Ma Shan Zheng')>=0)desired='MaShanZheng-Regular';}
       else{var weight=item.weight||400,suffix=weight>=800?'ExtraBold':weight>=700?'Bold':weight>=600?'SemiBold':weight>=500?'Medium':'Regular';
         if(family.indexOf('Cormorant')>=0)desired='CormorantGaramond-'+(weight>=700?'Bold':weight>=600?'SemiBold':weight>=500?'Medium':'Regular');
         else if(family.indexOf('Barlow')>=0)desired='BarlowCondensed-'+(weight>=900?'Black':suffix);
@@ -55,7 +55,7 @@
       if(app.fonts&&app.fonts.getFontsByPostScriptName)for(var j=0;j<candidates.length;j++){var matches=app.fonts.getFontsByPostScriptName(candidates[j]);for(var n=0;n<matches.length;n++)if(!matches[n].isSubstitute){fontCache[desired]=candidates[j];if(j)warnings.push('Font '+desired+' → '+candidates[j]);return candidates[j]}}
       warnings.push('Font availability could not be confirmed: '+desired+'. Install the selected desktop font or replace it in AE.');fontCache[desired]=desired;return desired;
     }
-    function text(c,item){var l=c.layers.addText(item.text||''),p=l.property('ADBE Text Properties').property('ADBE Text Document'),td=p.value;td.font=fontFor(item);td.fontSize=item.fontSize||24*u;td.applyFill=true;td.fillColor=(item.color||d.ink).slice(0,3);td.applyStroke=false;td.tracking=item.tracking||0;td.justification=ParagraphJustification.CENTER_JUSTIFY;td.fauxItalic=!!item.italic;p.setValue(td);l.name=item.name||item.text;
+    function text(c,item){var l=c.layers.addText(item.text||''),p=l.property('ADBE Text Properties').property('ADBE Text Document'),td=p.value;td.font=fontFor(item);td.fontSize=item.fontSize||24*u;td.applyFill=true;td.fillColor=(item.color||d.ink).slice(0,3);td.applyStroke=false;td.tracking=item.tracking||0;td.justification=ParagraphJustification.CENTER_JUSTIFY;td.fauxItalic=!!item.italic;if(item.weight>=600&&/ZCOOL XiaoWei|ZCOOL KuaiLe|Ma Shan Zheng/.test(item.fontFamily||''))td.fauxBold=true;p.setValue(td);l.name=item.name||item.text;
       var r=l.sourceRectAtTime(0,false),t=l.property('ADBE Transform Group');t.property('ADBE Anchor Point').setValue([r.left+r.width/2,r.top+r.height/2]);transform(l,item);if(item.w&&r.width>0){var sx=Math.min(200,Math.max(20,item.w/r.width*100));t.property('ADBE Scale').setValue([sx,100])}var exp=item.badgeInk?ctl+'.effect("Badge Ink")(1)':colorExpression(item.color||d.ink);if(exp)p.expression='text.sourceText.style.setFillColor('+exp+')';return l}
     var transitionCode='var ts=Math.max(0,'+ctl+'.effect("Show Transition Start")(1)),td=Math.max(thisComp.frameDuration,'+ctl+'.effect("Show Transition Duration")(1));var p='+(!d.intro?'1':'Math.max(0,Math.min(1,(time-ts)/td))')+';p=p*p*(3-2*p);';
     var narrative='var n='+d.offset+'+time*'+d.speed+';'+(d.intro>0?'n=time<'+d.intro+'?time/'+d.intro+'*4.5:4.5+(time-'+d.intro+')*'+d.speed+';':'n=4.5+time*'+d.speed+';');

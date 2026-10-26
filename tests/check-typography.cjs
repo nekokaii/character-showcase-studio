@@ -24,4 +24,8 @@ scope.state.typography=defaults;scope.studioTypographyStyle(el,'author');scope.s
 const ae=fs.readFileSync(path.join(root,'runtime/ae-import-template.jsx'),'utf8'),aeScope={app:{fonts:{getFontsByPostScriptName(name){return [{isSubstitute:false}];}}},warnings:[]};vm.createContext(aeScope);vm.runInContext(ae.slice(ae.indexOf('var fontCache={}'),ae.indexOf('    function text(')),aeScope);
 for(const [weight,suffix] of [[400,'Regular'],[700,'Bold'],[900,'Bold']])assert.equal(aeScope.fontFor({text:'粗奶丸',weight,fontFamily:'Nunito, ChillRoundF, sans-serif'}),'ChillRoundF'+suffix,'AE matches the rounded Chinese desktop font when installed');
 assert.equal(aeScope.fontFor({text:'角色',weight:700,fontFamily:'Microsoft YaHei UI'}),'MicrosoftYaHei-Bold','other Chinese font choices retain their fallback');
+for(const [key,family,postScriptName]of [['cn-serif','ZCOOL XiaoWei','ZCOOLXiaoWei-Regular'],['brush','Ma Shan Zheng','MaShanZheng-Regular'],['playful','ZCOOL KuaiLe','ZCOOLKuaiLe-Regular']]){
+ const settings=scope.studioTypographySettings({name:{font:key}});assert.equal(settings.name.font,key);assert.ok(scope.studioFontFamily(key).includes(family));assert.equal(aeScope.fontFor({text:'角色',weight:700,fontFamily:family}),postScriptName);
+}
+const custom='custom:'+'a'.repeat(32);assert.equal(scope.studioTypographySettings({name:{font:custom}}).name.font,custom);assert.ok(scope.studioFontFamily(custom).includes('StudioUser_'+'a'.repeat(32)));assert.equal(scope.studioTypographySettings({name:{font:'custom:unsafe'}}).name.font,'auto');
 console.log('PASS: typography migration, bounded restore, custom copy/case, snapshot round-trip, custom color priority and nonaccumulating responsive font sizing.');

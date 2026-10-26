@@ -14,6 +14,7 @@
   const initialGlobals = parse(initialStateElement?.textContent ?? "{}");
   globalThis.studioOutput = initialGlobals.studioOutput ?? null;
   globalThis.studioImages = initialGlobals.studioImages ?? {};
+  globalThis.studioFonts = initialGlobals.studioFonts ?? [];
   initialStateElement?.remove();
   /** @type {Record<string, unknown> | null} */
   let state = initialGlobals.widgetState ?? null;

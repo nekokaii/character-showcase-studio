@@ -8,6 +8,7 @@ import { chromium } from 'playwright-core';
 import { probeFrameTimes, createSequentialDecoder } from './editor-frames.mjs';
 import { pngAviHeader, pngAviPacket, validateCapturePNG } from './editor-png.mjs';
 import { exportPerformance } from './editor-performance.mjs';
+import { validateStudioFonts } from '../runtime/studio-font-data.mjs';
 
 const idPattern=/^[a-f0-9-]{36}$/;
 const jobs=new Map(), assets=new Map();
@@ -55,6 +56,7 @@ export function validateProject(p){
   if(p.template!==undefined){
     const t=p.template,keys=['qr','barcode','logo','model','portrait','introCharacter','introAuthor'];
     if(t?.version!==1||t.design?.design!=='character-explorations'||t.design.version!==6)throw Error('展示模板配置格式无效');
+    validateStudioFonts(t.fonts||[]);
     for(const field of ['images','imageNames'])if(t[field]!==undefined){
       if(!t[field]||typeof t[field]!=='object'||Array.isArray(t[field]))throw Error('展示模板图片格式无效');
       for(const [key,value]of Object.entries(t[field]))if(!keys.includes(key)||typeof value!=='string'||(field==='images'?(value.length>16*1024*1024+128||(value!==''&&!/^data:image\/(png|jpeg|webp);base64,[a-z0-9+/=\r\n]+$/i.test(value))):value.length>512))throw Error('展示模板图片或文件名无效');
@@ -153,7 +155,7 @@ export function createMediaService(root,getOrigin){
       if(selected!=='cpu'){try{await runProcess(ffmpeg,['-hide_banner','-loglevel','error','-f','lavfi','-i',`color=s=${o.width}x${o.height}:r=30:d=0.1`,'-frames:v','1',...encoderArgs({...o,acceleration:selected}),'-f','null','-'],{signal:controller.signal});}catch(e){if(controller.signal.aborted)throw e;if(requested!=='auto')throw Error(encodingLabels[selected]+' 无法编码此尺寸或当前不可用，请改用自动或 CPU。');selected='cpu';job.notice='此尺寸未能使用 GPU，已自动改用 CPU。';}}
       o.acceleration=selected;job.acceleration=selected;job.encoder=undefined;job.encoding=encodingLabels[selected]+' / '+o.codec.toUpperCase();
       job.phase='preparing-media';
-      const payload=structuredClone(job.payload);payload.design??=payload.project.template?.design;payload.images??=payload.project.template?.images;delete payload.project.template;payload.project.clips=payload.project.clips.filter(c=>c.start<o.duration);
+      const payload=structuredClone(job.payload);payload.design??=payload.project.template?.design;payload.images??=payload.project.template?.images;payload.fonts??=payload.project.template?.fonts;delete payload.project.template;payload.project.clips=payload.project.clips.filter(c=>c.start<o.duration);
       const sequential=process.env.STUDIO_EXPORT_PIPELINE!=='browser';job.pipeline=sequential?'sequential':'browser';
       const frameURLs=sequential&&process.env.STUDIO_EXPORT_FRAME_TRANSPORT!=='base64';job.transport=frameURLs?'local-png':'base64';
       if(frameURLs){job.frameToken=crypto.randomUUID();job.frameBuffers=new Map();}
@@ -298,7 +300,7 @@ export function createMediaService(root,getOrigin){
       if(asset&&req.method==='GET'){send(res,200,await getAsset(asset[1]));return true;}
       if(url.pathname==='/__editor/export'&&req.method==='POST'){
         if(exporting){send(res,409,{error:'已有导出任务，请完成或取消后再试'});return true;}
-        const payload=await readJSON(req);validateProject(payload.project);
+        const payload=await readJSON(req);validateProject(payload.project);validateStudioFonts(payload.fonts||payload.project.template?.fonts||[]);
         if(!Array.isArray(payload.project.clips)||payload.project.clips.length>300)throw Error('素材数量无效');
         const job={id:crypto.randomUUID(),status:'rendering',progress:0,payload};jobs.set(job.id,job);render(job);send(res,202,{id:job.id});return true;
       }

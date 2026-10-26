@@ -22,7 +22,8 @@ function buildStudioOutputDocument(frameTemplate,payload,policy){
     images[key]=value;
   }
   const escape=value=>String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
-  const globals={widgetState:{modelContent:null,privateContent:state},statePersistence:'none',studioOutput:config,studioImages:images};
+  const fonts=payload.fonts===undefined?[]:validateStudioFonts(payload.fonts);
+  const globals={widgetState:{modelContent:null,privateContent:state},statePersistence:'none',studioOutput:config,studioImages:images,studioFonts:fonts};
   const bootstrap='<script type="application/json" id="codex-visualization-widget-state">__CODEX_VISUALIZATION_WIDGET_STATE__</script>';
   const frameHtml=frameTemplate.replace(bootstrap,()=>'<script type="application/json" id="codex-visualization-widget-state">'+JSON.stringify(globals).replaceAll('<','\\u003c')+'</script>');
   if(frameHtml===frameTemplate)throw new Error('输出模板不完整，请重新构建工作台。');

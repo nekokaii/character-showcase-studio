@@ -48,7 +48,7 @@ function mountStudioOutput(root,views){
     else if(event.key.toLowerCase()==='s'){state.time=state.introDuration;state.playing=true;last=0;update()}
     else if(event.key.toLowerCase()==='e'&&state.narrative.outroEnabled){state.time=state.introDuration+studioShowDuration(state.narrative);state.playing=true;last=0;update()}
   });
-  function htmlPayload(kind){const packed=Object.fromEntries(Object.entries(images).filter(([key,value])=>value&&(state.output.includeCharacters||!['model','portrait','introCharacter','introAuthor'].includes(key))&&(!state.narrative.storyPackagingOnly||!['introCharacter','introAuthor'].includes(key))));const snapshot=JSON.parse(JSON.stringify(state));if(kind==='html')snapshot.output.obsLayers='combined';snapshot.variantEncoding='tuple-v1';snapshot.variants=encodeStudioVariants(state.variants);return {kind,state:snapshot,images:packed,config:config(kind)}}
+  function htmlPayload(kind){const packed=Object.fromEntries(Object.entries(images).filter(([key,value])=>value&&(state.output.includeCharacters||!['model','portrait','introCharacter','introAuthor'].includes(key))&&(!state.narrative.storyPackagingOnly||!['introCharacter','introAuthor'].includes(key))));const snapshot=JSON.parse(JSON.stringify(state));if(kind==='html')snapshot.output.obsLayers='combined';snapshot.variantEncoding='tuple-v1';snapshot.variants=encodeStudioVariants(state.variants);return {kind,state:snapshot,images:packed,fonts:studioFonts.list(),config:config(kind)}}
   async function exportDesign(kind){
     if(busy)return;busy=true;download.disabled=htmlDownload.disabled=close.disabled=true;for(const field of dialog.querySelectorAll('input,select,[data-output-tab]'))field.disabled=true;
     try{

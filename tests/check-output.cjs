@@ -2,9 +2,9 @@ const fs=require('fs');
 const vm=require('vm');
 const assert=require('assert/strict');
 const root=__dirname+'/..';
-const scope={TextEncoder,document:{getElementById:()=>null,querySelector:()=>null}};
+const scope={TextEncoder,atob,document:{getElementById:()=>null,querySelector:()=>null}};
 vm.createContext(scope);
-vm.runInContext(fs.readFileSync(root+'/runtime/crt-motion.js','utf8')+'\n'+fs.readFileSync(root+'/src/timeline.js','utf8')+'\n'+fs.readFileSync(root+'/runtime/studio-output-host.js','utf8'),scope);
+vm.runInContext(fs.readFileSync(root+'/runtime/studio-font-data.mjs','utf8').replace(/^export /gm,'')+'\n'+fs.readFileSync(root+'/runtime/crt-motion.js','utf8')+'\n'+fs.readFileSync(root+'/src/timeline.js','utf8')+'\n'+fs.readFileSync(root+'/runtime/studio-output-host.js','utf8'),scope);
 const run=source=>vm.runInContext(source,scope);
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 for(const duration of [0,1,4.5,8,30]){
@@ -78,7 +78,7 @@ const prefix=fs.readFileSync(root+'/src/studio-text.js','utf8')+'\n'+logic.slice
 const outputLogic=fs.readFileSync(root+'/src/studio-output.js','utf8'),payloadStart=outputLogic.indexOf('function htmlPayload('),payloadEnd=outputLogic.indexOf('\n  async function exportDesign',payloadStart);
 assert.ok(payloadStart>=0&&payloadEnd>payloadStart,'production output-payload function exists');
 function editorFixture(widgetState,globals={},reducedMotion=false){
-  const app={...globals,document:{getElementById:()=>({})},matchMedia:()=>({matches:reducedMotion}),window:{openai:{widgetState}}};
+  const app={...globals,studioFonts:{list:()=>[]},document:{getElementById:()=>({})},matchMedia:()=>({matches:reducedMotion}),window:{openai:{widgetState}}};
   vm.createContext(app);vm.runInContext(prefix,app);return app;
 }
 const editor=editorFixture();

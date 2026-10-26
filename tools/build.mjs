@@ -22,7 +22,8 @@ script = replaceRequired(script, '/* MOTION_FUNCTIONS */', await read('src', 'mo
 script = replaceRequired(script, '/* TIMELINE_FUNCTIONS */', `${await read('runtime', 'crt-motion.js')}\n${await read('src', 'timeline.js')}`);
 script = replaceRequired(script, '/* INFORMATION_MOTION */', await read('src', 'information-motion.js'));
 script = replaceRequired(script, '/* VARIANT_CODEC */', await read('src', 'variant-codec.js'));
-script = replaceRequired(script, '/* STUDIO_TEXT */', await read('src', 'studio-text.js'));
+const fontData=(await read('runtime','studio-font-data.mjs')).replace(/^export /gm,'');
+script = replaceRequired(script, '/* STUDIO_TEXT */', `${fontData}\n${await read('src','studio-fonts.js')}\n${await read('src', 'studio-text.js')}`);
 script = replaceRequired(script, '/* STUDIO_WORKSPACE */', `${await read('src', 'studio-editor-core.js')}\n${await read('src', 'studio-editor-key.js')}\n${await read('src', 'studio-editor-transform.js')}\n${await read('src', 'studio-editor.js')}\n${await read('src', 'studio-workspace.js')}`);
 script = replaceRequired(script, '/* STUDIO_NARRATIVE */', `${await read('src', 'story-intro.js')}\n${await read('src', 'studio-post.js')}\n${await read('src', 'studio-narrative.js')}`);
 script = replaceRequired(script, '/* STUDIO_OUTPUT */', `${await read('src', 'export-layout.js')}\n${await read('src', 'ae-canvas-recorder.js')}\n${await read('src', 'ae-geometry-motion.js')}\n${await read('src', 'ae-export.js')}\n${await read('src', 'studio-output.js')}`);
@@ -37,7 +38,8 @@ fragment = replaceRequired(fragment, '/* STUDIO_OUTPUT_STYLES */', `${await read
 fragment = replaceRequired(fragment, '/* STUDIO_NARRATIVE_STYLES */', `${await read('src', 'studio-narrative.css')}\n${await read('src', 'story-intro.css')}\n${await read('src', 'studio-post.css')}\n${await read('src', 'studio-text.css')}`);
 fragment = replaceRequired(fragment, '<!-- DUAL_LANGUAGE_MARKUP -->', await read('src', 'dual-language-markup.html'));
 const fontLicense = (await read('assets/fonts', 'chill-round-OFL.txt')).replace(/[ \t]+$/gm, '');
-let fontCss = `${await read('assets/fonts', 'fonts.css')}\n/* ${fontLicense} */\n${await read('assets/fonts', 'rounded-cn.css')}`;
+const cnLicenses=await Promise.all(['zcoolxiaowei','zcoolkuaile','mashanzheng'].map(name=>read('assets/fonts',name+'-OFL.txt')));
+let fontCss = `${await read('assets/fonts', 'fonts.css')}\n/* ${fontLicense} */\n${await read('assets/fonts', 'rounded-cn.css')}\n${cnLicenses.map(text=>'/* '+text.replace(/[ \t]+$/gm,'')+' */').join('\n')}\n${await read('assets/fonts','chinese.css')}`;
 fontCss = await (async () => {
   const paths = [...new Set([...fontCss.matchAll(/url\(['"]?([^)'"\s]+)['"]?\)/g)].map(match => match[1]))];
   for (const file of paths) {
@@ -76,7 +78,7 @@ exportPackages = replaceRequired(exportPackages, '__STUDIO_AE_TEMPLATE__', JSON.
 exportPackages = replaceRequired(exportPackages, '__STUDIO_ASSET_NOTICES__', JSON.stringify(notices));
 exportPackages = replaceRequired(exportPackages, '__STUDIO_OBS_LAYER_SERVER__', JSON.stringify(await read('runtime', 'obs-layer-server.mjs')));
 exportPackages = replaceRequired(exportPackages, '__STUDIO_OBS_LAYER_CONTROL__', JSON.stringify(await read('runtime', 'obs-layer-control.html')));
-const outputHost = inlineScript(`${await read('runtime', 'export-zip.js')}\n${exportPackages}\n${await read('runtime', 'obs-layer-host.js')}\n${await read('runtime', 'studio-output-host.js')}\n${await read('runtime', 'editor-host.js')}`);
+const outputHost = inlineScript(`${fontData}\n${await read('runtime','studio-font-library-host.js')}\n${await read('runtime', 'export-zip.js')}\n${exportPackages}\n${await read('runtime', 'obs-layer-host.js')}\n${await read('runtime', 'studio-output-host.js')}\n${await read('runtime', 'editor-host.js')}`);
 // The original sandbox and CSP policies are retained. The generated page embeds
 // all required scripts, styles, icons and bundled fonts, so they need no connection.
 const sources = 'blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com';
